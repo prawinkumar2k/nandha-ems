@@ -1,0 +1,10 @@
+node_modules
+.env
+dist
+build
+.gemini
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+.DS_Store
+*.log
