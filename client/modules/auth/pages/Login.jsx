@@ -51,13 +51,13 @@ export default function Login() {
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           
           <div className="mb-10 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-blue-600 shadow-xl shadow-primary/20 mb-6 animate-glow">
-              <BookOpen className="w-8 h-8 text-white" />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-transparent mb-6 animate-glow">
+              <img src="/logo.png" alt="NEClms Logo" className="w-full h-full object-contain" />
             </div>
             <h1 className="text-3xl font-black tracking-tight text-foreground mb-2 flex items-center justify-center gap-2">
-              NEC Nexus <Sparkles className="w-5 h-5 text-accent animate-pulse" />
+              NEClms <Sparkles className="w-5 h-5 text-accent animate-pulse" />
             </h1>
-            <p className="text-muted-foreground font-medium uppercase tracking-[0.2em] text-[10px]">AI & DS Main Panel</p>
+            <p className="text-muted-foreground font-medium uppercase tracking-[0.2em] text-[10px]">Enterprise Campus Platform</p>
           </div>
 
           {resetOk && <Alert variant="success" title="Success" message="Password updated!" className="mb-6 rounded-2xl" />}

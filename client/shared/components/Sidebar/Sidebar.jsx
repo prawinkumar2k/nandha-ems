@@ -104,15 +104,15 @@ export function Sidebar({ items = [], isOpen, onClose }) {
     )}>
       {/* Brand */}
       <div className="h-16 flex items-center gap-3 px-4 border-b border-white/5 shrink-0">
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shrink-0 shadow-lg shadow-primary/20 animate-glow">
-          <BookOpen className="w-5 h-5 text-primary-foreground" />
+        <div className="w-10 h-10 rounded-2xl bg-transparent flex items-center justify-center shrink-0 animate-glow">
+          <img src="/logo.png" alt="NEClms" className="w-full h-full object-contain" />
         </div>
         {isOpen && (
           <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
             <p className="font-black text-sidebar-foreground text-base tracking-tight flex items-center gap-1.5">
-              NEC Nexus <Sparkles className="w-3.5 h-3.5 text-accent" />
+              NEClms <Sparkles className="w-3.5 h-3.5 text-accent" />
             </p>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-primary">AI & DS Department</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Enterprise Campus</p>
           </motion.div>
         )}
       </div>
