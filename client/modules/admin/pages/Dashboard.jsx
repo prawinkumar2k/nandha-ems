@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ROUTES } from "@/core/constants/routes";
-import { reportService, deviceService, labService } from "@/core/api/services";
+import { reportService, deviceService, labService, logService } from "@/core/api/services";
 import { useSocket } from "@/contexts/SocketContext";
 import {
   Monitor, BookOpen, BarChart3, Shield,
@@ -39,6 +39,23 @@ export default function AdminDashboard() {
     queryKey: ["admin-devices"],
     queryFn: () => deviceService.getAll(),
   });
+
+  // Fetch initial telemetry logs
+  useEffect(() => {
+    const fetchInitialLogs = async () => {
+      try {
+        const [activityRes, violationRes] = await Promise.all([
+          logService.getActivityLogs({ limit: 20 }),
+          logService.getViolations({ limit: 10 })
+        ]);
+        if (Array.isArray(activityRes)) setLiveActivities(activityRes.slice(0, 20));
+        if (Array.isArray(violationRes)) setLiveViolations(violationRes.slice(0, 10));
+      } catch (err) {
+        console.error("Failed to load initial logs", err);
+      }
+    };
+    fetchInitialLogs();
+  }, []);
 
   // 2. Socket Listeners (Throttled & Optimized)
   useEffect(() => {

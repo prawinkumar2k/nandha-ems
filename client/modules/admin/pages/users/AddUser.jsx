@@ -44,7 +44,7 @@ export default function AddUser() {
     : [];
 
   const { values, errors, touched, isSubmitting, handleChange, handleBlur, handleSubmit, setValue } =
-    useForm({ name: "", email: "", role: "student", department: "" }, validateUserForm);
+    useForm({ name: "", email: "", role: "student", department: "", rollNumber: "", employeeId: "" }, validateUserForm);
 
   const onSubmit = handleSubmit(async (vals) => {
     try {
@@ -107,6 +107,20 @@ export default function AddUser() {
                       className="rounded-2xl border-white/10 bg-white/5"
                       value={values.department} onChange={(v) => setValue("department", v)} error={errors.department} touched={touched.department} />
                   </div>
+                  {(values.role === 'student' || values.role === 'client') && (
+                    <div className="space-y-2">
+                      <FormField id="rollNumber" name="rollNumber" label="Register No (Student/Client)" placeholder="e.g. 21BCE001"
+                        className="rounded-2xl border-white/10 bg-white/5"
+                        value={values.rollNumber} onChange={handleChange} onBlur={handleBlur} />
+                    </div>
+                  )}
+                  {['faculty', 'hod', 'admin'].includes(values.role) && (
+                    <div className="space-y-2">
+                      <FormField id="employeeId" name="employeeId" label="Employee ID (Staff)" placeholder="e.g. FAC001"
+                        className="rounded-2xl border-white/10 bg-white/5"
+                        value={values.employeeId} onChange={handleChange} onBlur={handleBlur} />
+                    </div>
+                  )}
                 </div>
 
                 <div className="p-6 rounded-[24px] bg-primary/5 border border-primary/10 relative overflow-hidden group">

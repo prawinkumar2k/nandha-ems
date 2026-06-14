@@ -38,6 +38,17 @@ export const handleCreateQuestion = async (req, res) => {
     }
 
     const QuestionBank = mongoose.model("QuestionBank");
+    
+    // Check for duplicates
+    const existingQuestion = await QuestionBank.findOne({ 
+        questionText: new RegExp(`^${questionText}$`, "i"),
+        course: mongoose.Types.ObjectId.isValid(courseId) ? courseId : null,
+        department: departmentId
+    });
+    if (existingQuestion) {
+        return res.status(400).json({ message: "A question with this exact text already exists in this course's bank." });
+    }
+
     const doc = {
         questionText,
         type: (type || "mcq").toLowerCase(),

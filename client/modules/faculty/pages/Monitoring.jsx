@@ -67,7 +67,7 @@ export function Monitoring() {
                     </div>
                     <div className="flex items-center gap-3">
                        <Badge className={cn(
-                         "text-[8px] font-black uppercase px-2 py-0.5 rounded-lg border-none shadow-sm",
+                         "text-[8px] font-black uppercase px-2 py-0.5 rounded-lg border-none shadow-sm whitespace-nowrap",
                          e.status === 'active' ? "bg-emerald-500 text-white animate-pulse" : 
                          e.status === 'scheduled' ? "bg-amber-500 text-white" : "bg-white/10 text-white/40"
                        )}>

@@ -35,6 +35,7 @@ export default function LiveMonitoring() {
   const navigate = useNavigate();
   const examId = searchParams.get("examId");
   const [viewing, setViewing] = useState(null);
+  const apiClient = { post: (url) => fetch(`${import.meta.env.VITE_API_URL}${url}`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` } }).then(r => r.json()) };
 
   const { data: submissions, isLoading, refetch } = useQuery({
     queryKey: ["live-submissions", examId],
@@ -58,7 +59,7 @@ export default function LiveMonitoring() {
     )},
     { key: "pc", header: "PC Name", render: (r) => (
       <span className="text-[10px] font-black uppercase tracking-widest bg-white/5 px-3 py-1.5 rounded-xl border border-white/5 shadow-inner">
-        {r.device?.hostname || "REMOTE"}
+        {r.device?.deviceId || r.device?.hostname || "REMOTE"}
       </span>
     )},
     { key: "status", header: "Status", render: (r) => (
@@ -252,7 +253,15 @@ export default function LiveMonitoring() {
 
                   <div className="p-8 border-t border-white/5 bg-black/20 flex gap-4">
                      <Button variant="outline" className="flex-1 rounded-2xl h-14 border-white/5 bg-white/5 font-black uppercase tracking-widest text-[10px]" onClick={() => setViewing(null)}>Close</Button>
-                     <Button className="flex-1 rounded-2xl h-14 shadow-2xl shadow-rose-500/20 bg-rose-500 hover:bg-rose-600 font-black uppercase tracking-widest text-[10px]">End Test</Button>
+                     <Button className="flex-1 rounded-2xl h-14 shadow-2xl shadow-rose-500/20 bg-rose-500 hover:bg-rose-600 font-black uppercase tracking-widest text-[10px]" onClick={async () => {
+                       try {
+                         await apiClient.post(`/api/submissions/${viewing._id}/force-submit`);
+                         refetch();
+                         setViewing(null);
+                       } catch (err) {
+                         console.error("Failed to end test", err);
+                       }
+                     }}>End Test</Button>
                   </div>
                </motion.div>
             </div>

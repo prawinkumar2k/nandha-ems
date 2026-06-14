@@ -36,16 +36,16 @@ export default function Violations() {
   const safeViolations = Array.isArray(violations) ? violations : [];
 
   const cols = [
-    { key: "student", header: "Student", sortable: true, render: (r) => (
-      <div className="flex flex-col">
-        <span className="font-bold tracking-tight text-foreground">{r.student?.name || "No Name"}</span>
-        <span className="text-[9px] font-black uppercase text-muted-foreground/40 tracking-[0.2em]">{r.student?.rollNumber}</span>
+    { key: "student", header: <span className="whitespace-nowrap">Student</span>, sortable: true, render: (r) => (
+      <div className="flex flex-col whitespace-nowrap">
+        <span className="font-bold tracking-tight text-foreground whitespace-nowrap">{r.student?.name || "No Name"}</span>
+        <span className="text-[9px] font-black uppercase text-muted-foreground/40 tracking-[0.2em] whitespace-nowrap">{r.student?.rollNumber}</span>
       </div>
     )},
-    { key: "exam", header: "Test Name", render: (r) => (
-      <span className="text-xs font-bold text-primary italic">{r.exam?.title || "Test"}</span>
+    { key: "exam", header: <span className="whitespace-nowrap">Test Name</span>, render: (r) => (
+      <span className="text-xs font-bold text-primary italic whitespace-nowrap">{r.exam?.title || "Test"}</span>
     )},
-    { key: "violation", header: "Broken Rule", render: (r) => {
+    { key: "violation", header: <span className="whitespace-nowrap">Broken Rule</span>, render: (r) => {
       const firstV = r.violations?.[0]?.type || "not_allowed";
       const displayMap = {
         tab_switch: "switched tab",
@@ -56,28 +56,28 @@ export default function Violations() {
         window_blur: "minimized window"
       };
       return (
-        <span className={cn("px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border", VIOLATION_STYLE[firstV] || "bg-white/5 text-muted-foreground border-white/10")}>
+        <span className={cn("px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border whitespace-nowrap", VIOLATION_STYLE[firstV] || "bg-white/5 text-muted-foreground border-white/10")}>
           {displayMap[firstV] || firstV.replaceAll("_", " ")}
         </span>
       );
     }},
-    { key: "count", header: "How Many", sortable: true, render: (r) => (
-      <span className={cn("font-black text-xs", r.totalViolations > 3 ? "text-rose-500" : "text-amber-500")}>
+    { key: "count", header: <span className="whitespace-nowrap">How Many</span>, sortable: true, render: (r) => (
+      <span className={cn("font-black text-xs whitespace-nowrap", r.totalViolations > 3 ? "text-rose-500" : "text-amber-500")}>
         {r.totalViolations || 0}
       </span>
     )},
-    { key: "status", header: "Alert State", render: (r) => (
-      <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", r.totalViolations > 3 ? "text-rose-500 animate-pulse" : "text-amber-500")}>
+    { key: "status", header: <span className="whitespace-nowrap">Alert State</span>, render: (r) => (
+      <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap", r.totalViolations > 3 ? "text-rose-500 animate-pulse" : "text-amber-500")}>
         {r.totalViolations > 3 ? "Serious" : "Warning"}
       </span>
     )},
-    { key: "time", header: "Final Check", sortable: true, render: (r) => (
-      <span className="text-[10px] font-medium text-muted-foreground/50 font-mono tracking-tighter">
+    { key: "time", header: <span className="whitespace-nowrap">Final Check</span>, sortable: true, render: (r) => (
+      <span className="text-[10px] font-medium text-muted-foreground/50 font-mono tracking-tighter whitespace-nowrap">
         {formatDateTime(r.updatedAt || r.time)}
       </span>
     )},
     { key: "actions", header: "", render: (r) => (
-      <div className="flex justify-end">
+      <div className="flex justify-end whitespace-nowrap">
         <Button variant="ghost" size="sm" className="h-9 w-9 p-0 rounded-xl hover:bg-primary/10 hover:text-primary transition-all" onClick={() => setViewing(r)}>
           <Eye className="w-4 h-4" />
         </Button>
@@ -97,7 +97,17 @@ export default function Violations() {
               </h2>
               <p className="text-[10px] text-primary font-black uppercase tracking-[0.4em]">List of test rules broken</p>
            </div>
-           <Button variant="outline" className="rounded-2xl h-12 px-8 border-white/5 bg-white/5 hover:bg-white/10 font-black text-[10px] uppercase tracking-[0.3em] shadow-xl backdrop-blur-xl" onClick={() => downloadCSV(safeViolations, "violations.csv")}>
+           <Button variant="outline" className="rounded-2xl h-12 px-8 border-white/5 bg-white/5 hover:bg-white/10 font-black text-[10px] uppercase tracking-[0.3em] shadow-xl backdrop-blur-xl" onClick={() => {
+              const flatData = safeViolations.map(v => ({
+                 Student_Name: v.student?.name || "Unknown",
+                 Student_ID: v.student?.rollNumber || "",
+                 Test_Name: v.exam?.title || "Unknown Test",
+                 Total_Violations: v.totalViolations || 0,
+                 State: v.totalViolations > 3 ? "SERIOUS" : "WARNING",
+                 Last_Update: formatDateTime(v.updatedAt || v.time)
+              }));
+              downloadCSV(flatData, "system_test_alerts.csv");
+           }}>
               <Download className="w-4 h-4 mr-3" /> Save To File
            </Button>
         </div>
@@ -181,7 +191,7 @@ export default function Violations() {
                            <span className="text-[9px] font-black tracking-widest text-primary/40 uppercase mb-1">PC Name</span>
                            <div className="flex items-center gap-3">
                               <Monitor className="w-4 h-4 text-emerald-500" />
-                              <span className="text-sm font-bold">{viewing.device?.hostname || "Remote Link"}</span>
+                              <span className="text-sm font-bold">{viewing.device?.deviceId || viewing.device?.hostname || "Remote Link"}</span>
                            </div>
                         </div>
                      </div>

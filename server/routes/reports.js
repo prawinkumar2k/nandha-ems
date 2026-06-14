@@ -46,33 +46,61 @@ export const handleGetFacultyStats = async (req, res) => {
 
     const facultyId = req.user.id || req.user._id;
 
-    const [courses, pendingExams, studentCount, attendanceData] = await Promise.all([
+    const [courses, allExams, pendingExams, studentCountResult] = await Promise.all([
       Course.find({ faculty: facultyId }).lean(),
+      Exam.find({ faculty: facultyId }).lean(),
       Exam.countDocuments({ faculty: facultyId, status: "scheduled" }),
-
       Course.aggregate([
         { $match: { faculty: new mongoose.Types.ObjectId(facultyId) } },
         { $project: { count: { $size: { $ifNull: ["$enrolledStudents", []] } } } },
         { $group: { _id: null, total: { $sum: "$count" } } }
-      ]),
-      Submission.aggregate([
-        { $match: { exam: { $in: await Exam.find({ faculty: facultyId }).distinct('_id') }, status: "submitted" } },
-        { $group: { _id: null, avgScore: { $avg: "$percentage" } } }
-      ]).allowDiskUse(true)
+      ])
     ]);
+
+    const completedExams = allExams.filter(e => e.status === "completed");
+    const completedExamIds = completedExams.map(e => e._id);
+
+    const submissionsCount = await Submission.countDocuments({
+      exam: { $in: completedExamIds },
+      status: { $in: ["submitted", "auto_submitted"] }
+    });
+
+    // Calculate attendance
+    let expectedSubmissions = 0;
+    completedExams.forEach(e => {
+       const allowed = e.allowedStudents?.length || 0;
+       if (allowed > 0) {
+           expectedSubmissions += allowed;
+       } else {
+           const c = courses.find(course => course._id.toString() === e.course?.toString());
+           expectedSubmissions += c?.enrolledStudents?.length || 0;
+       }
+    });
+
+    let avgAttendance = "N/A";
+    if (expectedSubmissions > 0) {
+       avgAttendance = `${Math.min(100, Math.round((submissionsCount / expectedSubmissions) * 100))}%`;
+    } else if (completedExams.length > 0 && submissionsCount > 0) {
+       avgAttendance = "100%";
+    }
 
     res.json({
       courseCount: courses.length,
-      studentCount: studentCount[0]?.total || 0,
+      studentCount: studentCountResult[0]?.total || 0,
       pendingExams,
-      avgAttendance: attendanceData[0]?.avgScore ? `${Math.round(attendanceData[0].avgScore)}%` : "N/A",
-      courses: courses.map(c => ({
-        id: c._id,
-        name: c.title,
-        code: c.code,
-        students: c.enrolledStudents?.length || 0,
-        progress: 100 
-      }))
+      avgAttendance,
+      courses: courses.map(c => {
+        const courseExams = allExams.filter(e => e.course?.toString() === c._id.toString());
+        const completed = courseExams.filter(e => e.status === "completed").length;
+        const progress = courseExams.length > 0 ? Math.round((completed / courseExams.length) * 100) : 0;
+        return {
+          id: c._id,
+          name: c.title,
+          code: c.code,
+          students: c.enrolledStudents?.length || 0,
+          progress
+        };
+      })
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -176,7 +204,10 @@ export const handleGetFacultyResults = async (req, res) => {
       grade: s.grade,
       status: s.status === "submitted" || s.status === "auto_submitted" ? "passed" : "in_progress",
       violations: s.totalViolations,
-      submittedAt: s.submittedAt
+      submittedAt: s.submittedAt,
+      revaluationRequested: s.revaluationRequested || false,
+      revaluationStatus: s.revaluationStatus || "none",
+      revaluationReason: s.revaluationReason || ""
     }));
 
     res.json(results);
@@ -245,7 +276,9 @@ export const handleGetStudentResults = async (req, res) => {
       date: s.submittedAt || s.updatedAt,
       progress: s.percentage || 0,
       grade: s.grade || (s.percentage >= 90 ? "A+" : s.percentage >= 80 ? "A" : s.percentage >= 70 ? "B" : "C"),
-      status: s.status === "submitted" ? "verified" : "pending"
+      status: s.status === "submitted" || s.status === "auto_submitted" ? "verified" : "pending",
+      revaluationRequested: s.revaluationRequested || false,
+      revaluationStatus: s.revaluationStatus || "none"
     }));
 
     res.json({ courses });

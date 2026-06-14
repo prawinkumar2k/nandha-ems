@@ -8,15 +8,18 @@ import { ROUTES } from "@/core/constants/routes";
 import { getFacultyNav } from "@/core/constants/navigation";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Download, Eye, BarChart3, Search, Play } from "lucide-react";
+import { FileText, Download, Eye, BarChart3, Search, Play, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { Modal } from "@/shared/components/Modal/Modal";
 
 const NAV = getFacultyNav();
 
 export default function FacultyResults() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [revalModalOpen, setRevalModalOpen] = useState(false);
+  const [selectedAppeal, setSelectedAppeal] = useState(null);
 
   const { data: results, isLoading } = useQuery({
     queryKey: ["faculty-results"],
@@ -97,9 +100,26 @@ export default function FacultyResults() {
                          <Badge className={`rounded-full px-4 py-1.5 text-[9px] font-black uppercase tracking-widest border-none ${r.status === 'passed' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-muted text-muted-foreground'}`}>
                            {r.status}
                          </Badge>
+                         {r.revaluationRequested && r.revaluationStatus === 'pending' && (
+                           <div className="mt-2">
+                             <Badge className="rounded-full px-2 py-1 text-[9px] font-black uppercase tracking-widest border-none bg-amber-500/10 text-amber-500">
+                               Appeal Pending
+                             </Badge>
+                           </div>
+                         )}
                       </TableCell>
                       <TableCell className="pr-10 text-right">
                         <div className="flex justify-end gap-2">
+                          {r.revaluationRequested && r.revaluationStatus === 'pending' && (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="h-10 px-4 rounded-xl border-amber-500/30 text-amber-500 bg-amber-500/5 hover:bg-amber-500/20 font-black uppercase tracking-widest text-[9px]"
+                              onClick={() => { setSelectedAppeal(r); setRevalModalOpen(true); }}
+                            >
+                              <AlertCircle className="w-3.5 h-3.5 mr-2" /> View Appeal
+                            </Button>
+                          )}
                           <Button 
                             variant="outline" 
                             size="sm" 
@@ -112,7 +132,7 @@ export default function FacultyResults() {
                             variant="ghost" 
                             size="sm" 
                             className="w-10 h-10 rounded-xl hover:bg-primary/10 hover:text-primary transition-all"
-                            onClick={() => navigate(`/faculty/results/${r.id}`)}
+                            onClick={() => navigate(ROUTES.FACULTY_ANSWER_CENTER.replace(":submissionId", r.id))}
                           >
                             <Eye className="w-4 h-4" />
                           </Button>
@@ -130,6 +150,31 @@ export default function FacultyResults() {
           </CardContent>
         </Card>
       </div>
+      <Modal open={revalModalOpen} onOpenChange={setRevalModalOpen} title="Student Appeal Details">
+        {selectedAppeal && (
+          <div className="space-y-6">
+            <div className="p-4 bg-white/5 border border-white/5 rounded-2xl">
+              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Student</p>
+              <p className="text-sm font-bold">{selectedAppeal.student} ({selectedAppeal.roll})</p>
+            </div>
+            <div className="p-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl">
+              <p className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-2 flex items-center gap-2">
+                <AlertCircle className="w-3.5 h-3.5" /> Appeal Reason
+              </p>
+              <p className="text-sm text-foreground/80 whitespace-pre-wrap">{selectedAppeal.revaluationReason}</p>
+            </div>
+            <div className="flex justify-end gap-2 pt-4 border-t border-white/5">
+              <Button variant="ghost" onClick={() => setRevalModalOpen(false)}>Close</Button>
+              <Button 
+                onClick={() => navigate(ROUTES.FACULTY_ANSWER_CENTER.replace(":submissionId", selectedAppeal.id))}
+                className="bg-amber-500 hover:bg-amber-600 text-black font-bold"
+              >
+                Go to Answer Center to Regrade
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </MainLayout>
   );
 }

@@ -37,7 +37,7 @@ export default function SecurityPolicies() {
   const mutation = useMutation({
     mutationFn: (data) => settingService.update({ security: data }),
     onSuccess: () => {
-      queryClient.invalidateQueries(["system-settings"]);
+      queryClient.invalidateQueries({ queryKey: ["system-settings"] });
       toast({ title: "Rules Saved", description: "All security rules have been saved." });
     },
     onError: (err) => {

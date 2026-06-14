@@ -15,6 +15,11 @@ import { cn } from "@/core/utils/helpers";
 
 const NAV = getFacultyNav();
 
+const getImageSrc = (url) => {
+  if (!url) return "";
+  return url.startsWith("/api") ? `${url}?token=${sessionStorage.getItem("authToken")}` : url;
+};
+
 export default function EvidenceVault() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
@@ -92,7 +97,7 @@ export default function EvidenceVault() {
                  >
                     <div className="aspect-[16/9] relative overflow-hidden bg-black/40">
                        <img 
-                          src={session.thumbnail} 
+                          src={getImageSrc(session.thumbnail)} 
                           className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700 opacity-60 group-hover:opacity-100" 
                           alt="Session" 
                        />

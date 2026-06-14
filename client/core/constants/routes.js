@@ -15,7 +15,11 @@ export const ROUTES = {
   ADMIN_USERS_BULK: "/admin/users/bulk",
   ADMIN_DEVICES: "/admin/devices",
   ADMIN_DEVICES_REGISTER: "/admin/devices/register",
+  ADMIN_DEVICES_PENDING: "/admin/devices/pending",
+  ADMIN_DEVICES_DETAILS: "/admin/devices/:id",
   ADMIN_LAB: "/admin/lab",
+  ADMIN_LABS: "/admin/labs",
+  ADMIN_DEVICE_MONITOR: "/admin/device-monitor",
   ADMIN_EXAMS: "/admin/exams",
   ADMIN_MONITORING: "/admin/monitoring",
   ADMIN_REPORTS: "/admin/reports",
@@ -23,6 +27,7 @@ export const ROUTES = {
   ADMIN_LOGS_ACTIVITY: "/admin/logs/activity",
   ADMIN_ACTIVITY_LOGS: "/admin/activity-logs",
   ADMIN_VIOLATIONS: "/admin/logs/violations",
+  ADMIN_SECURITY_EVENTS: "/admin/security-events",
   ADMIN_SETTINGS: "/admin/settings",
   ADMIN_SECURITY: "/admin/settings/security",
 
@@ -46,6 +51,7 @@ export const ROUTES = {
   FACULTY_VIOLATIONS: "/faculty/violations",
   FACULTY_EVIDENCE_VAULT: "/faculty/evidence-vault",
   FACULTY_EVIDENCE: "/faculty/evidence/:examId/:studentId",
+  FACULTY_HALL_TICKETS: "/faculty/hall-tickets/:examId",
 
   // ─── Student ──────────────────────────────────────────────────────────────
   STUDENT: "/student",

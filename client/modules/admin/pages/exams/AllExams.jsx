@@ -27,31 +27,31 @@ export default function AllExams() {
   });
 
   const cols = [
-    { key: "title", header: "Test Name", sortable: true, render: (r) => (
-      <p className="font-bold tracking-tight text-foreground">{r.title}</p>
+    { key: "title", header: <span className="whitespace-nowrap">Test Name</span>, sortable: true, render: (r) => (
+      <p className="font-bold tracking-tight text-foreground whitespace-nowrap">{r.title}</p>
     )},
     { key: "course", header: "Subject", render: (r) => (
-      <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">{r.course?.code || "N/A"}</span>
+      <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 whitespace-nowrap">{r.course?.code || "N/A"}</span>
     )},
     { key: "department", header: "Dept", sortable: true, render: (r) => (
-      <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">{r.department?.code || "N/A"}</span>
+      <span className="text-[10px] font-black uppercase tracking-widest text-primary/60 whitespace-nowrap">{r.department?.code || "N/A"}</span>
     )},
     { key: "faculty", header: "Staff", render: (r) => (
-      <p className="text-xs font-medium">{r.faculty?.name || "System"}</p>
+      <p className="text-xs font-medium whitespace-nowrap">{r.faculty?.name || "System"}</p>
     )},
     { key: "duration", header: "Time", render: (r) => (
-       <div className="flex items-center gap-2 text-xs font-bold">
+       <div className="flex items-center gap-2 text-xs font-bold whitespace-nowrap">
           <Clock className="w-3 h-3 opacity-40" /> {r.duration} min
        </div>
     )},
-    { key: "questions", header: "Questions", render: (r) => (
+    { key: "questions", header: "Qns", render: (r) => (
        <span className="font-mono text-xs font-bold">{r.questions?.length || 0}</span>
     )},
     { key: "scheduled", header: "Date", sortable: true, render: (r) => (
-       <p className="text-xs font-medium text-muted-foreground/80">{formatDate(r.scheduledAt)}</p>
+       <p className="text-xs font-medium text-muted-foreground/80 whitespace-nowrap">{formatDate(r.scheduledAt)}</p>
     )},
     { key: "status", header: "Status", render: (r) => (
-      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${STATUS_STYLE[r.status] || STATUS_STYLE.upcoming}`}>
+      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap border ${STATUS_STYLE[r.status] || STATUS_STYLE.upcoming}`}>
         {r.status}
       </span>
     )},

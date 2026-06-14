@@ -12,10 +12,10 @@ import { getAdminNav } from "@/core/constants/navigation";
 
 const NAV = getAdminNav();
 
-const SAMPLE_DATA = `name,email,role,department
-Alice Johnson,alice@example.com,student,CSE
-Bob Smith,bob@example.com,faculty,ECE
-Carol White,carol@example.com,student,ME`;
+const SAMPLE_DATA = `name,email,role,department,rollNumber,employeeId
+Alice Johnson,alice@example.com,student,CSE,21BCE001,
+Bob Smith,bob@example.com,faculty,ECE,,FAC001
+Carol White,carol@example.com,student,ME,21BCE002,`;
 
 export default function BulkUpload() {
   const [file, setFile] = useState(null);
@@ -107,7 +107,7 @@ export default function BulkUpload() {
               ) : (
                 <div className="text-center">
                   <p className="font-medium text-sm"><span className="text-primary">Click to upload</span> or drag & drop</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Excel files only</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">CSV files only</p>
                 </div>
               )}
             </label>
@@ -123,7 +123,9 @@ export default function BulkUpload() {
                         name: "Name",
                         email: "Email",
                         role: "Work Role",
-                        department: "Department"
+                        department: "Department",
+                        rollNumber: "Register No",
+                        employeeId: "Employee ID"
                       }[k] || k}</th>)}</tr>
                     </thead>
                     <tbody className="divide-y divide-border">

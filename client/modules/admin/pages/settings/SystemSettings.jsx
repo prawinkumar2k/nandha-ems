@@ -26,7 +26,7 @@ export default function SystemSettings() {
   const mutation = useMutation({
     mutationFn: (data) => settingService.update(data),
     onSuccess: () => {
-      queryClient.invalidateQueries(["system-settings"]);
+      queryClient.invalidateQueries({ queryKey: ["system-settings"] });
       toast({ title: "Settings Saved", description: "All system rules have been updated." });
     },
     onError: (err) => {
@@ -90,15 +90,15 @@ export default function SystemSettings() {
                <CardContent className="p-10 grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-2">
                      <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">College Name</Label>
-                     <Input id="institutionName" value={form.institutionName || ""} onChange={handleChange} className="rounded-2xl h-12 border-white/5 bg-black/20 font-bold" />
+                     <Input id="institutionName" value={form.institutionName || ""} onChange={handleChange} className="rounded-2xl h-12 border-white/5 bg-black/20 font-bold text-ellipsis" />
                   </div>
                   <div className="space-y-2">
                      <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Contact Email</Label>
-                     <Input id="institutionEmail" value={form.institutionEmail || ""} onChange={handleChange} className="rounded-2xl h-12 border-white/5 bg-black/20 font-bold" />
+                     <Input id="institutionEmail" value={form.institutionEmail || ""} onChange={handleChange} className="rounded-2xl h-12 border-white/5 bg-black/20 font-bold text-ellipsis" />
                   </div>
                   <div className="space-y-2">
                      <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Phone Number</Label>
-                     <Input id="institutionPhone" value={form.institutionPhone || ""} onChange={handleChange} className="rounded-2xl h-12 border-white/5 bg-black/20 font-bold" />
+                     <Input id="institutionPhone" value={form.institutionPhone || ""} onChange={handleChange} className="rounded-2xl h-12 border-white/5 bg-black/20 font-bold text-ellipsis" />
                   </div>
                </CardContent>
             </Card>

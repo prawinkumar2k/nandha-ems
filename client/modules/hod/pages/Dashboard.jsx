@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
@@ -74,7 +74,6 @@ export default function HODDashboard() {
   const hasSystemError = statsError || examsError || facultyError;
 
   // ─── Real-time Listeners ────────────────────────────────────────────────────
-  // ─── Real-time Listeners ────────────────────────────────────────────────────
   useEffect(() => {
     if (!socket) return;
 
@@ -100,7 +99,7 @@ export default function HODDashboard() {
     };
   }, [socket, addNotification]);
 
-  const statItems = React.useMemo(() => [
+  const statItems = useMemo(() => [
     { label: "Total Teachers", value: stats?.facultyCount || 0, icon: <UserCheck />, color: "bg-blue-500/10 text-blue-500" },
     { label: "Total Students", value: stats?.studentCount || 0, icon: <GraduationCap />, color: "bg-emerald-500/10 text-emerald-500" },
     { label: "Active Courses", value: stats?.activeCourses || 0, icon: <BookOpen />, color: "bg-primary/10 text-primary" },

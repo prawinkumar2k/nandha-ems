@@ -10,6 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ROUTES } from "@/core/constants/routes";
 import { apiClient } from "@/core/api/client";
+import { logService } from "@/core/api/services";
 import {
   LayoutDashboard, FileText, HelpCircle, Eye, BarChart3,
   BookOpen, Users, ClipboardList, Plus, UserCheck, Sparkles, ChevronRight,
@@ -45,6 +46,18 @@ export default function FacultyDashboard() {
   const socket = useSocket();
   const [alerts, setAlerts] = useState([]);
   const [selectedAlert, setSelectedAlert] = useState(null);
+
+  useEffect(() => {
+    const fetchInitialAlerts = async () => {
+      try {
+        const res = await logService.getViolations({ limit: 5 });
+        if (Array.isArray(res)) setAlerts(res.slice(0, 5));
+      } catch (err) {
+        console.error("Failed to fetch initial alerts", err);
+      }
+    };
+    fetchInitialAlerts();
+  }, []);
 
   useEffect(() => {
     if (!socket) return;
@@ -140,8 +153,8 @@ export default function FacultyDashboard() {
                             )}
                             <div className="min-w-0 flex-1">
                                <div className="flex items-center gap-2">
-                                  <p className="text-xs font-black tracking-tight truncate">{alert.studentName}</p>
-                                  <span className="text-[9px] font-black text-rose-500/40">{alert.studentRoll}</span>
+                                  <p className="text-xs font-black tracking-tight truncate">{alert.studentName || alert.student?.name || (typeof alert.student === 'string' ? alert.student : "Unknown")}</p>
+                                  <span className="text-[9px] font-black text-rose-500/40">{alert.studentRoll || alert.student?.rollNumber || ""}</span>
                                </div>
                                <p className="text-[9px] font-black uppercase text-rose-500/70 tracking-widest mb-1">{alert.type?.replace('_', ' ')}</p>
                                <div className="flex items-center gap-2 text-[8px] font-bold text-muted-foreground uppercase opacity-40">
@@ -198,6 +211,39 @@ export default function FacultyDashboard() {
                 )}
               </CardContent>
             </Card>
+
+            <Card className="mt-6 rounded-[32px] glass overflow-hidden border-white/5">
+              <CardHeader className="flex flex-row items-center justify-between border-b border-white/5 pb-6">
+                <div>
+                  <CardTitle className="text-xl font-black italic uppercase">Scheduled Exams</CardTitle>
+                  <CardDescription className="text-[10px] font-bold uppercase tracking-widest text-primary">Manage upcoming assessments</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-6 space-y-4">
+                {isLoading ? (
+                  <Skeleton className="h-20 w-full rounded-2xl opacity-10" />
+                ) : dashboard?.pendingExams?.length === 0 ? (
+                  <p className="text-center text-xs font-black uppercase text-muted-foreground/40 italic py-4">No upcoming exams</p>
+                ) : (
+                  dashboard?.pendingExams?.map((e) => (
+                    <div key={e._id} className="p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between group">
+                       <div>
+                         <p className="font-bold text-sm tracking-tight">{e.title}</p>
+                         <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground">{new Date(e.scheduledAt).toLocaleString()}</p>
+                       </div>
+                       <Button 
+                         variant="secondary" 
+                         size="sm" 
+                         className="rounded-xl h-8 font-black text-[9px] uppercase tracking-widest"
+                         onClick={() => navigate(`/faculty/hall-tickets/${e._id}`)}
+                       >
+                         Hall Tickets
+                       </Button>
+                    </div>
+                  ))
+                )}
+              </CardContent>
+            </Card>
           </motion.div>
         </div>
 
@@ -222,8 +268,8 @@ export default function FacultyDashboard() {
                  <div className="grid grid-cols-2 gap-4">
                     <div className="p-5 rounded-2xl bg-white/5 border border-white/5">
                         <p className="text-[10px] font-black uppercase text-primary/40 tracking-widest mb-1">Student</p>
-                        <p className="font-bold tracking-tight">{selectedAlert.studentName}</p>
-                        <p className="text-[9px] font-bold text-muted-foreground/60">{selectedAlert.studentRoll}</p>
+                        <p className="font-bold tracking-tight">{selectedAlert.studentName || selectedAlert.student?.name || (typeof selectedAlert.student === 'string' ? selectedAlert.student : "Unknown")}</p>
+                        <p className="text-[9px] font-bold text-muted-foreground/60">{selectedAlert.studentRoll || selectedAlert.student?.rollNumber || ""}</p>
                     </div>
                     <div className="p-5 rounded-2xl bg-white/5 border border-white/5">
                         <p className="text-[10px] font-black uppercase text-rose-500/40 tracking-widest mb-1">Type</p>

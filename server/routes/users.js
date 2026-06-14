@@ -30,7 +30,7 @@ export const handleGetUsers = async (req, res) => {
 export const handleCreateUser = async (req, res) => {
   try {
     console.log("DEBUG: handleCreateUser body:", req.body);
-    const { name, email, role, department, phone, password } = req.body;
+    const { name, email, role, department, phone, password, rollNumber, employeeId } = req.body;
     
     // Check if exists
     const existing = await User.findOne({ email: email.toLowerCase() });
@@ -42,6 +42,8 @@ export const handleCreateUser = async (req, res) => {
       role: role || "student",
       department: department || null,
       phone: phone || "",
+      rollNumber: rollNumber || "",
+      employeeId: employeeId || "",
       password: password || "password",
       mustChangePassword: true,
       isActive: true,
@@ -109,6 +111,8 @@ export const handleBulkUpload = async (req, res) => {
         email,
         role: u.role || "student",
         department: deptMap[u.department] || null,
+        rollNumber: u.rollNumber || "",
+        employeeId: u.employeeId || "",
         password: "password", // default hashed by model hook usually, but we might need to hash here if create isn't used
         mustChangePassword: true,
         isActive: true,
@@ -135,7 +139,7 @@ export const handleBulkUpload = async (req, res) => {
   }
 };export const handleUpdateUser = async (req, res) => {
   try {
-    const { name, email, role, department, phone, isActive } = req.body;
+    const { name, email, role, department, phone, isActive, rollNumber, employeeId } = req.body;
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -145,6 +149,8 @@ export const handleBulkUpload = async (req, res) => {
     if (department !== undefined) user.department = department;
     if (phone !== undefined) user.phone = phone;
     if (isActive !== undefined) user.isActive = isActive;
+    if (rollNumber !== undefined) user.rollNumber = rollNumber;
+    if (employeeId !== undefined) user.employeeId = employeeId;
 
     await user.save();
     res.json(user);

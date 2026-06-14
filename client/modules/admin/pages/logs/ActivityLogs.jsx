@@ -26,18 +26,18 @@ export default function ActivityLogs() {
   });
 
   const cols = [
-    { key: "user", header: "User", sortable: true, render: (r) => (
-       <div className="flex items-center gap-3">
+    { key: "user", header: <span className="whitespace-nowrap">User</span>, sortable: true, render: (r) => (
+       <div className="flex items-center gap-3 whitespace-nowrap">
           <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/5">
              <User className="w-4 h-4 text-muted-foreground/60" />
           </div>
-          <div>
-             <p className="font-bold tracking-tight text-foreground leading-none">{r.user?.name || "System"}</p>
-             <p className="text-[10px] text-muted-foreground/40 font-black uppercase tracking-widest mt-1">{r.user?.role || "Staff"}</p>
+          <div className="whitespace-nowrap">
+             <p className="font-bold tracking-tight text-foreground leading-none whitespace-nowrap">{r.user?.name || "System"}</p>
+             <p className="text-[10px] text-muted-foreground/40 font-black uppercase tracking-widest mt-1 whitespace-nowrap">{r.user?.role || "Staff"}</p>
           </div>
        </div>
     )},
-    { key: "action", header: "Action", sortable: true, render: (r) => {
+    { key: "action", header: <span className="whitespace-nowrap">Action</span>, sortable: true, render: (r) => {
       const displayMap = {
         exam_started: "test started",
         exam_submitted: "test finished",
@@ -46,26 +46,26 @@ export default function ActivityLogs() {
         system_alert: "system alert"
       };
       return (
-        <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.1em] border ${ACTION_THEMES[r.action] || "bg-white/5 text-muted-foreground border-white/10"}`}>
+        <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.1em] whitespace-nowrap border ${ACTION_THEMES[r.action] || "bg-white/5 text-muted-foreground border-white/10"}`}>
           <Zap className="w-3 h-3" />
           {displayMap[r.action] || r.action?.replaceAll("_", " ")}
         </span>
       );
     }},
-    { key: "resource", header: "Detail", render: (r) => (
-      <div className="flex items-center gap-2">
+    { key: "resource", header: <span className="whitespace-nowrap">Detail</span>, render: (r) => (
+      <div className="flex items-center gap-2 whitespace-nowrap">
          <Box className="w-3 h-3 text-primary/40" />
-         <span className="text-xs font-medium italic text-muted-foreground/80">{r.resource || "General"}</span>
+         <span className="text-xs font-medium italic text-muted-foreground/80 whitespace-nowrap">{r.resource || "General"}</span>
       </div>
     )},
-    { key: "ip", header: "IP Address", render: (r) => (
-      <div className="flex items-center gap-2">
+    { key: "ip", header: <span className="whitespace-nowrap">IP Address</span>, render: (r) => (
+      <div className="flex items-center gap-2 whitespace-nowrap">
          <Globe className="w-3 h-3 text-muted-foreground/40" />
-         <span className="font-mono text-[10px] font-bold text-muted-foreground/60">{r.ipAddress || "::1"}</span>
+         <span className="font-mono text-[10px] font-bold text-muted-foreground/60 whitespace-nowrap">{r.ipAddress || "::1"}</span>
       </div>
     )},
-    { key: "time", header: "Date & Time", sortable: true, render: (r) => (
-       <span className="text-[10px] font-medium text-muted-foreground/40 font-mono tracking-tighter">
+    { key: "time", header: <span className="whitespace-nowrap">Date & Time</span>, sortable: true, render: (r) => (
+       <span className="text-[10px] font-medium text-muted-foreground/40 font-mono tracking-tighter whitespace-nowrap">
           {formatDateTime(r.createdAt || r.time)}
        </span>
     )},
@@ -83,7 +83,17 @@ export default function ActivityLogs() {
                 </h2>
                 <p className="text-[10px] text-primary font-black uppercase tracking-[0.4em]">All student and staff actions</p>
              </div>
-             <Button variant="outline" className="rounded-2xl h-12 px-8 border-white/5 bg-white/5 hover:bg-white/10 font-black text-[10px] uppercase tracking-[0.3em] shadow-xl backdrop-blur-xl" onClick={() => downloadCSV(safeLogs, "activity_logs.csv")}>
+             <Button variant="outline" className="rounded-2xl h-12 px-8 border-white/5 bg-white/5 hover:bg-white/10 font-black text-[10px] uppercase tracking-[0.3em] shadow-xl backdrop-blur-xl" onClick={() => {
+               const flatData = safeLogs.map(l => ({
+                 User: l.user?.name || "System",
+                 Role: l.user?.role?.toUpperCase() || "STAFF",
+                 Action: l.action?.toUpperCase().replaceAll("_", " ") || "UNKNOWN",
+                 Detail: l.resource || "General",
+                 IP_Address: l.ipAddress || "::1",
+                 Date: formatDateTime(l.createdAt || l.time)
+               }));
+               downloadCSV(flatData, "system_activity_logs.csv");
+             }}>
                 <Download className="w-4 h-4 mr-3" /> Save To File
              </Button>
           </div>

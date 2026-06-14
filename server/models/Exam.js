@@ -59,6 +59,7 @@ const examSchema = new mongoose.Schema(
       requireFullscreen: { type: Boolean, default: true },
       blockRightClick: { type: Boolean, default: true },
       detectDevTools: { type: Boolean, default: false },
+      randomizeQuestions: { type: Boolean, default: false },
       maxViolations: { type: Number, default: 5 },
     },
     passingMarks: { type: Number, default: 0 },

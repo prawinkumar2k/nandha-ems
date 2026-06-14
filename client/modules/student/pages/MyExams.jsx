@@ -1,16 +1,19 @@
 // Student: MyExams, Results, Profile pages
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/core/api/client";
+import { toast } from "sonner";
 import { MainLayout } from "@/shared/layouts/MainLayout";
 import { DataTableWrapper } from "@/shared/components/Table/DataTableWrapper";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
-import { FormField } from "@/shared/components/Form/FormField";
+import { FormField, FormTextarea } from "@/shared/components/Form/FormField";
+import { Modal } from "@/shared/components/Modal/Modal";
 import { ROUTES } from "@/core/constants/routes";
-import { LayoutDashboard, FileText, BarChart3, User, PlayCircle, Download } from "lucide-react";
+import { LayoutDashboard, FileText, BarChart3, User, PlayCircle, Download, AlertCircle, Ticket, Printer } from "lucide-react";
 import { formatDate, downloadCSV } from "@/core/utils/helpers";
 
 const NAV = [
@@ -33,8 +36,11 @@ const RESULTS = [
 ];
 
 export function MyExams() {
-  const navigate = useNavigate();
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [ticketOpen, setTicketOpen] = useState(false);
+  const [activeTicket, setActiveTicket] = useState(null);
+  const [ticketLoading, setTicketLoading] = useState(false);
 
   const { data: exams = [], isLoading } = useQuery({
     queryKey: ["student-exams"],
@@ -48,11 +54,24 @@ export function MyExams() {
     active: "bg-primary/10 text-primary border border-primary/20 animate-pulse",
   };
 
-  const upcomingExams = exams.filter(e => e.status !== "completed");
-  const pastExams = exams.filter(e => e.status === "completed");
+  const upcomingExams = exams.filter(e => e.status === "upcoming" || e.status === "scheduled" || e.status === "active");
+  const pastExams = exams.filter(e => e.status === "completed" || e.status === "cancelled");
+
+  const handleViewTicket = async (examId) => {
+    try {
+      setTicketLoading(true);
+      const ticket = await apiClient.get(`/api/exams/${examId}/hall-tickets`);
+      setActiveTicket(ticket);
+      setTicketOpen(true);
+    } catch (err) {
+      toast.error("Ticket not found", { description: "Your hall ticket hasn't been generated yet." });
+    } finally {
+      setTicketLoading(false);
+    }
+  };
 
   return (
-    <MainLayout navItems={NAV} title="Exams">
+    <MainLayout navItems={NAV} title="My Tests">
       <div className="space-y-6">
         {/* Dynamic Header */}
         <div className="bg-white/5 border border-white/5 rounded-[32px] p-8">
@@ -88,12 +107,22 @@ export function MyExams() {
                     <div className="text-[10px] font-black uppercase tracking-widest opacity-50">
                       Starts: {formatDate(e.scheduledAt)}
                     </div>
-                    <Button 
-                      className="rounded-2xl gap-2 font-black italic uppercase tracking-tighter"
-                      onClick={() => navigate(ROUTES.STUDENT_EXAM_INTERFACE.replace(":examId", e._id))}
-                    >
-                      <PlayCircle className="w-4 h-4" /> Start Test
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline"
+                        className="rounded-2xl gap-2 font-black italic uppercase tracking-tighter"
+                        onClick={() => handleViewTicket(e._id)}
+                        disabled={ticketLoading}
+                      >
+                        <Ticket className="w-4 h-4" /> Ticket
+                      </Button>
+                      <Button 
+                        className="rounded-2xl gap-2 font-black italic uppercase tracking-tighter"
+                        onClick={() => navigate(ROUTES.STUDENT_EXAM_INTERFACE.replace(":examId", e._id))}
+                      >
+                        <PlayCircle className="w-4 h-4" /> Start
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -117,6 +146,62 @@ export function MyExams() {
              data={pastExams}
            />
         </div>
+
+        <Modal open={ticketOpen} onOpenChange={setTicketOpen} title="Hall Ticket">
+          {activeTicket && (
+            <div className="space-y-6">
+              <div id="printable-ticket" className="bg-white/5 border border-white/10 rounded-2xl p-6 relative overflow-hidden print:bg-white print:text-black print:border-black print:p-8">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-bl-[100px] -z-10 print:hidden" />
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-2 print:text-black">Official Exam Ticket</h3>
+                <h2 className="text-xl font-black italic tracking-tight mb-6">{activeTicket.exam?.title}</h2>
+                
+                <div className="grid grid-cols-2 gap-y-6 gap-x-4">
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1 print:text-gray-500">Student Name</p>
+                    <p className="text-sm font-bold">{activeTicket.student?.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1 print:text-gray-500">Roll Number</p>
+                    <p className="text-sm font-bold">{activeTicket.student?.rollNumber}</p>
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1 print:text-gray-500">Assigned Lab</p>
+                    <p className="text-sm font-black text-primary uppercase print:text-black">{activeTicket.lab?.name || "Pending"}</p>
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1 print:text-gray-500">Seat / PC Number</p>
+                    <p className="text-sm font-black italic">{activeTicket.seatNumber}</p>
+                  </div>
+                  <div className="col-span-2 mt-2 pt-4 border-t border-white/10 print:border-black/20 flex justify-between">
+                    <div>
+                       <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1 print:text-gray-500">Date & Time</p>
+                       <p className="text-xs font-bold">{formatDate(activeTicket.exam?.scheduledAt)}</p>
+                    </div>
+                    <div className="text-right">
+                       <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1 print:text-gray-500">Ticket No.</p>
+                       <p className="text-xs font-mono font-bold text-primary print:text-black">{activeTicket.ticketNumber}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="ghost" onClick={() => setTicketOpen(false)}>Close</Button>
+                <Button 
+                  onClick={() => {
+                    const printWindow = window.open('', '', 'height=600,width=800');
+                    const content = document.getElementById('printable-ticket').innerHTML;
+                    printWindow.document.write('<html><head><title>Hall Ticket</title><script src="https://cdn.tailwindcss.com"></script></head><body class="p-10 font-sans">' + content + '</body></html>');
+                    printWindow.document.close();
+                    setTimeout(() => printWindow.print(), 1000);
+                  }}
+                  className="font-black italic uppercase tracking-tighter gap-2"
+                >
+                  <Printer className="w-4 h-4" /> Print Ticket
+                </Button>
+              </div>
+            </div>
+          )}
+        </Modal>
       </div>
     </MainLayout>
   );
@@ -126,9 +211,26 @@ const getGradeColor = (g) => g?.startsWith("A") ? "text-success" : g?.startsWith
 
 export function Results() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [revalOpen, setRevalOpen] = useState(false);
+  const [selectedSub, setSelectedSub] = useState(null);
+  const [reason, setReason] = useState("");
+
   const { data: results = [], isLoading } = useQuery({
     queryKey: ["student-results"],
-    queryFn: () => apiClient.get("/api/reports/student/stats") // We'll update reports.js to provide detailed results
+    queryFn: () => apiClient.get("/api/reports/student/stats")
+  });
+
+  const revalMutation = useMutation({
+    mutationFn: (data) => apiClient.post(`/api/submissions/${data.id}/revaluate`, { reason: data.reason }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["student-results"]);
+      setRevalOpen(false);
+      setReason("");
+      setSelectedSub(null);
+      toast.success("Re-evaluation requested successfully");
+    },
+    onError: (err) => toast.error(err.message || "Failed to request re-evaluation")
   });
 
   return (
@@ -160,12 +262,51 @@ export function Results() {
                 { key: "status", header: "Status", render: (r) => (
                   <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 bg-success/10 text-success rounded-full italic">Done</span>
                 )},
+                { key: "actions", header: "Actions", render: (r) => (
+                  r.revaluationRequested ? (
+                    <span className="text-[9px] font-black uppercase tracking-widest px-2 py-1 bg-amber-500/10 text-amber-500 rounded-lg">
+                      {r.revaluationStatus === 'pending' ? 'Reviewing' : r.revaluationStatus}
+                    </span>
+                  ) : (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary"
+                      onClick={() => { setSelectedSub(r); setRevalOpen(true); }}
+                    >
+                      <AlertCircle className="w-3 h-3 mr-1" /> Appeal
+                    </Button>
+                  )
+                )},
               ]}
               data={results.courses || []} 
             />
           )}
         </CardContent>
       </Card>
+
+      <Modal open={revalOpen} onOpenChange={setRevalOpen} title="Request Re-evaluation">
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground font-bold">
+            If you believe your marks for <span className="text-primary italic">{selectedSub?.name}</span> were calculated incorrectly, provide a specific reason below.
+          </p>
+          <FormTextarea 
+            label="Reason for Appeal" 
+            placeholder="E.g., I believe my essay on Question 3 was fully correct..." 
+            value={reason} 
+            onChange={e => setReason(e.target.value)} 
+          />
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="ghost" onClick={() => setRevalOpen(false)}>Cancel</Button>
+            <Button 
+              onClick={() => revalMutation.mutate({ id: selectedSub.id, reason })}
+              disabled={revalMutation.isPending || !reason.trim()}
+            >
+              {revalMutation.isPending ? "Submitting..." : "Submit Appeal"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </MainLayout>
   );
 }

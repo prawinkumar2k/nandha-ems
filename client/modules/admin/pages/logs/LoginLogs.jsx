@@ -23,40 +23,40 @@ export default function LoginLogs() {
   });
 
   const cols = [
-    { key: "user", header: "User", sortable: true, render: (r) => (
-      <div className="flex flex-col">
+    { key: "user", header: <span className="whitespace-nowrap">User</span>, sortable: true, render: (r) => (
+      <div className="flex flex-col whitespace-nowrap">
         <span className="font-bold tracking-tight text-foreground">{r.user?.name || "Login"}</span>
         <span className="text-[9px] font-black uppercase text-muted-foreground/40 tracking-widest">{r.user?.email}</span>
       </div>
     )},
-    { key: "role", header: "Work Role", sortable: true, render: (r) => (
-      <span className="text-[10px] font-black uppercase tracking-widest bg-white/5 border border-white/5 px-2.5 py-1 rounded-lg">
+    { key: "role", header: <span className="whitespace-nowrap">Work Role</span>, sortable: true, render: (r) => (
+      <span className="text-[10px] font-black uppercase tracking-widest bg-white/5 border border-white/5 px-2.5 py-1 rounded-lg whitespace-nowrap">
         {r.user?.role || "guest"}
       </span>
     )},
-    { key: "ip", header: "IP Address", render: (r) => (
-      <div className="flex items-center gap-2 group">
+    { key: "ip", header: <span className="whitespace-nowrap">IP Address</span>, render: (r) => (
+      <div className="flex items-center gap-2 group whitespace-nowrap">
         <Globe className="w-3 h-3 text-primary/40 group-hover:text-primary transition-colors" />
         <span className="font-mono text-xs font-bold text-muted-foreground/80">{r.ipAddress || "127.0.0.1"}</span>
       </div>
     )},
-    { key: "device", header: "PC Name", render: (r) => (
-      <div className="flex items-center gap-2">
+    { key: "device", header: <span className="whitespace-nowrap">PC Name</span>, render: (r) => (
+      <div className="flex items-center gap-2 whitespace-nowrap">
         <Wifi className="w-3 h-3 text-emerald-500/40" />
-        <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">{r.device?.hostname || "Remote Link"}</span>
+        <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">{r.device?.deviceId || r.device?.hostname || "Remote Link"}</span>
       </div>
     )},
-    { key: "status", header: "Status", render: (r) => {
+    { key: "status", header: <span className="whitespace-nowrap">Status</span>, render: (r) => {
       const style = STATUS_STYLE[r.status] || STATUS_STYLE.success;
       return (
-        <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-[10px] font-black uppercase tracking-widest ${style.bg} ${style.text}`}>
+        <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-[10px] font-black uppercase tracking-widest whitespace-nowrap ${style.bg} ${style.text}`}>
           {style.icon}
           {r.status === 'success' ? 'Success' : 'Failed'}
         </span>
       );
     }},
-    { key: "time", header: "Date & Time", sortable: true, render: (r) => (
-      <span className="text-[10px] font-medium text-muted-foreground/60 font-mono tracking-tighter">
+    { key: "time", header: <span className="whitespace-nowrap">Date & Time</span>, sortable: true, render: (r) => (
+      <span className="text-[10px] font-medium text-muted-foreground/60 font-mono tracking-tighter whitespace-nowrap">
         {formatDateTime(r.createdAt || r.time)}
       </span>
     )},
@@ -75,7 +75,18 @@ export default function LoginLogs() {
             </h2>
             <p className="text-[10px] text-primary font-black uppercase tracking-[0.4em]">Track system logins</p>
           </div>
-          <Button variant="outline" className="rounded-2xl h-12 px-8 border-white/5 bg-white/5 hover:bg-white/10 font-black text-[10px] uppercase tracking-[0.3em] shadow-xl backdrop-blur-xl" onClick={() => downloadCSV(safeLogs, "login_logs.csv")}>
+          <Button variant="outline" className="rounded-2xl h-12 px-8 border-white/5 bg-white/5 hover:bg-white/10 font-black text-[10px] uppercase tracking-[0.3em] shadow-xl backdrop-blur-xl" onClick={() => {
+            const flatData = safeLogs.map(l => ({
+              User: l.user?.name || "System",
+              Email: l.user?.email || "Unknown",
+              Role: l.user?.role?.toUpperCase() || "GUEST",
+              IP_Address: l.ipAddress || "127.0.0.1",
+              Device: l.device?.deviceId || l.device?.hostname || "Remote Link",
+              Status: l.status?.toUpperCase() || "UNKNOWN",
+              Date: formatDateTime(l.createdAt || l.time)
+            }));
+            downloadCSV(flatData, "system_login_logs.csv");
+          }}>
             <Download className="w-4 h-4 mr-3" /> Save To File
           </Button>
         </div>

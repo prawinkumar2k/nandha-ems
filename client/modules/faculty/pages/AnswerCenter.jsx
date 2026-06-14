@@ -1,12 +1,14 @@
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { apiClient } from "@/core/api/client";
 import { MainLayout } from "@/shared/layouts/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageLoader } from "@/shared/components/Loader/Loader";
-import { ArrowLeft, Clock, ShieldAlert, CheckCircle, XCircle, Code, FileText, BarChart3, User, BookOpen } from "lucide-react";
+import { ArrowLeft, Clock, ShieldAlert, CheckCircle, XCircle, Code, FileText, BarChart3, User, BookOpen, Save } from "lucide-react";
 import { getFacultyNav } from "@/core/constants/navigation";
 
 const NAV = getFacultyNav();
@@ -14,6 +16,9 @@ const NAV = getFacultyNav();
 export default function AnswerCenter() {
   const { submissionId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [evaluations, setEvaluations] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
 
   const { data: sub, isLoading, error } = useQuery({
     queryKey: ["submission", submissionId],
@@ -44,6 +49,41 @@ export default function AnswerCenter() {
 
   const questions = exam?.questions || [];
 
+  // Initialize evaluations from manualMarks
+  useEffect(() => {
+    if (sub?.manualMarks && questions.length > 0) {
+      const initialEvals = [];
+      Object.keys(sub.manualMarks).forEach(idx => {
+        initialEvals.push({ questionIndex: parseInt(idx), marksAwarded: sub.manualMarks[idx] });
+      });
+      setEvaluations(initialEvals);
+    }
+  }, [sub]);
+
+  const handleScoreChange = (idx, score) => {
+    setEvaluations(prev => {
+      const existing = prev.find(e => e.questionIndex === idx);
+      if (existing) {
+        return prev.map(e => e.questionIndex === idx ? { ...e, marksAwarded: score } : e);
+      }
+      return [...prev, { questionIndex: idx, marksAwarded: score }];
+    });
+  };
+
+  const handleSaveEvaluations = async () => {
+    if (evaluations.length === 0) return toast.info("No evaluations to save.");
+    setIsSaving(true);
+    try {
+      await apiClient.put(`/api/submissions/${submissionId}/evaluate`, { evaluations });
+      toast.success("Evaluations saved successfully!");
+      queryClient.invalidateQueries(["submission", submissionId]);
+    } catch (err) {
+      toast.error(err.message || "Failed to save evaluations");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <MainLayout navItems={NAV} title="Student Answer Center">
       <div className="space-y-8">
@@ -60,6 +100,13 @@ export default function AnswerCenter() {
           <div className="flex gap-2">
             <Button variant="outline" className="h-10 px-4 rounded-xl border-primary/20 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-widest">
               Export PDF
+            </Button>
+            <Button 
+              onClick={handleSaveEvaluations} 
+              disabled={isSaving}
+              className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform"
+            >
+              <Save className="w-4 h-4" /> {isSaving ? "Saving..." : "Save Evaluation"}
             </Button>
           </div>
         </div>
@@ -135,6 +182,9 @@ export default function AnswerCenter() {
                 isCorrect = studentAnswer && studentAnswer.length > 5;
               }
 
+              const manualMarkObj = evaluations.find(e => e.questionIndex === idx);
+              const currentScore = manualMarkObj ? manualMarkObj.marksAwarded : (sub.manualMarks?.[idx] ?? (isCorrect && q.type === 'mcq' ? q.marks : 0));
+
               return (
                 <Card key={idx} className="glass border-white/5 rounded-[30px] overflow-hidden shadow-2xl relative">
                   {/* Status Indicator Bar */}
@@ -147,9 +197,24 @@ export default function AnswerCenter() {
                           Q{idx + 1} • {q.type.toUpperCase()} • {q.marks || 1} Marks
                         </Badge>
                         <CardTitle className="text-lg font-bold leading-relaxed">{q.text}</CardTitle>
-                      </div>
-                      <div className={`p-2 rounded-xl ${isCorrect ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
-                        {isCorrect ? <CheckCircle className="w-6 h-6" /> : <XCircle className="w-6 h-6" />}
+                      <div className="flex items-center gap-4">
+                        {(q.type === "descriptive" || q.type === "code") && (
+                          <div className="flex items-center gap-2 bg-black/20 p-1.5 rounded-xl border border-white/5">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Score:</span>
+                            <input 
+                              type="number" 
+                              min="0" 
+                              max={q.marks || 1} 
+                              value={currentScore}
+                              onChange={(e) => handleScoreChange(idx, e.target.value)}
+                              className="w-16 h-8 bg-white/10 rounded-lg text-center font-bold border-none focus:ring-1 focus:ring-primary"
+                            />
+                            <span className="text-[10px] font-black uppercase text-muted-foreground mr-2">/ {q.marks || 1}</span>
+                          </div>
+                        )}
+                        <div className={`p-2 rounded-xl ${isCorrect ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                          {isCorrect ? <CheckCircle className="w-6 h-6" /> : <XCircle className="w-6 h-6" />}
+                        </div>
                       </div>
                     </div>
                   </CardHeader>

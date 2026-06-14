@@ -26,10 +26,27 @@ export default function ExamInterface() {
   const { toast } = useToast();
   const socket = useSocket();
   const { user } = useAuth();
+  
+  // ─── ELECTRON SECURITY CHECK ──────────────────────────────────────────────────
+  const isElectron = !!window.electronAPI;
+  
+  if (!isElectron) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white p-8">
+        <AlertTriangle className="w-16 h-16 text-rose-500 mb-6" />
+        <h1 className="text-3xl font-bold mb-4">ACCESS DENIED</h1>
+        <p className="text-slate-400 text-lg max-w-lg text-center mb-8">
+          This examination requires the NEClms Secure Client. You cannot take this exam from a standard web browser.
+        </p>
+        <Button onClick={() => navigate(-1)} variant="outline">Return to Dashboard</Button>
+      </div>
+    );
+  }
 
 
   const [submissionId, setSubmissionId] = useState(null);
   const [exam, setExam] = useState(null);
+  const [questionOrder, setQuestionOrder] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [answers, setAnswers] = useState(() => {
@@ -63,6 +80,9 @@ export default function ExamInterface() {
         // 2. Start/Resume Submission Session
         const sessionData = await apiClient.post("/api/submissions/start", { examId });
         setSubmissionId(sessionData._id);
+        if (sessionData.questionOrder && sessionData.questionOrder.length > 0) {
+          setQuestionOrder(sessionData.questionOrder);
+        }
         
         // Restore existing violations if any
         if (sessionData.violations) {
@@ -81,7 +101,10 @@ export default function ExamInterface() {
     initSession();
   }, [examId]);
 
-  const questions = exam?.questions || [];
+  const rawQuestions = exam?.questions || [];
+  const questions = questionOrder.length > 0 
+    ? questionOrder.map(idx => rawQuestions[idx]).filter(Boolean) 
+    : rawQuestions;
 
   // ─── Cloud Sync ──────────────────────────────────────────
   const syncToCloud = useCallback(async (currentAnswers, currentViolations = null) => {
@@ -107,6 +130,10 @@ export default function ExamInterface() {
     if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
     syncTimeoutRef.current = setTimeout(() => {
       syncToCloud(answers);
+      // Inform Electron of new answers for SQLite offline queue
+      if (window.electronAPI && window.electronAPI.onAnswersUpdated) {
+        window.electronAPI.onAnswersUpdated({ examId, answers });
+      }
     }, 5000);
 
     return () => clearTimeout(syncTimeoutRef.current);
@@ -136,6 +163,11 @@ export default function ExamInterface() {
     }
 
     const event = { type, time: new Date().toISOString(), screenshot };
+    
+    // Pass violation up to Electron native watcher
+    if (window.electronAPI && window.electronAPI.logViolation) {
+      window.electronAPI.logViolation(type);
+    }
     
     setViolationLog((p) => {
       const next = [...p, event];
@@ -401,6 +433,7 @@ export default function ExamInterface() {
   }
 
   const q = questions[current];
+  const originalIndex = questionOrder.length > 0 ? questionOrder[current] : current;
 
   return (
     <div
@@ -460,15 +493,15 @@ export default function ExamInterface() {
               {q.type === "coding" ? (
                 <div className="h-[600px] border-2 border-white/5 rounded-[40px] overflow-hidden">
                   <OfflineCodeEditor 
-                    initialValue={answers[current] || q.initialCode || ""}
+                    initialValue={answers[originalIndex] || q.initialCode || ""}
                     language={q.language?.toLowerCase() || "javascript"}
-                    onCodeChange={(val) => setAnswers(p => ({ ...p, [current]: val }))}
+                    onCodeChange={(val) => setAnswers(p => ({ ...p, [originalIndex]: val }))}
                   />
                 </div>
               ) : q.type === "text" ? (
                 <textarea
-                  value={answers[current] || ""}
-                  onChange={(e) => setAnswers(p => ({ ...p, [current]: e.target.value }))}
+                  value={answers[originalIndex] || ""}
+                  onChange={(e) => setAnswers(p => ({ ...p, [originalIndex]: e.target.value }))}
                   className="w-full h-[200px] bg-white/5 border-2 border-white/5 rounded-2xl p-6 text-sm focus:border-primary outline-none transition-all"
                   placeholder="Explain your answer here..."
                 />
@@ -477,9 +510,9 @@ export default function ExamInterface() {
                   {["A", "B", "C", "D"].map((letter) => {
                     const opt = q.options?.[letter];
                     if (!opt) return null;
-                    const selected = answers[current] === letter;
+                    const selected = answers[originalIndex] === letter;
                     return (
-                      <button key={letter} onClick={() => setAnswers((p) => ({ ...p, [current]: letter }))}
+                      <button key={letter} onClick={() => setAnswers((p) => ({ ...p, [originalIndex]: letter }))}
                         className={`w-full text-left flex items-center gap-5 p-6 rounded-2xl border-2 transition-all duration-200 group
                           ${selected ? "border-primary bg-primary/5 shadow-inner" : "border-white/5 bg-white/5 hover:border-primary/40 hover:bg-white/10"}`}>
                         <span className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black transition-colors ${selected ? "bg-primary text-white" : "bg-white/10 text-muted-foreground group-hover:text-foreground"}`}>
@@ -514,7 +547,8 @@ export default function ExamInterface() {
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-5">Questions</p>
           <div className="grid grid-cols-4 gap-2">
             {questions.map((_, i) => {
-              const answered = answers[i];
+              const origIdx = questionOrder.length > 0 ? questionOrder[i] : i;
+              const answered = answers[origIdx];
               const isFlagged = flagged.has(i);
               const isActive = current === i;
               return (

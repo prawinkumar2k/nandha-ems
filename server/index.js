@@ -7,8 +7,10 @@ import mongoose from "mongoose";
 import { handleDemo } from "./routes/demo.js";
 import { handleLogin, handleLogout } from "./routes/auth.js";
 import { handleGetUsers, handleGetUserById, handleBulkUpload, handleCreateUser, handleUpdateUser, handleDeleteUser } from "./routes/users.js";
-import { handleGetExams, handleGetExamById } from "./routes/exams.js";
-import { handleGetDevices, handleRegisterDevice, handleDeviceHeartbeat } from "./routes/devices.js";
+import { handleGetExams, handleGetExamById, handleAllocateSeats, handleGetHallTickets } from "./routes/exams.js";
+import devicesRouter from "./routes/devices.js";
+import labRouter from "./routes/lab.js";
+import securityEventsRouter from "./routes/securityEvents.js";
 import {
   handleGetSystemStats,
   handleGetFacultyStats,
@@ -34,14 +36,16 @@ import {
   handleStartExam,
   handleUpdateAnswers,
   handleSubmitExam,
+  handleForceSubmit,
   handleGetSubmissions as handleGetExamSubmissions,
   handleGetSubmissionById,
-  handleGetGlobalViolations
+  handleGetGlobalViolations,
+  handleEvaluateSubmission,
+  handleRequestRevaluation
 } from "./routes/submissions.js";
 import { handleGetProfile, handleUpdateProfile, handleChangePassword, handleUploadProfilePic } from "./routes/profile.js";
 import { handleGetCourses } from "./routes/courses.js";
 import { handleGetDepartments } from "./routes/departments.js";
-import { handleLabControl, handleLabLogs } from "./routes/lab.js";
 import { handleGetLoginLogs, handleGetActivityLogs } from "./routes/logs.js";
 import { handleGetSettings, handleUpdateSettings } from "./routes/settings.js";
 import { handleGetQuestions, handleCreateQuestion, handleDeleteQuestion, handleUpdateQuestion } from "./routes/questions.js";
@@ -54,6 +58,7 @@ import { handleHeartbeat, startHeartbeatJanitor } from "./routes/heartbeat.js";
 import { upload } from "./middleware/upload.js";
 
 import { authMiddleware, roleMiddleware } from "./middleware/auth.js";
+import { restrictLAN, verifyDevice } from "./middleware/deviceAuth.js";
 import { rateLimiter, getCorsOptions } from "./middleware/security.js";
 import { initSocket } from "./socket.js";
 
@@ -79,6 +84,8 @@ import "./models/Violation.js";
 import "./models/RiskProfile.js";
 import "./models/TokenBlacklist.js"; // ─── SECURITY: Token revocation registry
 import "./models/ExamHeartbeat.js";  // ─── SECURITY: Server-side presence tracking
+import "./models/DeviceHeartbeat.js";
+import "./models/SecurityEvent.js";
 
 // ─── MongoDB Connection ────────────────────────────────────────────────────────
 export async function connectDB() {
@@ -122,7 +129,8 @@ export function createServer() {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
     res.setHeader('Content-Security-Policy',
       "default-src 'self'; " +
-      "script-src 'self' 'unsafe-inline'; " +
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; " +
+      "worker-src 'self' blob:; " +
       "style-src 'self' 'unsafe-inline' fonts.googleapis.com; " +
       "font-src 'self' fonts.gstatic.com data:; " +
       "img-src 'self' data: blob:; " +
@@ -134,6 +142,9 @@ export function createServer() {
     res.setHeader('Permissions-Policy', 'camera=(self), microphone=(self), geolocation=()');
     next();
   });
+
+  // ─── Apply LAN Security Globally ───────────────────────────────────────────
+  app.use("/api", restrictLAN);
 
   // ─── Health Check ──────────────────────────────────────────────────────────
   app.get("/api/ping", (req, res) => {
@@ -166,6 +177,8 @@ export function createServer() {
   // ─── Exam Management ───────────────────────────────────────────────────────
   app.get("/api/exams", authMiddleware, handleGetExams);
   app.get("/api/exams/:id", authMiddleware, handleGetExamById);
+  app.post("/api/exams/:id/allocate-seats", authMiddleware, roleMiddleware(["faculty", "hod", "admin"]), handleAllocateSeats);
+  app.get("/api/exams/:id/hall-tickets", authMiddleware, handleGetHallTickets);
 
   // ─── Question Bank ─────────────────────────────────────────────────────────
   app.get("/api/questions", authMiddleware, roleMiddleware(["faculty", "hod", "admin"]), handleGetQuestions);
@@ -174,17 +187,18 @@ export function createServer() {
   app.delete("/api/questions/:id", authMiddleware, roleMiddleware(["faculty", "hod", "admin"]), handleDeleteQuestion);
 
   // ─── Device & Lab Control ──────────────────────────────────────────────────
-  app.get("/api/devices", handleGetDevices);
-  app.post("/api/devices/register", handleRegisterDevice);
-  app.post("/api/devices/heartbeat", handleDeviceHeartbeat);
-  app.post("/api/lab/control", authMiddleware, roleMiddleware(["admin", "hod", "faculty"]), handleLabControl);
-  app.post("/api/lab/logs", authMiddleware, handleLabLogs);
+  app.use("/api/devices", devicesRouter);
+  app.use("/api/labs", labRouter);
+  app.use("/api/security-events", securityEventsRouter);
 
   // ─── Exam Delivery & Proctoring ────────────────────────────────────────────
-  app.get("/api/submissions/:id", authMiddleware, handleGetSubmissionById);
-  app.post("/api/submissions/start", authMiddleware, handleStartExam);
-  app.put("/api/submissions/:id/answers", authMiddleware, handleUpdateAnswers);
-  app.post("/api/submissions/:id/submit", authMiddleware, handleSubmitExam);
+  app.get("/api/submissions/:id", authMiddleware, verifyDevice, handleGetSubmissionById);
+  app.post("/api/submissions/start", authMiddleware, verifyDevice, handleStartExam);
+  app.put("/api/submissions/:id/answers", authMiddleware, verifyDevice, handleUpdateAnswers);
+  app.post("/api/submissions/:id/submit", authMiddleware, verifyDevice, handleSubmitExam);
+  app.post("/api/submissions/:id/revaluate", authMiddleware, handleRequestRevaluation);
+  app.put("/api/submissions/:id/evaluate", authMiddleware, roleMiddleware(["admin", "hod", "faculty"]), handleEvaluateSubmission);
+  app.post("/api/submissions/:id/force-submit", authMiddleware, roleMiddleware(["admin", "hod", "faculty"]), handleForceSubmit);
   app.post("/api/exam/heartbeat", authMiddleware, handleHeartbeat); // Server-side session continuity
 
   // ─── Code Execution (Coding Exam Support) ─────────────────────────────────

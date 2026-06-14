@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import Submission from "../models/Submission.js";
 import RiskProfile from "../models/RiskProfile.js";
+import mongoose from "mongoose";
 
 /**
  * Risk profiles are calculated purely from exam integrity data:

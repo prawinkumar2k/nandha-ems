@@ -47,11 +47,11 @@ function DeviceCard({ device }) {
         <div className="p-3 rounded-2xl bg-white/10 shadow-sm mb-1 group-hover:rotate-6 transition-transform">
           {STATUS_ICONS[device.status] || STATUS_ICONS.offline}
         </div>
-        <p className="text-[11px] font-black tracking-tighter uppercase opacity-80 truncate w-full">
+        <p className="text-[11px] font-black tracking-tighter uppercase opacity-80 truncate w-full whitespace-nowrap">
           {device.hostname}
         </p>
         <span className={cn(
-          "text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md",
+          "text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md whitespace-nowrap",
           device.status === 'online' ? "text-emerald-500" : "text-muted-foreground"
         )}>
           {device.status}

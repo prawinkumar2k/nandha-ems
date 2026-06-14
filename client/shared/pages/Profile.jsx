@@ -134,7 +134,7 @@ const ProfilePage = () => {
           className="bg-background/50 border-primary/20 focus:border-primary"
         />
       ) : (
-        <p className="text-sm font-medium border-b border-transparent pb-1">
+        <p className="text-sm font-medium border-b border-transparent pb-1 truncate max-w-full block">
           {value || <span className="text-muted-foreground italic">Not Added</span>}
         </p>
       )}

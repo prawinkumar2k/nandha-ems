@@ -104,13 +104,26 @@ export const handleStartExam = async (req, res) => {
     }
 
     if (!submission) {
+      // Generate randomized question order if enabled
+      let qOrder = [];
+      const numQuestions = exam.questions?.length || 0;
+      for (let i = 0; i < numQuestions; i++) qOrder.push(i);
+
+      if (exam.security?.randomizeQuestions) {
+        for (let i = qOrder.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [qOrder[i], qOrder[j]] = [qOrder[j], qOrder[i]];
+        }
+      }
+
       submission = await Submission.create({
         student: studentId,
         exam: examId,
         status: "in_progress",
         startedAt: new Date(),
         device: req.body.deviceId || null,
-        ipAddress: req.ip
+        ipAddress: req.ip,
+        questionOrder: qOrder
       });
 
       // Notify HOD/Faculty
@@ -258,6 +271,161 @@ export const handleSubmitExam = async (req, res) => {
     if (io) io.emit("new-activity", { type: "submission", student: req.user.name });
 
     res.json({ success: true, score, percentage, grade: submission.grade });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ─── POST /api/submissions/:id/force-submit ────────────────────────────────
+export const handleForceSubmit = async (req, res) => {
+  try {
+    const Submission = mongoose.model("Submission");
+    
+    const submission = await Submission.findById(req.params.id).populate("exam");
+    if (!submission) return res.status(404).json({ message: "Session not found" });
+
+    submission.status = "submitted";
+    submission.submittedAt = new Date();
+    
+    // Auto-grading for MCQ using STORED answers only
+    const exam = submission.exam;
+    let score = 0;
+    const examQuestions = exam.questions || [];
+    Object.keys(submission.answers || {}).forEach((idxStr) => {
+      const idx = parseInt(idxStr);
+      const ans = submission.answers[idxStr];
+      const question = examQuestions[idx];
+      if (question && question.type === "mcq" && question.correctAnswer === ans) {
+        score += question.marks || 1;
+      }
+    });
+
+    const totalMarks = exam.totalMarks || 0;
+    const percentage = totalMarks > 0 ? Math.round((score / totalMarks) * 1000) / 10 : 0;
+
+    submission.marksObtained = score;
+    submission.totalMarks = totalMarks;
+    submission.percentage = percentage;
+    submission.passed = percentage >= (exam.passingMarks || 40);
+
+    if (percentage >= 90) submission.grade = "A+";
+    else if (percentage >= 80) submission.grade = "A";
+    else if (percentage >= 70) submission.grade = "B";
+    else if (percentage >= 60) submission.grade = "C";
+    else submission.grade = "F";
+
+    await submission.save();
+
+    const io = req.app.get("io");
+    if (io) {
+       // Tell the Electron client to force submit if connected
+       io.emit("force-submit-client", { submissionId: submission._id, studentId: submission.student });
+    }
+
+    res.json({ success: true, score, percentage, grade: submission.grade });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ─── PUT /api/submissions/:id/evaluate ───────────────────────────────────────
+export const handleEvaluateSubmission = async (req, res) => {
+  try {
+    const Submission = mongoose.model("Submission");
+    const Exam = mongoose.model("Exam");
+    const { evaluations } = req.body; // Array of { questionIndex, marksAwarded }
+
+    const submission = await Submission.findById(req.params.id);
+    if (!submission) return res.status(404).json({ message: "Submission not found" });
+
+    const exam = await Exam.findById(submission.exam);
+    if (!exam) return res.status(404).json({ message: "Exam not found" });
+
+    if (!submission.answers) submission.answers = {};
+    if (!submission.manualMarks) submission.manualMarks = {};
+
+    let totalMarksAwarded = 0;
+
+    for (let i = 0; i < exam.questions.length; i++) {
+      const q = exam.questions[i];
+      let marksForQ = 0;
+
+      const evalUpdate = evaluations.find(e => parseInt(e.questionIndex) === i);
+      
+      if (evalUpdate) {
+        marksForQ = Number(evalUpdate.marksAwarded) || 0;
+        submission.manualMarks[i.toString()] = marksForQ;
+        submission.markModified('manualMarks');
+      } else {
+        if (submission.manualMarks && submission.manualMarks[i.toString()] !== undefined) {
+          marksForQ = submission.manualMarks[i.toString()];
+        } else if (q.type === "mcq") {
+          const studentAns = submission.answers[i.toString()];
+          if (studentAns && studentAns === q.correctAnswer) {
+            marksForQ = q.marks || 1;
+          }
+        }
+      }
+
+      totalMarksAwarded += marksForQ;
+    }
+
+    submission.marksObtained = totalMarksAwarded;
+    submission.percentage = Math.round((totalMarksAwarded / exam.totalMarks) * 100);
+    
+    if (submission.percentage >= 90) submission.grade = "O";
+    else if (submission.percentage >= 80) submission.grade = "A+";
+    else if (submission.percentage >= 70) submission.grade = "A";
+    else if (submission.percentage >= 60) submission.grade = "B+";
+    else if (submission.percentage >= 50) submission.grade = "B";
+    else submission.grade = "U";
+    
+    submission.passed = submission.percentage >= (exam.passingMarks || 50);
+
+    // If there was an active revaluation request, mark it completed
+    if (submission.revaluationRequested && submission.revaluationStatus === "pending") {
+      submission.revaluationStatus = "completed";
+    }
+
+    await submission.save();
+    res.json({ success: true, submission });
+  } catch (error) {
+    console.error("Evaluation Error:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ─── POST /api/submissions/:id/revaluate ────────────────────────────────────
+export const handleRequestRevaluation = async (req, res) => {
+  try {
+    const Submission = mongoose.model("Submission");
+    const { reason } = req.body;
+    const studentId = req.user.id || req.user._id;
+
+    const submission = await Submission.findById(req.params.id);
+    if (!submission) return res.status(404).json({ message: "Submission not found" });
+
+    // Security Check: Only the owner can request
+    if (submission.student.toString() !== studentId.toString()) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    // Must be a submitted exam
+    if (submission.status !== "submitted" && submission.status !== "auto_submitted") {
+      return res.status(400).json({ message: "Can only request re-evaluation for completed exams" });
+    }
+
+    if (submission.revaluationRequested) {
+      return res.status(400).json({ message: "Re-evaluation already requested" });
+    }
+
+    submission.revaluationRequested = true;
+    submission.revaluationReason = reason;
+    submission.revaluationStatus = "pending";
+
+    await submission.save();
+
+    res.json({ success: true, message: "Re-evaluation requested successfully", submission });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

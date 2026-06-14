@@ -17,12 +17,13 @@ export const getAdminNav = () => [
     ],
   },
   {
-    label: "Lab Nodes", icon: <Monitor className="w-4 h-4" />, children: [
-      { label: "Device List", path: ROUTES.ADMIN_DEVICES },
-      { label: "Register Device", path: ROUTES.ADMIN_DEVICES_REGISTER },
+    label: "NOC Command Center", icon: <Monitor className="w-4 h-4" />, children: [
+      { label: "Lab Topology", path: ROUTES.ADMIN_LABS },
+      { label: "Pending Devices", path: ROUTES.ADMIN_DEVICES_PENDING },
+      { label: "Device Inventory", path: ROUTES.ADMIN_DEVICES },
+      { label: "Security Events", path: ROUTES.ADMIN_SECURITY_EVENTS },
     ],
   },
-  { label: "Lab Control", icon: <Activity className="w-4 h-4" />, path: ROUTES.ADMIN_LAB },
   { label: "All Exams", icon: <BookOpen className="w-4 h-4" />, path: ROUTES.ADMIN_EXAMS },
   { label: "Live Monitoring", icon: <BarChart3 className="w-4 h-4" />, path: ROUTES.ADMIN_MONITORING },
   {

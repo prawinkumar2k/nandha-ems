@@ -72,6 +72,33 @@ export default function NotificationPreferences() {
     </div>
   );
 
+  const getRoleSpecificTriggers = () => {
+    switch (user?.role) {
+      case "faculty":
+        return [
+          { key: "notifyOnNewAssignment", label: "Exam Approvals", desc: "Alert me when the HOD approves or rejects my exam." },
+          { key: "notifyOnGradePosted", label: "Student Submissions", desc: "Alert me when a student completes and submits an exam." },
+          { key: "notifyOnAnnouncement", label: "Announcements", desc: "Alert me when the institution broadcasts a new announcement." },
+          { key: "notifyOnTicketUpdate", label: "System Alerts", desc: "Alert me about system maintenance or help desk updates." },
+        ];
+      case "hod":
+      case "admin":
+        return [
+          { key: "notifyOnNewAssignment", label: "Pending Approvals", desc: "Alert me when a faculty member submits an exam for approval." },
+          { key: "notifyOnGradePosted", label: "Security Violations", desc: "Alert me of high-severity academic misconduct during active exams." },
+          { key: "notifyOnAnnouncement", label: "Announcements", desc: "Alert me when the institution broadcasts a new announcement." },
+          { key: "notifyOnTicketUpdate", label: "System Alerts", desc: "Alert me about system maintenance or help desk updates." },
+        ];
+      default: // student
+        return [
+          { key: "notifyOnNewAssignment", label: "New Assignments", desc: "Alert me when a faculty member posts a new assignment." },
+          { key: "notifyOnGradePosted", label: "Grades Posted", desc: "Alert me when my submission has been graded." },
+          { key: "notifyOnAnnouncement", label: "Announcements", desc: "Alert me when the institution broadcasts a new announcement." },
+          { key: "notifyOnTicketUpdate", label: "Help Desk Tickets", desc: "Alert me when there is an update or resolution to my support ticket." },
+        ];
+    }
+  };
+
   return (
     <MainLayout navItems={getNavItems()} title="Notification Settings">
       <div className="p-6 max-w-4xl mx-auto space-y-8">
@@ -106,26 +133,14 @@ export default function NotificationPreferences() {
           <Card className="p-6">
             <h3 className="text-lg font-bold mb-4 flex items-center"><Bell className="w-5 h-5 mr-2" /> Alert Triggers</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <ToggleRow 
-                label="New Assignments" 
-                description="Alert me when a faculty member posts a new assignment."
-                stateKey="notifyOnNewAssignment"
-              />
-              <ToggleRow 
-                label="Grades Posted" 
-                description="Alert me when my submission has been graded."
-                stateKey="notifyOnGradePosted"
-              />
-              <ToggleRow 
-                label="Announcements" 
-                description="Alert me when the institution broadcasts a new announcement."
-                stateKey="notifyOnAnnouncement"
-              />
-              <ToggleRow 
-                label="Help Desk Tickets" 
-                description="Alert me when there is an update or resolution to my support ticket."
-                stateKey="notifyOnTicketUpdate"
-              />
+              {getRoleSpecificTriggers().map((trigger) => (
+                <ToggleRow 
+                  key={trigger.key}
+                  label={trigger.label} 
+                  description={trigger.desc}
+                  stateKey={trigger.key}
+                />
+              ))}
             </div>
           </Card>
 

@@ -30,19 +30,45 @@ export const initSocket = (server) => {
     }).catch(err => console.error("❌ Redis Adapter Error:", err));
   }
 
-  // ─── SECURITY VULN-005: Authenticate every socket connection ──────────────
-  io.use((socket, next) => {
+  // ─── PHASE 1: DEVICE & STUDENT SECURE SOCKET AUTHENTICATION ───────────────
+  io.use(async (socket, next) => {
     try {
-      const token = socket.handshake.auth?.token
-        || socket.handshake.headers?.authorization?.replace("Bearer ", "");
+      const studentToken = socket.handshake.auth?.token || socket.handshake.headers?.authorization?.replace("Bearer ", "");
+      const deviceToken = socket.handshake.auth?.deviceToken || socket.handshake.headers?.["x-device-authorization"]?.replace("Bearer ", "");
+      const machineFingerprint = socket.handshake.auth?.machineFingerprint || socket.handshake.headers?.["x-machine-fingerprint"];
 
-      if (!token) {
-        console.warn(`[SOCKET SECURITY] Connection rejected — no token. socket.id: ${socket.id}`);
+      if (!studentToken) {
+        console.warn(`[SOCKET SECURITY] Connection rejected — no student token. socket.id: ${socket.id}`);
         return next(new Error("AUTH_REQUIRED"));
       }
 
-      const decoded = jwt.verify(token, JWT_SECRET);
-      socket.user = decoded; // Attach decoded user to socket instance
+      // Verify Student Token
+      const decodedUser = jwt.verify(studentToken, JWT_SECRET);
+      socket.user = decodedUser;
+
+      // Verify Device Token (If strict Lab Security is active, Admin/HOD may bypass this rule if needed, but students cannot)
+      if (decodedUser.role === "student") {
+        if (!deviceToken || !machineFingerprint) {
+          console.warn(`[SOCKET SECURITY] Student rejected — no device token. socket.id: ${socket.id}`);
+          return next(new Error("DEVICE_AUTH_REQUIRED"));
+        }
+
+        const Device = mongoose.model("Device");
+        const device = await Device.findOne({ machineFingerprint, status: "approved" });
+
+        if (!device || !device.deviceSecret) {
+          console.warn(`[SOCKET SECURITY] Student rejected — unauthorized device. socket.id: ${socket.id}`);
+          return next(new Error("UNAUTHORIZED_DEVICE"));
+        }
+
+        const decodedDevice = jwt.verify(deviceToken, device.deviceSecret);
+        if (decodedDevice.machineFingerprint !== machineFingerprint) {
+          return next(new Error("FINGERPRINT_MISMATCH"));
+        }
+
+        socket.device = device;
+      }
+
       next();
     } catch (err) {
       console.warn(`[SOCKET SECURITY] Connection rejected — invalid token. Error: ${err.message}`);
@@ -133,6 +159,34 @@ export const initSocket = (server) => {
         violationCount,
         lastUpdate: new Date().toISOString()
       });
+    });
+
+    // ─── ELECTRON KIOSK EVENTS ────────────────────────────────────────────────
+    socket.on("live-frame", ({ deviceId, studentId, frame }) => {
+      if (!deviceId || !frame) return;
+      io.to(`monitoring-device-${deviceId}`).emit("live-frame-update", {
+        deviceId,
+        studentId,
+        frame,
+        timestamp: new Date().toISOString()
+      });
+    });
+
+    socket.on("security-violation", async ({ type, deviceId, studentId, examId, timestamp, evidenceImage }) => {
+      try {
+        const SecurityEvent = mongoose.model("SecurityEvent");
+        const newEvent = await SecurityEvent.create({
+          eventType: type,
+          deviceId,
+          studentId,
+          examId,
+          timestamp,
+          evidenceImage // Base64 string for Evidence Vault
+        });
+        io.to("admin-dashboard").emit("new-security-violation", newEvent);
+      } catch(e) {
+        console.error("Failed to save security violation from Electron:", e.message);
+      }
     });
 
     // ─── Device Management (Admin/Faculty only) ───────────────────────────

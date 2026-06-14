@@ -269,7 +269,7 @@ export const handleCreateHODStudent = async (req, res) => {
 // ─── POST /api/hod/exams ─────────────────────────────────────────────────────
 export const handleCreateHODExam = async (req, res) => {
   try {
-    const { title, course, description, duration, scheduledAt, questions, totalMarks } = req.body;
+    const { title, course, description, duration, scheduledAt, questions, totalMarks, security, status } = req.body;
     const facultyId = req.user.id || req.user._id;
     const departmentId = req.user.dept || req.user.department;
 
@@ -302,9 +302,10 @@ export const handleCreateHODExam = async (req, res) => {
       scheduledAt,
       questions,
       totalMarks,
+      security,
       faculty: facultyId,
       department: departmentId,
-      status: "scheduled"
+      status: status || "scheduled"
     });
 
     res.status(201).json(newExam);

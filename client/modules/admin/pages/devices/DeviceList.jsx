@@ -37,23 +37,28 @@ export default function DeviceList() {
   });
 
   const cols = [
-    { key: "hostname", header: "PC Name", sortable: true, render: (r) => (
+    { key: "deviceId", header: "Device ID", sortable: true, render: (r) => (
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center">
           <Monitor className="w-4 h-4 text-muted-foreground" />
         </div>
-        <p className="font-bold tracking-tight">{r.hostname}</p>
+        <p className="font-bold tracking-tight">{r.deviceId}</p>
       </div>
     )},
-    { key: "ipAddress", header: "IP", render: (r) => <span className="text-[10px] font-mono text-muted-foreground">{r.ipAddress}</span> },
-    { key: "dept", header: "Dept", sortable: true, render: (r) => r.department?.code || "GENERAL" },
-    { key: "status", header: "Status", sortable: true, render: (r) => (
-      <span className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest ${r.status === "online" ? "text-emerald-500" : r.status === "offline" ? "text-rose-500" : "text-primary"}`}>
-        <div className={`w-1.5 h-1.5 rounded-full ${r.status === "online" ? "bg-emerald-500 animate-pulse" : r.status === "offline" ? "bg-rose-500" : "bg-primary animate-bounce"}`} />
-        {r.status === 'online' ? 'Active' : r.status === 'offline' ? 'Offline' : r.status}
-      </span>
-    )},
-    { key: "lastSeen", header: "Last Active", render: (r) => <span className="text-[10px] font-medium text-muted-foreground/60">{r.lastSeen ? timeAgo(r.lastSeen) : "Never"}</span> },
+    { key: "macAddress", header: "MAC / Ident", render: (r) => <span className="text-[10px] font-mono text-muted-foreground">{r.macAddress}</span> },
+    { key: "lab", header: "Assigned Lab", sortable: true, render: (r) => r.labId?.name || "UNASSIGNED" },
+    { key: "status", header: "Status", sortable: true, render: (r) => {
+      const isOnline = r.lastHeartbeat && (new Date() - new Date(r.lastHeartbeat)) < 60000;
+      const statusColor = r.status === "approved" ? (isOnline ? "text-emerald-500" : "text-rose-500") : "text-primary";
+      const statusText = r.status === "approved" ? (isOnline ? "Active" : "Offline") : r.status;
+      return (
+        <span className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest ${statusColor}`}>
+          <div className={`w-1.5 h-1.5 rounded-full ${isOnline ? "bg-emerald-500 animate-pulse" : (r.status === 'approved' ? "bg-rose-500" : "bg-primary animate-bounce")}`} />
+          {statusText}
+        </span>
+      );
+    }},
+    { key: "lastHeartbeat", header: "Last Active", render: (r) => <span className="text-[10px] font-medium text-muted-foreground/60">{r.lastHeartbeat ? timeAgo(r.lastHeartbeat) : "Never"}</span> },
     { key: "actions", header: "", render: (r) => (
       <div className="flex justify-end">
         <Button variant="ghost" size="sm" className="h-9 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white/5" onClick={() => navigate(`${ROUTES.ADMIN_DEVICES}/${r._id}`)}>
@@ -63,11 +68,19 @@ export default function DeviceList() {
     )},
   ];
 
+  const getActiveCount = () => {
+    return devices?.filter(d => d.lastHeartbeat && (new Date() - new Date(d.lastHeartbeat)) < 60000).length || 0;
+  };
+
+  const getOfflineCount = () => {
+    return devices?.filter(d => !d.lastHeartbeat || (new Date() - new Date(d.lastHeartbeat)) >= 60000).length || 0;
+  };
+
   const stats = [
     { label: "All PCs", value: devices?.length || 0, color: "text-foreground", icon: <Cpu className="w-4 h-4" /> },
-    { label: "Active", value: devices?.filter(d => d.status === 'online').length || 0, color: "text-emerald-500", icon: <Wifi className="w-4 h-4" /> },
-    { label: "Offline", value: devices?.filter(d => d.status === 'offline').length || 0, color: "text-rose-500", icon: <WifiOff className="w-4 h-4" /> },
-    { label: "PC Usage", value: "0%", color: "text-primary", icon: <Activity className="w-4 h-4" /> },
+    { label: "Active", value: getActiveCount(), color: "text-emerald-500", icon: <Wifi className="w-4 h-4" /> },
+    { label: "Offline", value: getOfflineCount(), color: "text-rose-500", icon: <WifiOff className="w-4 h-4" /> },
+    { label: "PC Usage", value: devices?.length ? `${Math.round((getActiveCount() / devices.length) * 100)}%` : "0%", color: "text-primary", icon: <Activity className="w-4 h-4" /> },
   ];
 
   return (

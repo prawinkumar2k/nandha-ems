@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { ROUTES } from "@/core/constants/routes";
 import { 
   LayoutDashboard, FileText, HelpCircle, Eye, BarChart3, Plus, 
-  Trash2, Sparkles, Wand2, ShieldCheck, Clock, Calendar, Database, AlertCircle
+  Trash2, Sparkles, Wand2, ShieldCheck, Clock, Calendar, Database, AlertCircle, Shuffle
 } from "lucide-react";
 import { getHODNav, getFacultyNav } from "@/core/constants/navigation";
 import { useAuth } from "@/contexts/AuthContext";
@@ -46,7 +46,8 @@ export default function CreateExam() {
       maxViolations: 5,
       requireFullscreen: true,
       disableCopyPaste: true,
-      detectTabSwitch: true
+      detectTabSwitch: true,
+      randomizeQuestions: true
     }
   });
 
@@ -229,6 +230,21 @@ export default function CreateExam() {
                     inputClassName="rounded-2xl h-12"
                     placeholder="e.g. 5"
                   />
+                  <div className="flex items-center justify-between p-4 border-2 border-white/5 rounded-2xl bg-white/5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                        <Shuffle className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold">Randomize Question Sets</h4>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Generate unique A/B/C orders</p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" className="sr-only peer" checked={examInfo.security.randomizeQuestions} onChange={(e) => handleInfoChange("security.randomizeQuestions", e.target.checked)} />
+                      <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
+                  </div>
                 </div>
 
 

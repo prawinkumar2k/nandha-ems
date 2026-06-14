@@ -39,7 +39,7 @@ export function ViolationPanel({ violations = [] }) {
           ) : (
             violations.slice(0, 5).map((v, i) => (
               <motion.div
-                key={v.id || i}
+                key={v._id || v.id || i}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
@@ -50,14 +50,16 @@ export function ViolationPanel({ violations = [] }) {
               >
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center font-black">
-                    {v.student?.charAt(0) || "S"}
+                    {(v.studentName || v.student?.name || (typeof v.student === 'string' ? v.student : "S")).charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <h4 className="font-black text-sm tracking-tight">{v.student}</h4>
+                    <h4 className="font-black text-sm tracking-tight truncate w-32 whitespace-nowrap">
+                       {v.studentName || v.student?.name || (typeof v.student === 'string' ? v.student : "Unknown")}
+                    </h4>
                     <div className="flex items-center gap-2 opacity-70 text-[10px] font-bold uppercase mt-0.5">
-                      <span>{v.type}</span>
+                      <span className="truncate max-w-[80px]">{v.type}</span>
                       <span>•</span>
-                      <span className="flex items-center gap-1"><Clock className="w-2.5 h-2.5" /> {formatDistanceToNow(new Date(v.timestamp))} ago</span>
+                      <span className="flex items-center gap-1 whitespace-nowrap"><Clock className="w-2.5 h-2.5" /> {formatDistanceToNow(new Date(v.timestamp || v.createdAt))} ago</span>
                     </div>
                   </div>
                 </div>
