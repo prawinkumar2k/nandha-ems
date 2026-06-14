@@ -108,7 +108,7 @@ export default function Login() {
 
           <div className="mt-8 text-center pt-8 border-t border-white/5">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
-              developed by prawinkumar &copy; {new Date().getFullYear()} All rights received
+              developed by Prawinkumar N &copy; {new Date().getFullYear()} All rights received
             </p>
           </div>
         </div>

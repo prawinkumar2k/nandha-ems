@@ -80,7 +80,7 @@ export function MainLayout({ children, navItems = [], title }) {
           
           <footer className="p-6 text-center border-t border-white/5">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/30">
-              developed by prawinkumar &copy; {new Date().getFullYear()} All rights received
+              developed by Prawinkumar N &copy; {new Date().getFullYear()} All rights received
             </p>
           </footer>
         </main>

@@ -46,7 +46,7 @@ export function DeviceLogin() {
       </div>
       <footer className="w-full text-center py-6 mt-auto">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500/50">
-          developed by prawinkumar &copy; {new Date().getFullYear()} All rights received
+          developed by Prawinkumar N &copy; {new Date().getFullYear()} All rights received
         </p>
       </footer>
     </div>
@@ -84,7 +84,7 @@ export function WaitingScreen() {
       </div>
       <footer className="w-full text-center py-6 mt-auto">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500/50">
-          developed by prawinkumar &copy; {new Date().getFullYear()} All rights received
+          developed by Prawinkumar N &copy; {new Date().getFullYear()} All rights received
         </p>
       </footer>
     </div>
@@ -142,7 +142,7 @@ export function ExamMode() {
       </div>
       <footer className="w-full text-center py-6 mt-auto">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500/50">
-          developed by prawinkumar &copy; {new Date().getFullYear()} All rights received
+          developed by Prawinkumar N &copy; {new Date().getFullYear()} All rights received
         </p>
       </footer>
     </div>
@@ -165,7 +165,7 @@ export function LockScreen() {
       </div>
       <footer className="w-full text-center py-6 mt-auto">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500/50">
-          developed by prawinkumar &copy; {new Date().getFullYear()} All rights received
+          developed by Prawinkumar N &copy; {new Date().getFullYear()} All rights received
         </p>
       </footer>
     </div>
@@ -197,7 +197,7 @@ export function ViolationScreen() {
       </div>
       <footer className="w-full text-center py-6 mt-auto">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500/50">
-          developed by prawinkumar &copy; {new Date().getFullYear()} All rights received
+          developed by Prawinkumar N &copy; {new Date().getFullYear()} All rights received
         </p>
       </footer>
     </div>

@@ -29,7 +29,7 @@ export default function Unauthorized() {
       
       <footer className="w-full text-center py-6">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
-          developed by prawinkumar &copy; {new Date().getFullYear()} All rights received
+          developed by Prawinkumar N &copy; {new Date().getFullYear()} All rights received
         </p>
       </footer>
     </div>

@@ -30,7 +30,7 @@ export function AuthLayout({ children, title, subtitle }) {
         </div>
 
         <p className="text-center text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mt-8">
-          developed by prawinkumar &copy; {new Date().getFullYear()} All rights received
+          developed by Prawinkumar N &copy; {new Date().getFullYear()} All rights received
         </p>
       </div>
     </div>
