@@ -5,6 +5,8 @@ import bcrypt from "bcryptjs";
 // Load models
 import "./models/Department.js";
 import "./models/User.js";
+import "./models/Course.js";
+import "./models/Exam.js";
 
 async function seed() {
   const uri = process.env.MONGODB_URI || "mongodb://mongo:27017/neclms";
@@ -78,6 +80,46 @@ async function seed() {
     rollNumber: "22CS101",
     mustChangePassword: false,
     isActive: true
+  });
+
+  console.log("Creating default courses and exams...");
+  const Course = mongoose.model("Course");
+  const Exam = mongoose.model("Exam");
+
+  // Clear existing courses and exams to prevent duplicates on re-seed
+  await Course.deleteMany({ code: "ECE301" });
+  await Exam.deleteMany({ title: "Midterm Evaluation" });
+
+  const facultyUser = await User.findOne({ email: "faculty@nec.edu.in" });
+  const studentUser = await User.findOne({ email: "acestudent@nec.edu.in" });
+
+  const course = await Course.create({
+    title: "Advanced Microprocessors",
+    code: "ECE301",
+    description: "In-depth study of microprocessor architecture.",
+    department: ece._id,
+    faculty: facultyUser._id,
+    semester: 5,
+    credits: 4,
+    enrolledStudents: [studentUser._id],
+    academicYear: "2025-2026",
+    isActive: true
+  });
+
+  await Exam.create({
+    title: "Midterm Evaluation",
+    description: "Covers chapters 1 through 4.",
+    course: course._id,
+    faculty: facultyUser._id,
+    department: ece._id,
+    totalMarks: 50,
+    duration: 60,
+    scheduledAt: new Date(Date.now() + 86400000), // Tomorrow
+    allowedStudents: [studentUser._id],
+    status: "scheduled",
+    isPublished: true,
+    approvedByHod: true,
+    passingMarks: 20
   });
 
   console.log("✅ Seed complete! You can now log in with the default accounts (password: password123)");
