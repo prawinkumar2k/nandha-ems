@@ -22,7 +22,7 @@ services:
       - NODE_ENV=production
       - PORT=8080
       - MONGODB_URI=${MONGODB_URI:-mongodb://mongo:27017/neclms}
-      - JWT_SECRET=${JWT_SECRET:-neclms_super_secret_key_12345}
+      - JWT_SECRET=${JWT_SECRET:-neclms_super_secure_production_jwt_fallback_key_123}
       - REDIS_URL=redis://redis:6379
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-*}
       - JUDGE0_URL=http://judge0-server:2358
