@@ -12,10 +12,10 @@ import { getAdminNav } from "@/core/constants/navigation";
 
 const NAV = getAdminNav();
 
-const SAMPLE_DATA = `name,email,role,department,rollNumber,employeeId
-Alice Johnson,alice@example.com,student,CSE,21BCE001,
-Bob Smith,bob@example.com,faculty,ECE,,FAC001
-Carol White,carol@example.com,student,ME,21BCE002,`;
+const SAMPLE_DATA = `name,email,role,department,rollNumber,employeeId,password
+Alice Johnson,alice@example.com,student,CSE,21BCE001,,password123
+Bob Smith,bob@example.com,faculty,ECE,,FAC001,faculty123
+Carol White,carol@example.com,student,ME,21BCE002,,student123`;
 
 export default function BulkUpload() {
   const [file, setFile] = useState(null);

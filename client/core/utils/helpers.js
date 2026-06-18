@@ -73,13 +73,15 @@ export const validateLoginForm = ({ email, password }) => {
   return errors;
 };
 
-export const validateUserForm = ({ name, email, role, department }) => {
+export const validateUserForm = ({ name, email, role, department, password }) => {
   const errors = {};
   if (!name?.trim()) errors.name = "Name is required.";
   if (!email) errors.email = "Email is required.";
   else if (!isEmail(email)) errors.email = "Invalid email.";
   if (!role) errors.role = "Role is required.";
   if (!department) errors.department = "Department is required.";
+  if (!password) errors.password = "Password is required.";
+  else if (password.length < 6) errors.password = "Minimum 6 characters.";
   return errors;
 };
 

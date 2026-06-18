@@ -44,7 +44,7 @@ export default function AddUser() {
     : [];
 
   const { values, errors, touched, isSubmitting, handleChange, handleBlur, handleSubmit, setValue } =
-    useForm({ name: "", email: "", role: "student", department: "", rollNumber: "", employeeId: "" }, validateUserForm);
+    useForm({ name: "", email: "", role: "student", department: "", rollNumber: "", employeeId: "", password: "" }, validateUserForm);
 
   const onSubmit = handleSubmit(async (vals) => {
     try {
@@ -98,6 +98,11 @@ export default function AddUser() {
                       value={values.email} onChange={handleChange} onBlur={handleBlur} error={errors.email} touched={touched.email} />
                   </div>
                   <div className="space-y-2">
+                    <FormField id="password" name="password" label="Password" type="password" required placeholder="Temporary password"
+                      className="rounded-2xl border-white/10 bg-white/5"
+                      value={values.password} onChange={handleChange} onBlur={handleBlur} error={errors.password} touched={touched.password} />
+                  </div>
+                  <div className="space-y-2">
                     <FormSelect id="role" label="Work Role" required options={ROLE_OPTIONS}
                       className="rounded-2xl border-white/10 bg-white/5"
                       value={values.role} onChange={(v) => setValue("role", v)} error={errors.role} touched={touched.role} />
@@ -133,7 +138,7 @@ export default function AddUser() {
                          Login Info <Sparkles className="w-3 h-3 text-accent" />
                       </p>
                       <p className="text-muted-foreground text-xs leading-relaxed mt-1 font-medium">
-                        The system will create a password and send it to the email provided. The user must change it when they login for the first time.
+                        The user must use the password specified above to login. They will be required to change it upon their first successful login.
                       </p>
                     </div>
                   </div>

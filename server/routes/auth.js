@@ -13,8 +13,8 @@ export const handleLogin = async (req, res) => {
       return res.status(400).json({ message: "Email and password are required" });
     }
 
-    // Find user and include password for comparison
-    const user = await User.findOne({ email }).select("+password");
+    // Find user and include password for comparison, and populate department
+    const user = await User.findOne({ email }).select("+password").populate("department", "name code");
 
     // Log failures
     if (!user) {
@@ -68,7 +68,7 @@ export const handleLogin = async (req, res) => {
         jti,                                         // Unique token ID for revocation
         id: user._id.toString(),
         role: user.role,
-        dept: user.department
+        dept: user.department?._id || user.department
       },
       JWT_SECRET,
       { expiresIn: "24h" }

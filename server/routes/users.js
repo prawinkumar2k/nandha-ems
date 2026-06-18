@@ -129,7 +129,7 @@ export const handleBulkUpload = async (req, res) => {
         department: deptMap[u.department] || null,
         rollNumber: u.rollNumber || "",
         employeeId: u.employeeId || "",
-        password: "password", // default hashed by model hook usually, but we might need to hash here if create isn't used
+        password: u.password || "password", // default hashed by model hook usually
         mustChangePassword: true,
         isActive: true,
         isVerified: true
