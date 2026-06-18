@@ -22,6 +22,8 @@ const AdminPendingDevices = lazy(() => import("@/modules/admin/pages/devices/Pen
 const AdminDeviceDetails = lazy(() => import("@/modules/admin/pages/devices/DeviceDetails"));
 const AdminLabTopology = lazy(() => import("@/modules/admin/pages/lab/LabTopology"));
 const AdminAllExams = lazy(() => import("@/modules/admin/pages/exams/AllExams"));
+const AdminCourseRegistry = lazy(() => import("@/modules/admin/pages/courses/CourseRegistry"));
+const AdminDepartmentRegistry = lazy(() => import("@/modules/admin/pages/departments/DepartmentRegistry"));
 const AdminLiveMonitoring = lazy(() => import("@/modules/admin/pages/monitoring/LiveMonitoring"));
 const AdminSecurityEvents = lazy(() => import("@/modules/admin/pages/logs/SecurityEvents"));
 const AdminReports = lazy(() => import("@/modules/admin/pages/Reports"));
@@ -89,6 +91,8 @@ export function PrivateRoutes() {
       <Route path={ROUTES.ADMIN_DEVICES_DETAILS} element={<ProtectedRoute allowedRoles="admin"><S><AdminDeviceDetails /></S></ProtectedRoute>} />
       <Route path={ROUTES.ADMIN_LABS} element={<ProtectedRoute allowedRoles="admin"><S><AdminLabTopology /></S></ProtectedRoute>} />
       <Route path={ROUTES.ADMIN_EXAMS} element={<ProtectedRoute allowedRoles="admin"><S><AdminAllExams /></S></ProtectedRoute>} />
+      <Route path={ROUTES.ADMIN_COURSES} element={<ProtectedRoute allowedRoles={["admin", "hod", "faculty"]}><S><AdminCourseRegistry /></S></ProtectedRoute>} />
+      <Route path={ROUTES.ADMIN_DEPARTMENTS} element={<ProtectedRoute allowedRoles="admin"><S><AdminDepartmentRegistry /></S></ProtectedRoute>} />
       <Route path={ROUTES.ADMIN_MONITORING} element={<ProtectedRoute allowedRoles="admin"><S><AdminLiveMonitoring /></S></ProtectedRoute>} />
       <Route path={ROUTES.ADMIN_REPORTS} element={<ProtectedRoute allowedRoles="admin"><S><AdminReports /></S></ProtectedRoute>} />
       <Route path={ROUTES.ADMIN_LOGS_LOGIN} element={<ProtectedRoute allowedRoles="admin"><S><AdminLoginLogs /></S></ProtectedRoute>} />

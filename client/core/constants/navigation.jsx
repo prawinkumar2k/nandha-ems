@@ -24,7 +24,13 @@ export const getAdminNav = () => [
       { label: "Security Events", path: ROUTES.ADMIN_SECURITY_EVENTS },
     ],
   },
-  { label: "All Exams", icon: <BookOpen className="w-4 h-4" />, path: ROUTES.ADMIN_EXAMS },
+  {
+    label: "Exams & Courses", icon: <BookOpen className="w-4 h-4" />, children: [
+      { label: "All Exams", path: ROUTES.ADMIN_EXAMS },
+      { label: "Course Registry", path: ROUTES.ADMIN_COURSES },
+      { label: "Department Registry", path: ROUTES.ADMIN_DEPARTMENTS },
+    ]
+  },
   { label: "Live Monitoring", icon: <BarChart3 className="w-4 h-4" />, path: ROUTES.ADMIN_MONITORING },
   {
     label: "Violations & Logs", icon: <ClipboardList className="w-4 h-4" />, children: [
@@ -54,6 +60,7 @@ export const getHODNav = () => [
   {
     label: "Exams", icon: <BookOpen className="w-4 h-4" />, children: [
       { label: "Exam List", path: ROUTES.HOD_EXAMS },
+      { label: "Course Registry", path: ROUTES.ADMIN_COURSES },
       { label: "Create Exam", path: ROUTES.FACULTY_CREATE_EXAM },
       { label: "Question Bank", path: ROUTES.FACULTY_QUESTION_BANK },
       { label: "Results", path: ROUTES.FACULTY_RESULTS },
@@ -71,6 +78,7 @@ export const getHODNav = () => [
 // ─── Faculty Navigation ───────────────────────────────────────────────────────
 export const getFacultyNav = () => [
   { label: "Dashboard", icon: <LayoutDashboard className="w-4 h-4" />, path: ROUTES.FACULTY_DASHBOARD },
+  { label: "Course Registry", icon: <BookOpen className="w-4 h-4" />, path: ROUTES.ADMIN_COURSES },
   { label: "Create Exam", icon: <FileText className="w-4 h-4" />, path: ROUTES.FACULTY_CREATE_EXAM },
   { label: "Question Bank", icon: <HelpCircle className="w-4 h-4" />, path: ROUTES.FACULTY_QUESTION_BANK },
   { label: "Live Proctoring", icon: <Eye className="w-4 h-4" />, path: ROUTES.FACULTY_MONITORING },

@@ -94,7 +94,7 @@ export default function AdvancedReportingEngine() {
               </head>
               <body>
                 <div class="header">
-                  <span>NEClms SYSTEM WIDE REPORT</span>
+                  <span>NEC EMS SYSTEM WIDE REPORT</span>
                   <span>DATE: ${new Date().toLocaleDateString()}</span>
                 </div>
                 <h1>${selectedReport}</h1>
@@ -244,3 +244,4 @@ export default function AdvancedReportingEngine() {
     </MainLayout>
   );
 }
+

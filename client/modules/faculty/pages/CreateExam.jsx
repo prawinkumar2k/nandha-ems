@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MainLayout } from "@/shared/layouts/MainLayout";
 import { FormField, FormSelect, FormTextarea } from "@/shared/components/Form/FormField";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { getHODNav, getFacultyNav } from "@/core/constants/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSocket } from "@/contexts/SocketContext";
 import { apiClient } from "@/core/api/client";
 import { QuestionFactory } from "../components/QuestionFactory";
 
@@ -30,7 +31,9 @@ const EMPTY_Q = {
 
 export default function CreateExam() {
   const { user } = useAuth();
+  const socket = useSocket();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [questions, setQuestions] = useState([{ ...EMPTY_Q }]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBankOpen, setIsBankOpen] = useState(false);
@@ -106,14 +109,21 @@ export default function CreateExam() {
   const { data: allCourses } = useQuery({
     queryKey: ["all-courses"],
     queryFn: () => apiClient.get("/api/courses"),
-    enabled: user?.role !== "faculty"
   });
 
-  // Prepare options array from fetched data
+  useEffect(() => {
+    if (!socket) return;
+    const handleCourseCreated = () => {
+      queryClient.invalidateQueries(["all-courses"]);
+      queryClient.invalidateQueries(["faculty-courses"]);
+    };
+    socket.on("course_created", handleCourseCreated);
+    return () => socket.off("course_created", handleCourseCreated);
+  }, [socket, queryClient]);
+
+  // Prepare options array from fetched data (show all courses)
   let courseOptions = [];
-  if (user?.role === "faculty" && coursesData?.courses) {
-    courseOptions = coursesData.courses.map((c) => ({ value: c.id, label: `${c.code} - ${c.name}` }));
-  } else if (allCourses?.length) {
+  if (allCourses?.length) {
     courseOptions = allCourses.map((c) => ({ value: c._id, label: `${c.code} - ${c.title}` }));
   }
 

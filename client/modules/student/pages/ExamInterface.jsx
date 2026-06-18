@@ -36,7 +36,7 @@ export default function ExamInterface() {
         <AlertTriangle className="w-16 h-16 text-rose-500 mb-6" />
         <h1 className="text-3xl font-bold mb-4">ACCESS DENIED</h1>
         <p className="text-slate-400 text-lg max-w-lg text-center mb-8">
-          This examination requires the NEClms Secure Client. You cannot take this exam from a standard web browser.
+          This examination requires the NEC EMS Secure Client. You cannot take this exam from a standard web browser.
         </p>
         <Button onClick={() => navigate(-1)} variant="outline">Return to Dashboard</Button>
       </div>
@@ -89,6 +89,11 @@ export default function ExamInterface() {
           setViolationLog(sessionData.violations);
           setViolations(sessionData.totalViolations || 0);
           violationCountRef.current = sessionData.totalViolations || 0;
+        }
+
+        // Notify Electron native wrapper that the exam has started
+        if (window.electronAPI && window.electronAPI.startExam) {
+          window.electronAPI.startExam(examId, user.id || user._id);
         }
 
         setError(null);
@@ -270,8 +275,10 @@ export default function ExamInterface() {
         }
 
         const video = document.createElement("video");
+        video.muted = true;
+        video.playsInline = true;
         video.srcObject = stream;
-        video.play();
+        video.play().catch(e => console.error("Autoplay failed:", e));
         monitorVideoRef.current = video;
         streamRef.current = stream;
 
@@ -322,11 +329,10 @@ export default function ExamInterface() {
 
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-    const video = monitorVideoRef.current;
-
     let lastPeriodicShot = Date.now();
     const interval = setInterval(() => {
-      if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
+      const video = monitorVideoRef.current;
+      if (video && video.readyState >= 2) {
         // 1. Live Feed (Optimized for clarity)
         canvas.width = 640; 
         canvas.height = 360;
@@ -371,6 +377,7 @@ export default function ExamInterface() {
     if (!submissionId) return;
     try {
       setSubmitted(true);
+      await apiClient.put(`/api/submissions/${submissionId}/answers`, { answers });
       await apiClient.post(`/api/submissions/${submissionId}/submit`, { 
         answers, 
         terminationReason: reason 
@@ -571,3 +578,4 @@ export default function ExamInterface() {
     </div>
   );
 }
+

@@ -8,3 +8,11 @@ pnpm-lock.yaml
 yarn.lock
 .DS_Store
 *.log
+# Electron build output
+release/
+*.tar.gz
+# Server temp files
+server/temp_code/
+# AI agent files
+AGENT.md
+CLAUDE.md

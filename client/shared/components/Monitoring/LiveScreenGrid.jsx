@@ -44,9 +44,19 @@ export const LiveScreenGrid = ({ examId }) => {
   useEffect(() => {
     if (!socket || !examId) return;
 
-    console.log(`🔌 [SURVEILLANCE] Connecting to room: monitoring-${examId}`);
-    socket.emit("join-exam-room-monitoring", examId);
-    setDebugInfo(d => ({ ...d, joins: d.joins + 1 }));
+    const joinRoom = () => {
+      console.log(`🔌 [SURVEILLANCE] Connecting to room: monitoring-${examId}`);
+      socket.emit("join-exam-room-monitoring", examId);
+      setDebugInfo(d => ({ ...d, joins: d.joins + 1 }));
+    };
+
+    // Join immediately if already connected
+    if (socket.connected) {
+      joinRoom();
+    }
+
+    // Re-join if socket reconnects
+    socket.on("connect", joinRoom);
 
     const handleScreenUpdate = (data) => {
       console.log(`📥 RECEIVED screen-update: ${data.studentName} (${data.studentId})`);
@@ -80,6 +90,7 @@ export const LiveScreenGrid = ({ examId }) => {
     }, 10000);
 
     return () => {
+      socket.off("connect", joinRoom);
       socket.off("screen-update", handleScreenUpdate);
       clearInterval(cleanup);
     };

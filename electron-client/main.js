@@ -45,6 +45,43 @@ function createWindow() {
     }
   });
 
+  // Strict Keyboard Blocking (Alt, Tab, Ctrl, Meta)
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    // Block Alt+Tab, Windows key (meta), Ctrl+C, Ctrl+V, F11, Alt+F4
+    if (
+      input.alt || 
+      input.meta || 
+      (input.control && ['c', 'v', 'x', 'a', 'r', 'p'].includes(input.key.toLowerCase())) ||
+      ['F11', 'F5', 'Escape'].includes(input.key)
+    ) {
+      console.log(`Strictly blocked key event: ${input.key} (alt: ${input.alt}, ctrl: ${input.control}, meta: ${input.meta})`);
+      event.preventDefault();
+      if (deviceStatus === "exam_running") logSecurityEvent(`STRICT_BLOCKED_KEY_${input.key.toUpperCase()}`);
+    }
+  });
+
+  // Automatically approve all camera/mic/screen share requests for the secure client
+  mainWindow.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
+    const allowedPermissions = ['media', 'display-capture', 'camera', 'microphone'];
+    if (allowedPermissions.includes(permission)) {
+      callback(true);
+    } else {
+      callback(false);
+    }
+  });
+
+  // Handle Desktop Capture (Screen Share) natively in Electron 29+
+  mainWindow.webContents.session.setDisplayMediaRequestHandler((request, callback) => {
+    const desktopCapturer = require('electron').desktopCapturer;
+    desktopCapturer.getSources({ types: ['screen'] }).then(sources => {
+      // Auto-select the first screen
+      callback({ video: sources[0], audio: 'loopback' });
+    }).catch(err => {
+      console.error('Failed to get screen sources:', err);
+      callback(); // Reject
+    });
+  });
+
   // Block new windows
   mainWindow.webContents.setWindowOpenHandler(() => {
     return { action: 'deny' };
@@ -240,6 +277,19 @@ async function initSocketConnection() {
 }
 
 // ─── IPC Hooks from Renderer ──────────────────────────────────────────────────
+ipcMain.on('exam-started', (event, { examId, studentId }) => {
+  deviceStatus = "exam_running";
+  currentExamId = examId;
+  currentStudentId = studentId;
+  console.log(`Exam Started: ${examId} by Student: ${studentId}`);
+});
+
+ipcMain.on('exam-submitted', () => {
+  deviceStatus = "online";
+  currentExamId = null;
+  console.log('Exam Submitted. Returned to idle.');
+});
+
 ipcMain.on('answers-updated', (event, { examId, answers }) => {
   const offlineEngine = require('./services/offline');
   offlineEngine.saveExamState({ examId, answers, timestamp: new Date() });
@@ -247,4 +297,8 @@ ipcMain.on('answers-updated', (event, { examId, answers }) => {
 
 ipcMain.on('log-violation', (event, type) => {
   logSecurityEvent(type);
+});
+
+ipcMain.on('exit-app', () => {
+  app.exit(0);
 });

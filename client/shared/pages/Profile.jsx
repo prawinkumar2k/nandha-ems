@@ -235,6 +235,7 @@ const ProfilePage = () => {
                   {profile.role === "faculty" && (
                     <>
                       {renderField(Hash, "User ID", profile.employeeId, "employeeId")}
+                      {renderField(Building2, "Department", profile.department?.name || profile.department, "department")}
                       {renderField(Briefcase, "Work Title", profile.designation, "designation")}
                       {renderField(ShieldCheck, "Skills", profile.specialization, "specialization")}
                     </>
@@ -242,8 +243,9 @@ const ProfilePage = () => {
                   {profile.role === "hod" && (
                     <>
                       {renderField(Hash, "User ID", profile.employeeId, "employeeId")}
+                      {renderField(Building2, "Department", profile.department?.name || profile.department, "department")}
                       {renderField(MapPin, "Room", profile.office, "office")}
-                      {renderField(ShieldCheck, "Department", profile.specialization, "specialization")}
+                      {renderField(ShieldCheck, "Specialization", profile.specialization, "specialization")}
                     </>
                   )}
                   

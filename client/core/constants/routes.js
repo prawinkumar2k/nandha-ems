@@ -21,6 +21,8 @@ export const ROUTES = {
   ADMIN_LABS: "/admin/labs",
   ADMIN_DEVICE_MONITOR: "/admin/device-monitor",
   ADMIN_EXAMS: "/admin/exams",
+  ADMIN_COURSES: "/admin/courses",
+  ADMIN_DEPARTMENTS: "/admin/departments",
   ADMIN_MONITORING: "/admin/monitoring",
   ADMIN_REPORTS: "/admin/reports",
   ADMIN_LOGS_LOGIN: "/admin/logs/login",

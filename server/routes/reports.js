@@ -59,6 +59,7 @@ export const handleGetFacultyStats = async (req, res) => {
 
     const completedExams = allExams.filter(e => e.status === "completed");
     const completedExamIds = completedExams.map(e => e._id);
+    const scheduledExams = allExams.filter(e => e.status === "scheduled" || e.status === "upcoming");
 
     const submissionsCount = await Submission.countDocuments({
       exam: { $in: completedExamIds },
@@ -88,6 +89,7 @@ export const handleGetFacultyStats = async (req, res) => {
       courseCount: courses.length,
       studentCount: studentCountResult[0]?.total || 0,
       pendingExams,
+      scheduledExams,
       avgAttendance,
       courses: courses.map(c => {
         const courseExams = allExams.filter(e => e.course?.toString() === c._id.toString());
@@ -181,7 +183,17 @@ export const handleGetFacultyResults = async (req, res) => {
     const Exam = mongoose.model("Exam");
     const facultyId = req.user.id || req.user._id;
 
-    const exams = await Exam.find({ faculty: facultyId }).select('_id title').lean();
+    let query = { faculty: facultyId };
+    
+    // If user is HOD, fetch all exams in their department
+    if (req.user.role === "hod" || req.user.role === "admin") {
+      const deptId = req.user.department?._id || req.user.department;
+      if (deptId) {
+        query = { department: deptId };
+      }
+    }
+
+    const exams = await Exam.find(query).select('_id title').lean();
     const examIds = exams.map(e => e._id);
 
     const submissions = await Submission.find({ exam: { $in: examIds } })

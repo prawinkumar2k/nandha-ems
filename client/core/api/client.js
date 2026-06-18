@@ -17,6 +17,7 @@ const request = async (method, endpoint, data = null, opts = {}) => {
   });
 
   if (res.status === 401) {
+    alert(`401 Unauthorized on ${method} ${endpoint}\nToken: ${!!token}`);
     sessionStorage.removeItem("authToken");
     sessionStorage.removeItem("user");
     window.location.href = "/login";

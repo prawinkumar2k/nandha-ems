@@ -44,8 +44,8 @@ import {
   handleRequestRevaluation
 } from "./routes/submissions.js";
 import { handleGetProfile, handleUpdateProfile, handleChangePassword, handleUploadProfilePic } from "./routes/profile.js";
-import { handleGetCourses } from "./routes/courses.js";
-import { handleGetDepartments } from "./routes/departments.js";
+import { handleGetCourses, handleCreateCourse } from "./routes/courses.js";
+import { handleGetDepartments, handleCreateDepartment } from "./routes/departments.js";
 import { handleGetLoginLogs, handleGetActivityLogs } from "./routes/logs.js";
 import { handleGetSettings, handleUpdateSettings } from "./routes/settings.js";
 import { handleGetQuestions, handleCreateQuestion, handleDeleteQuestion, handleUpdateQuestion } from "./routes/questions.js";
@@ -172,7 +172,9 @@ export function createServer() {
 
   // ─── Course & Department (Exam Metadata) ───────────────────────────────────
   app.get("/api/courses", handleGetCourses);
+  app.post("/api/courses", authMiddleware, roleMiddleware(["admin", "hod", "faculty"]), handleCreateCourse);
   app.get("/api/departments", handleGetDepartments);
+  app.post("/api/departments", authMiddleware, roleMiddleware(["admin"]), handleCreateDepartment);
 
   // ─── Exam Management ───────────────────────────────────────────────────────
   app.get("/api/exams", authMiddleware, handleGetExams);

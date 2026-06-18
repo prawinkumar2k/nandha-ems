@@ -1,7 +1,11 @@
 {
   "name": "mern-lms-platform",
+  "version": "1.0.0",
+  "description": "NEC EMS Secure Examination Platform",
+  "author": "Prawinkumar N",
   "private": true,
   "type": "module",
+  "main": "electron.cjs",
   "scripts": {
     "dev": "vite",
     "build": "npm run build:client && npm run build:server",
@@ -9,7 +13,22 @@
     "build:server": "vite build --config vite.config.server.js",
     "start": "node dist/server/node-build.mjs",
     "test": "vitest --run",
-    "format.fix": "prettier --write ."
+    "format.fix": "prettier --write .",
+    "build:exe": "electron-builder --win"
+  },
+  "build": {
+    "appId": "com.necems.kiosk",
+    "productName": "NEC EMS Secure Browser",
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
@@ -65,8 +84,11 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
+    "concurrently": "^10.0.3",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
+    "electron": "42.4.0",
+    "electron-builder": "^26.15.3",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.23.12",
     "input-otp": "^1.4.2",
@@ -90,7 +112,8 @@
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
     "vite": "^8.0.2",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.0",
+    "wait-on": "^9.0.10"
   },
   "packageManager": "pnpm@10.14.0+sha512.ad27a79641b49c3e481a16a805baa71817a04bbe06a38d17e60e2eaee83f6a146c6a688125f5792e48dd5ba30e7da52a5cda4c3992b9ccf333f9ce223af84748",
   "pkg": {

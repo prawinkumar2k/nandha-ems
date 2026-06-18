@@ -28,6 +28,9 @@ export const SocketProvider = ({ children }) => {
       reconnectionAttempts: 3,
       reconnectionDelay: 5000, // Less aggressive reconnection
       transports: ["websocket"],
+      auth: {
+        token: token
+      }
     });
 
     // Manually connect

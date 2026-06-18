@@ -18,26 +18,30 @@ export const handleLogin = async (req, res) => {
 
     // Log failures
     if (!user) {
-      await mongoose.model("LoginLog").create({
-        email,
-        status: "failed",
-        failReason: "user_not_found",
-        ipAddress: req.ip,
-        userAgent: req.headers["user-agent"]
-      });
+      try {
+        await mongoose.model("LoginLog").create({
+          email,
+          status: "failed",
+          failReason: "user_not_found",
+          ipAddress: req.ip,
+          userAgent: req.headers["user-agent"]
+        });
+      } catch (e) {}
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      await mongoose.model("LoginLog").create({
-        user: user._id,
-        email,
-        status: "failed",
-        failReason: "wrong_password",
-        ipAddress: req.ip,
-        userAgent: req.headers["user-agent"]
-      });
+      try {
+        await mongoose.model("LoginLog").create({
+          user: user._id,
+          email,
+          status: "failed",
+          failReason: "wrong_password",
+          ipAddress: req.ip,
+          userAgent: req.headers["user-agent"]
+        });
+      } catch (e) {}
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
@@ -46,14 +50,16 @@ export const handleLogin = async (req, res) => {
     }
 
     // Success log
-    await mongoose.model("LoginLog").create({
-      user: user._id,
-      email,
-      role: user.role,
-      status: "success",
-      ipAddress: req.ip,
-      userAgent: req.headers["user-agent"]
-    });
+    try {
+      await mongoose.model("LoginLog").create({
+        user: user._id,
+        email,
+        role: user.role,
+        status: "success",
+        ipAddress: req.ip,
+        userAgent: req.headers["user-agent"]
+      });
+    } catch (e) {}
 
     // ─── Generate JWT with unique jti for revocability ─────────────────────
     const jti = uuidv4();

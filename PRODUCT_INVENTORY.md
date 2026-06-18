@@ -1,4 +1,4 @@
-# NEClms: Enterprise Learning & Campus Management System
+# NEC EMS: Enterprise Learning & Campus Management System
 **Product Inventory & Architecture Report**
 *Status: Post-Sprint 2 Completion*
 
@@ -6,7 +6,7 @@
 
 ## 1. PROJECT INVENTORY
 
-**Product Name:** NEClms (Network Enabled Campus Learning Management System)
+**Product Name:** NEC EMS (Network Enabled Campus Learning Management System)
 **Product Purpose:** A unified, highly-secure enterprise application designed to manage academic life cycles, secure examination proctoring, and facilitate real-time inter-departmental communication and collaboration.
 **Architecture Overview:** MERN-based Single Page Application (SPA) utilizing a centralized Express REST API, MongoDB for persistent storage, GridFS for scalable BLOB storage (attachments/submissions), and Socket.io for low-latency real-time telemetry and messaging.
 **Technology Stack:**
@@ -169,3 +169,4 @@ User, Course, Department, Campus, LoginLog, ActivityLog, Device, Lab, LabSession
 
 **▶ Sprint 6: DevOps, Cloud Integration & Final Penetration Testing**
 *Focus:* Migrate local GridFS buckets to AWS S3 adapters. Deploy Dockerized cluster. Perform final load balancing and RED team security audits prior to V1.0 institutional handover.
+

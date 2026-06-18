@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ROLE_HOME } from "@/core/constants/roles";
 import { ROUTES } from "@/core/constants/routes";
 import { validateLoginForm, cn } from "@/core/utils/helpers";
-import { Mail, Lock, Eye, EyeOff, Sparkles, BookOpen } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, Sparkles, BookOpen, LogOut } from "lucide-react";
 import { useForm } from "@/core/hooks/useForm";
 
 export default function Login() {
@@ -35,6 +35,17 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-mesh relative overflow-hidden flex items-center justify-center p-4">
+      {window.electronAPI && (
+        <button 
+          onClick={() => window.electronAPI.exitApp()}
+          className="fixed top-6 right-6 z-50 px-4 py-2 bg-rose-500/10 hover:bg-rose-500 hover:text-white text-rose-500 rounded-xl transition-all duration-300 flex items-center gap-2 group font-bold tracking-widest text-xs uppercase backdrop-blur-md border border-rose-500/20"
+          title="Exit Application"
+        >
+          <LogOut className="w-4 h-4" />
+          <span>Exit Kiosk</span>
+        </button>
+      )}
+
       <div className="noise" />
       
       {/* Decorative blobs */}
@@ -52,10 +63,10 @@ export default function Login() {
           
           <div className="mb-10 text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-transparent mb-6 animate-glow">
-              <img src="/logo.png" alt="NEClms Logo" className="w-full h-full object-contain" />
+              <img src="/logo.png" alt="NEC EMS Logo" className="w-full h-full object-contain" />
             </div>
             <h1 className="text-3xl font-black tracking-tight text-foreground mb-2 flex items-center justify-center gap-2">
-              NEClms <Sparkles className="w-5 h-5 text-accent animate-pulse" />
+              NEC EMS <Sparkles className="w-5 h-5 text-accent animate-pulse" />
             </h1>
             <p className="text-muted-foreground font-medium uppercase tracking-[0.2em] text-[10px]">Enterprise Campus Platform</p>
           </div>
@@ -116,3 +127,4 @@ export default function Login() {
     </div>
   );
 }
+

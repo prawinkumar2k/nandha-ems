@@ -1,5 +1,5 @@
 {
-  "name": "neclms-secure-exam-client",
+  "name": "nec-ems-secure-exam-client",
   "version": "1.0.0",
   "description": "Enterprise Secure Laboratory Examination Client",
   "main": "main.js",
@@ -19,7 +19,7 @@
     "electron-builder": "^24.9.1"
   },
   "build": {
-    "appId": "com.neclms.examclient",
+    "appId": "com.NEC EMS.examclient",
     "win": {
       "target": "nsis"
     },
@@ -37,3 +37,4 @@
     }
   }
 }
+

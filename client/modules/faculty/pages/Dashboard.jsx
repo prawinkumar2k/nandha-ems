@@ -222,10 +222,10 @@ export default function FacultyDashboard() {
               <CardContent className="pt-6 space-y-4">
                 {isLoading ? (
                   <Skeleton className="h-20 w-full rounded-2xl opacity-10" />
-                ) : dashboard?.pendingExams?.length === 0 ? (
+                ) : dashboard?.scheduledExams?.length === 0 ? (
                   <p className="text-center text-xs font-black uppercase text-muted-foreground/40 italic py-4">No upcoming exams</p>
                 ) : (
-                  dashboard?.pendingExams?.map((e) => (
+                  dashboard?.scheduledExams?.map((e) => (
                     <div key={e._id} className="p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between group">
                        <div>
                          <p className="font-bold text-sm tracking-tight">{e.title}</p>

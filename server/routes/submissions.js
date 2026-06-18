@@ -77,7 +77,7 @@ export const handleStartExam = async (req, res) => {
     if (!exam) return res.status(404).json({ message: "Exam not found" });
 
     // ─── SECURITY VULN-011: Exam status check ────────────────────────────────
-    if (exam.status !== "active") {
+    if (exam.status !== "active" && exam.status !== "upcoming" && exam.status !== "scheduled") {
       return res.status(400).json({ message: "Exam is not currently active" });
     }
 

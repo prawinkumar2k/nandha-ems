@@ -197,6 +197,7 @@ export default function AnswerCenter() {
                           Q{idx + 1} • {q.type.toUpperCase()} • {q.marks || 1} Marks
                         </Badge>
                         <CardTitle className="text-lg font-bold leading-relaxed">{q.text}</CardTitle>
+                      </div>
                       <div className="flex items-center gap-4">
                         {(q.type === "descriptive" || q.type === "code") && (
                           <div className="flex items-center gap-2 bg-black/20 p-1.5 rounded-xl border border-white/5">

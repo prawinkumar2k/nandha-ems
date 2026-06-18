@@ -48,9 +48,19 @@ router.post("/register", async (req, res) => {
       });
     }
 
+    let deviceToken = undefined;
+    if (device.status === "approved" && device.deviceSecret) {
+      deviceToken = jwt.sign(
+        { id: device._id, deviceId: device.deviceId, machineFingerprint: device.machineFingerprint },
+        device.deviceSecret,
+        { expiresIn: "3650d" }
+      );
+    }
+
     res.status(200).json({
       success: true,
       status: device.status,
+      deviceToken,
       message: device.status === "pending" ? "Waiting for Admin Approval" : "Device Registered",
     });
   } catch (error) {
