@@ -1,61 +1,87 @@
-import { executeCode } from "../utils/codeExecutor.js";
-import { exec } from "child_process";
-
 export const handleRunCode = async (req, res) => {
     try {
         const { language, code, input } = req.body;
-        console.log(`🚀 [EXECUTOR] Request: ${language}`);
+        console.log(`🚀 [JUDGE0] Request: ${language}`);
 
         if (!language || !code) {
-            console.error("❌ [EXECUTOR] Missing required fields");
             return res.status(400).json({ message: "Language and code are required." });
         }
 
-        // Basic Security: Block dangerous keywords
-        const dangerousKeywords = [
-            "child_process", "fs.readFileSync", "fs.writeFile", "fs.unlink", 
-            "rm -rf", "format c:", "system(", "exec(", 
-            "os.system", "shutil.", "subprocess.run", "subprocess.Popen",
-            "process.exit", "eval(", "Function("
-        ];
+        const languageMap = {
+            javascript: 63,
+            python: 71,
+            java: 62,
+            c: 50,
+            cpp: 54,
+            rust: 73,
+            bash: 46
+        };
 
-        for (const word of dangerousKeywords) {
-            if (code.includes(word)) {
-                return res.status(403).json({ 
-                    output: "", 
-                    error: `Security Alert: Dangerous keyword detected [${word}]. This execution is restricted.` 
-                });
-            }
+        const language_id = languageMap[language];
+        if (!language_id) {
+            return res.status(400).json({ message: "Unsupported language." });
         }
 
-        console.log(`🛠️ [EXECUTOR] Running ${language} code block...`);
-        const result = await executeCode(language, code, input || "");
-        console.log(`✅ [EXECUTOR] Result: ${result.output?.length || 0} bytes output`);
-        res.json(result);
+        const response = await fetch("http://judge0-server:2358/submissions?base64_encoded=false&wait=true", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                source_code: code,
+                language_id,
+                stdin: input || ""
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            return res.status(500).json({ error: "Judge0 execution failed", details: data });
+        }
+
+        if (data.status && data.status.id > 3) {
+            // Error states (Compilation Error, Runtime Error, etc)
+            return res.json({
+                output: data.compile_output || data.message || "",
+                error: data.stderr || data.status.description || "Execution failed"
+            });
+        }
+
+        res.json({
+            output: data.stdout || "",
+            error: data.stderr || ""
+        });
     } catch (error) {
-        console.error("🔥 [EXECUTOR] CRASH:", error);
-        res.status(500).json({ message: "Internal server error during code execution." });
+        console.error("🔥 [JUDGE0] CRASH:", error);
+        res.status(500).json({ message: "Internal server error connecting to Judge0." });
     }
 };
 
 export const handleCheckCompilers = async (req, res) => {
     try {
-        const MINGW_PATH = "C:\\mingw64\\bin";
-        const env = { ...process.env, PATH: `${process.env.PATH};${MINGW_PATH}` };
-        const check = (cmd) => new Promise(r => exec(cmd, { env }, (err) => r(!err)));
-        
-        const results = {
-            javascript: await check("node -v"),
-            python: await check("python --version") || await check("py --version"),
-            java: await check("javac -version"),
-            rust: await check("rustc --version"),
-            c: await check("gcc --version"),
-            cpp: await check("g++ --version"),
-            bash: await check("bash --version")
-        };
-        
-        res.json({ compilers: results });
+        // Ping Judge0 to ensure it's alive
+        const response = await fetch("http://judge0-server:2358/languages");
+        const isAlive = response.ok;
+
+        res.json({ 
+            compilers: {
+                javascript: isAlive,
+                python: isAlive,
+                java: isAlive,
+                rust: isAlive,
+                c: isAlive,
+                cpp: isAlive,
+                bash: isAlive
+            } 
+        });
     } catch (error) {
-        res.status(500).json({ message: "Failed to check compilers" });
+        // If Judge0 is unreachable, fallback to false
+        res.json({ 
+            compilers: {
+                javascript: false, python: false, java: false, 
+                rust: false, c: false, cpp: false, bash: false
+            } 
+        });
     }
 };
