@@ -8,12 +8,13 @@ import { apiClient } from "@/core/api/client";
 import { useToast } from "@/hooks/use-toast";
 
 // ─── Configure Monaco for OFFLINE usage ──────────────────────────────────────
-// This prevents it from trying to fetch the worker scripts from jsDelivr/CDN
-loader.config({
-  paths: {
-    vs: "/monaco/vs", // Point to local assets in public folder
-  },
-});
+// If public/monaco/vs exists locally, uncomment this to use it offline. 
+// Otherwise, it defaults to the jsDelivr CDN which always works.
+// loader.config({
+//   paths: {
+//     vs: "/monaco/vs", // Point to local assets in public folder
+//   },
+// });
 
 const DEFAULT_CODE = {
   python: 'print("Hello from Python!")',
