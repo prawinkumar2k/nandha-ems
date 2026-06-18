@@ -1,7 +1,7 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
-RUN npm install -g pnpm && pnpm install --frozen-lockfile
+RUN npm install -g pnpm && pnpm install --no-frozen-lockfile
 COPY . .
 # Build the client statically
 RUN pnpm run build
@@ -9,7 +9,7 @@ RUN pnpm run build
 FROM node:20-alpine AS production
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
-RUN npm install -g pnpm && pnpm install --prod --frozen-lockfile
+RUN npm install -g pnpm && pnpm install --prod --no-frozen-lockfile
 # Copy server source
 COPY server/ ./server/
 # Copy static built assets
