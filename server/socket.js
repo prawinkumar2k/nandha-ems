@@ -14,8 +14,13 @@ export const initSocket = (server) => {
 
   io = new Server(server, {
     cors: {
-      // ─── SECURITY VULN-005: No more wildcard CORS ─────────────────────────
-      origin: allowedOrigins,
+      origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(origin) || process.env.NODE_ENV !== "production") {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
       credentials: true
     }
   });
