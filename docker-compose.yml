@@ -9,7 +9,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./dist/spa:/var/www/neclms/html:ro
+      - frontend_assets:/var/www/neclms/html:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - neclms-api
@@ -31,6 +31,8 @@ services:
     depends_on:
       - redis
       - mongo
+    volumes:
+      - frontend_assets:/app/dist/spa
 
   # Socket.io Backplane & Cache
   redis:
@@ -89,3 +91,4 @@ volumes:
   redis_data:
   mongo_data:
   postgres_data:
+  frontend_assets:
