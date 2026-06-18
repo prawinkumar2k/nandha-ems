@@ -120,10 +120,16 @@ export default function UserList() {
       </Badge>
     )},
     { key: "department", header: "Department", render: (r) => {
-      const deptObj = Array.isArray(depts) ? depts.find(d => d._id === r.department) : null;
+      let code = "---";
+      if (r.department && r.department.code) {
+        code = r.department.code;
+      } else if (r.department && Array.isArray(depts)) {
+        const found = depts.find(d => d._id === r.department);
+        if (found) code = found.code;
+      }
       return (
         <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-          {deptObj ? deptObj.code : (r.department ? "Unknown" : "---")}
+          {code}
         </span>
       );
     }},
