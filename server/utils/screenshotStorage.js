@@ -26,11 +26,38 @@ export const saveScreenshot = async (base64Data, filename = "screenshot.jpg") =>
     let contentType = "image/jpeg";
 
     if (matches && matches.length === 3) {
-      contentType = `image/${matches[1]}`;
+      contentType = `image/${matches[1].toLowerCase()}`;
+      if (!["image/jpeg", "image/png", "image/jpg"].includes(contentType)) {
+        console.warn(`[SECURITY WARN] Blocked upload attempt with unsupported MIME type: ${contentType}`);
+        return null;
+      }
       buffer = Buffer.from(matches[2], "base64");
     } else {
-      // Direct base64 string
       buffer = Buffer.from(base64Data, "base64");
+    }
+
+    // Strict Magic Bytes Validation for both paths
+    if (buffer.length > 4) {
+      const hexHeader = buffer.toString("hex", 0, 4).toUpperCase();
+      if (hexHeader.startsWith("FFD8FF")) {
+        // Enforce JPEG
+        if (contentType !== "image/jpeg" && contentType !== "image/jpg") {
+          console.warn("[SECURITY WARN] MIME type mismatch: claimed something else but file is JPEG.");
+          contentType = "image/jpeg";
+        }
+      } else if (hexHeader.startsWith("89504E47")) {
+        // Enforce PNG
+        if (contentType !== "image/png") {
+          console.warn("[SECURITY WARN] MIME type mismatch: claimed something else but file is PNG.");
+          contentType = "image/png";
+        }
+      } else {
+        console.warn("[SECURITY WARN] Blocked upload attempt: Unknown or invalid magic bytes.");
+        return null;
+      }
+    } else {
+      console.warn("[SECURITY WARN] Blocked upload attempt: File too small to be valid image.");
+      return null;
     }
 
     const gridfsBucket = getBucket();

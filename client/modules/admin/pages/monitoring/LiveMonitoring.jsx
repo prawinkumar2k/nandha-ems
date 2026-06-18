@@ -43,7 +43,7 @@ export default function LiveMonitoring() {
     refetchInterval: 5000, 
   });
 
-  const safeSubmissions = Array.isArray(submissions) ? submissions : [];
+  const safeSubmissions = Array.isArray(submissions?.data) ? submissions.data : (Array.isArray(submissions) ? submissions : []);
   const activeCount = safeSubmissions.filter(s => s.status === "in_progress").length || 0;
   const violationCount = safeSubmissions.reduce((acc, s) => acc + (s.totalViolations || 0), 0) || 0;
 

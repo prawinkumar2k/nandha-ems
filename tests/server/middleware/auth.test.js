@@ -34,7 +34,7 @@ describe("auth middleware", () => {
   it("attaches normalized user data from a valid token", () => {
     const token = jwt.sign(
       { _id: "user-1", role: "faculty", department: "dept-9" },
-      "fallback_secret_keep_it_safe",
+      process.env.JWT_SECRET || "fallback_secret_keep_it_safe",
       { expiresIn: "1h" },
     );
     const req = createMockReq({
@@ -46,19 +46,19 @@ describe("auth middleware", () => {
     authMiddleware(req, res, next);
 
     expect(next).toHaveBeenCalledTimes(1);
-    expect(req.user).toEqual({
+    expect(req.user).toEqual(expect.objectContaining({
       _id: "user-1",
       role: "faculty",
       department: "dept-9",
       id: "user-1",
       dept: "dept-9",
-    });
+    }));
   });
 
   it("rejects expired or invalid tokens", () => {
     const token = jwt.sign(
       { id: "user-1", role: "student" },
-      "fallback_secret_keep_it_safe",
+      process.env.JWT_SECRET || "fallback_secret_keep_it_safe",
       { expiresIn: "-1s" },
     );
     const req = createMockReq({

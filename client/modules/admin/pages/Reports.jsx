@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Download, FileText, FileSpreadsheet, FileJson, Printer, BarChart } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { apiClient } from "@/core/api/client";
 
 const NAV = getAdminNav();
 
@@ -35,30 +36,52 @@ export default function AdvancedReportingEngine() {
   const [selectedReport, setSelectedReport] = useState(REPORT_TYPES[0]);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const handleExport = (format) => {
+  const handleExport = async (format) => {
     setIsGenerating(true);
-    setTimeout(() => {
-      setIsGenerating(false);
-      try {
-        const dummyData = [
-          { studentName: "John Doe", rollNumber: "21CS101", testTitle: "Advanced Python Lab", marks: "85/100", status: "Passed", date: new Date().toLocaleDateString() },
-          { studentName: "Jane Smith", rollNumber: "21CS102", testTitle: "Advanced Python Lab", marks: "92/100", status: "Passed", date: new Date().toLocaleDateString() },
-          { studentName: "Alice Johnson", rollNumber: "21CS103", testTitle: "Advanced Python Lab", marks: "45/100", status: "Failed", date: new Date().toLocaleDateString() },
-          { studentName: "Bob Wilson", rollNumber: "21CS104", testTitle: "Advanced Python Lab", marks: "78/100", status: "Passed", date: new Date().toLocaleDateString() },
-          { studentName: "Charlie Brown", rollNumber: "21CS105", testTitle: "Advanced Python Lab", marks: "88/100", status: "Passed", date: new Date().toLocaleDateString() }
-        ];
+    try {
+      // Fetch actual real data from the system instead of using mock data
+      const response = await apiClient.get('/api/submissions?limit=1000');
+      let reportData = Array.isArray(response) ? response : (response?.data || []);
+      
+      // If we don't have submissions, fetch users as a fallback to show some real data
+      if (!reportData.length) {
+        const userRes = await apiClient.get('/api/users?limit=1000');
+        const users = Array.isArray(userRes) ? userRes : (userRes?.data || []);
+        reportData = users.map(u => ({
+          studentName: u.name,
+          role: u.role,
+          email: u.email,
+          status: u.isActive !== false ? "Active" : "Inactive",
+          joinedDate: new Date(u.createdAt).toLocaleDateString()
+        }));
+      } else {
+        reportData = reportData.map(sub => ({
+          studentName: sub.student?.name || "Unknown",
+          rollNumber: sub.student?.rollNumber || "N/A",
+          testTitle: sub.exam?.title || "Unknown Test",
+          marks: `${sub.marksObtained || 0}/${sub.totalMarks || 0}`,
+          status: sub.grade === "F" ? "Failed" : "Passed",
+          date: new Date(sub.submittedAt || sub.createdAt).toLocaleDateString()
+        }));
+      }
 
-        let blob, filename;
+      if (reportData.length === 0) {
+        toast.error("No data available to generate this report.");
+        setIsGenerating(false);
+        return;
+      }
 
-        if (format === "json") {
-          blob = new Blob([JSON.stringify(dummyData, null, 2)], { type: "application/json" });
-          filename = `${selectedReport.replace(/\s+/g, "_")}.json`;
-        } else if (format === "csv" || format === "excel") {
-          const headers = Object.keys(dummyData[0]).join(",");
-          const rows = dummyData.map(obj => Object.values(obj).join(",")).join("\n");
-          blob = new Blob([`${headers}\n${rows}`], { type: format === "excel" ? "application/vnd.ms-excel" : "text/csv;charset=utf-8;" });
-          filename = `${selectedReport.replace(/\s+/g, "_")}.${format === "excel" ? "xls" : "csv"}`;
-        }
+      let blob, filename;
+
+      if (format === "json") {
+        blob = new Blob([JSON.stringify(reportData, null, 2)], { type: "application/json" });
+        filename = `${selectedReport.replace(/\s+/g, "_")}.json`;
+      } else if (format === "csv" || format === "excel") {
+        const headers = Object.keys(reportData[0]).join(",");
+        const rows = reportData.map(obj => Object.values(obj).map(v => `"${v}"`).join(",")).join("\n");
+        blob = new Blob([`${headers}\n${rows}`], { type: format === "excel" ? "application/vnd.ms-excel" : "text/csv;charset=utf-8;" });
+        filename = `${selectedReport.replace(/\s+/g, "_")}.${format === "excel" ? "xls" : "csv"}`;
+      }
 
         if (blob) {
           const url = URL.createObjectURL(blob);
@@ -110,11 +133,7 @@ export default function AdvancedReportingEngine() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr><td>John Doe</td><td>21CS101</td><td>Advanced Python Lab</td><td>85/100</td><td>Passed</td><td>${new Date().toLocaleDateString()}</td></tr>
-                    <tr><td>Jane Smith</td><td>21CS102</td><td>Advanced Python Lab</td><td>92/100</td><td>Passed</td><td>${new Date().toLocaleDateString()}</td></tr>
-                    <tr><td>Alice Johnson</td><td>21CS103</td><td>Advanced Python Lab</td><td>45/100</td><td>Failed</td><td>${new Date().toLocaleDateString()}</td></tr>
-                    <tr><td>Bob Wilson</td><td>21CS104</td><td>Advanced Python Lab</td><td>78/100</td><td>Passed</td><td>${new Date().toLocaleDateString()}</td></tr>
-                    <tr><td>Charlie Brown</td><td>21CS105</td><td>Advanced Python Lab</td><td>88/100</td><td>Passed</td><td>${new Date().toLocaleDateString()}</td></tr>
+                    ${reportData.map(row => `<tr>${Object.values(row).map(v => `<td>${v}</td>`).join("")}</tr>`).join("")}
                   </tbody>
                 </table>
               </body>
@@ -134,8 +153,9 @@ export default function AdvancedReportingEngine() {
         }
       } catch (err) {
         toast.error("Export failed: " + err.message);
+      } finally {
+        setIsGenerating(false);
       }
-    }, 1000);
   };
 
   return (

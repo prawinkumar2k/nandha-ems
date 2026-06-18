@@ -5,20 +5,37 @@ export const handleGetSubmissions = async (req, res) => {
   console.log("🔍 [API] Fetching Submissions Query:", req.query);
   try {
     const Submission = mongoose.model("Submission");
-    const { examId, status, studentId } = req.query;
+    const { examId, status, studentId, limit = 50, page = 1 } = req.query;
+
+    const pageNum = Math.max(1, parseInt(page, 10));
+    const limitNum = Math.min(1000, Math.max(1, parseInt(limit, 10)));
+    const skipNum = (pageNum - 1) * limitNum;
 
     let query = {};
     if (examId) query.exam = examId;
     if (status) query.status = status;
     if (studentId) query.student = studentId;
 
-    const submissions = await Submission.find(query)
-      .populate("student", "name rollNumber")
-      .populate("exam", "title")
-      .populate("device", "hostname ipAddress")
-      .sort({ updatedAt: -1 });
+    const [submissions, total] = await Promise.all([
+      Submission.find(query)
+        .populate("student", "name rollNumber")
+        .populate("exam", "title")
+        .populate("device", "hostname ipAddress")
+        .sort({ updatedAt: -1 })
+        .skip(skipNum)
+        .limit(limitNum),
+      Submission.countDocuments(query)
+    ]);
 
-    res.json(submissions);
+    res.json({
+      data: submissions,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum)
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

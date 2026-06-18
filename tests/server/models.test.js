@@ -149,7 +149,12 @@ describe("Notification, Device, and Attendance models", () => {
     const device = new Device({
       hostname: "lab-01",
       ipAddress: "10.0.0.5",
-      status: "online",
+      deviceId: "device-1",
+      macAddress: "00:00:00:00:00",
+      cpuId: "cpu-1",
+      motherboardSerial: "mb-1",
+      machineFingerprint: "fingerprint-1",
+      status: "approved",
     });
     expect(device.validateSync()).toBeUndefined();
 

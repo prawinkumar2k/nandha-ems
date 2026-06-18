@@ -23,6 +23,11 @@ class mockSocketServer {
       emit: (event, payload) => mockEmit(room, event, payload),
     };
   }
+
+  use(middleware) {
+    // no-op for tests unless we want to test the middleware
+    return this;
+  }
 }
 
 mockSocketServer.instances = [];
@@ -103,6 +108,7 @@ describe("socket service", () => {
   it("registers dashboard and exam-room listeners", () => {
     const io = initSocket({});
     const socket = createFakeSocket();
+    socket.user = { role: "admin" }; // Mock middleware output
 
     io.handlers.connection(socket);
     socket.handlers["join-dashboard"]();
@@ -115,6 +121,7 @@ describe("socket service", () => {
   it("broadcasts screen updates with rate limiting", () => {
     const io = initSocket({});
     const socket = createFakeSocket();
+    socket.user = { id: "student-1", role: "student" }; // Mock middleware output
     io.handlers.connection(socket);
     socket.handlers["join-exam-room-monitoring"]("exam-1");
 

@@ -9,7 +9,10 @@ const request = async (method, endpoint, data = null, opts = {}) => {
     ...opts.headers,
   };
 
-  const res = await fetch(endpoint, {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const url = endpoint.startsWith("http") ? endpoint : `${baseUrl}${endpoint}`;
+
+  const res = await fetch(url, {
     method,
     headers,
     ...(data ? { body: JSON.stringify(data) } : {}),

@@ -133,7 +133,7 @@ export default function StudentManagement() {
         <Card className="rounded-[40px] glass border-white/5 shadow-2xl overflow-hidden relative">
           <CardHeader className="border-b border-white/5 pb-6">
             <CardTitle className="text-xl font-black uppercase italic italic">Active Students</CardTitle>
-            <CardDescription className="text-[10px] font-black uppercase tracking-widest text-primary">Total: {students?.length || 0}</CardDescription>
+            <CardDescription className="text-[10px] font-black uppercase tracking-widest text-primary">Total: {students?.pagination?.total || 0}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
              {isLoading ? (
@@ -146,7 +146,7 @@ export default function StudentManagement() {
              ) : (
                <DataTableWrapper 
                  columns={columns} 
-                 data={Array.isArray(students) ? students : []} 
+                 data={Array.isArray(students?.data) ? students.data : []} 
                  searchKeys={["name", "rollNumber", "email"]} 
                  searchPlaceholder="Search students..."
                />
@@ -215,16 +215,18 @@ export default function StudentManagement() {
                    </div>
                 </div>
 
-                <div className="p-6 rounded-[24px] bg-white/5 border border-white/5 space-y-4 shadow-inner">
+               <div className="p-6 rounded-[24px] bg-white/5 border border-white/5 space-y-4 shadow-inner">
                    <h4 className="text-[10px] font-black uppercase tracking-widest text-primary border-l-2 border-primary pl-3">Grades</h4>
                    <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-1">
-                         <span className="text-[10px] font-black uppercase text-muted-foreground opacity-50">Average Marks</span>
-                         <span className="text-2xl font-black italic">8.42</span>
+                         <span className="text-[10px] font-black uppercase text-muted-foreground opacity-50">CGPA</span>
+                         <span className="text-2xl font-black italic">{selectedStudent.cgpa > 0 ? selectedStudent.cgpa.toFixed(2) : "N/A"}</span>
                       </div>
                       <div className="flex flex-col gap-1 text-right">
-                         <span className="text-[10px] font-black uppercase text-muted-foreground opacity-50">Class Rank</span>
-                         <span className="text-2xl font-black text-emerald-500 italic">Top 15%</span>
+                         <span className="text-[10px] font-black uppercase text-muted-foreground opacity-50">Status</span>
+                         <span className={`text-2xl font-black italic ${selectedStudent.isActive !== false ? "text-emerald-500" : "text-rose-500"}`}>
+                           {selectedStudent.isActive !== false ? "Enrolled" : "Inactive"}
+                         </span>
                       </div>
                    </div>
                 </div>

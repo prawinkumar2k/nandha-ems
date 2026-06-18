@@ -124,3 +124,91 @@ export const handleLogout = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// ─── POST /api/auth/forgot-password ─────────────────────────────────────────
+export const handleForgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email is required" });
+
+    const User = mongoose.model("User");
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      // Return success anyway to prevent email enumeration
+      return res.json({ message: "If an account exists, an OTP was sent." });
+    }
+
+    // Generate 6-digit OTP
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    user.otpCode = otpCode;
+    user.otpExpires = otpExpires;
+    await user.save();
+
+    console.log(`\n\n[MOCK EMAIL SERVICE] OTP for ${email} is: ${otpCode}\n\n`);
+
+    res.json({ message: "If an account exists, an OTP was sent." });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ─── POST /api/auth/verify-otp ──────────────────────────────────────────────
+export const handleVerifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) return res.status(400).json({ message: "Email and OTP are required" });
+
+    const User = mongoose.model("User");
+    const user = await User.findOne({ email });
+
+    if (!user || user.otpCode !== otp || user.otpExpires < new Date()) {
+      return res.status(400).json({ message: "Invalid or expired OTP." });
+    }
+
+    // OTP matched. Generate a reset token
+    const resetToken = uuidv4();
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+    
+    // Clear OTP
+    user.otpCode = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+
+    res.json({ token: resetToken, message: "OTP verified. Proceed to reset password." });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ─── POST /api/auth/reset-password ──────────────────────────────────────────
+export const handleResetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password) return res.status(400).json({ message: "Token and password are required" });
+
+    const User = mongoose.model("User");
+    const user = await User.findOne({ 
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: new Date() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired reset token." });
+    }
+
+    // Pre-save hook will hash the password
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.json({ message: "Password has been successfully reset." });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+

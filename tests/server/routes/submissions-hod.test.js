@@ -60,7 +60,7 @@ describe("submission lifecycle", () => {
 
   it("creates a new in-progress submission for a fresh exam session", async () => {
     models.Submission.findOne.mockResolvedValue(null);
-    models.Exam.findById.mockResolvedValue({ _id: "exam-1", title: "Exam 1" });
+    models.Exam.findById.mockResolvedValue({ _id: "exam-1", title: "Exam 1", status: "active", allowedStudents: [] });
     models.Submission.create.mockResolvedValue({
       _id: "sub-1",
       status: "in_progress",
@@ -93,6 +93,7 @@ describe("submission lifecycle", () => {
   });
 
   it("blocks re-starting a submission that was already submitted", async () => {
+    models.Exam.findById.mockResolvedValue({ _id: "exam-1", title: "Exam 1", status: "active", allowedStudents: [] });
     models.Submission.findOne.mockResolvedValue({
       status: "submitted",
     });
@@ -114,6 +115,7 @@ describe("submission lifecycle", () => {
     const submission = {
       _id: "sub-1",
       exam: "exam-1",
+      student: "student-1",
       answers: {},
       violations: [],
       totalViolations: 0,
@@ -154,6 +156,7 @@ describe("submission lifecycle", () => {
   it("auto-grades MCQ answers on submission", async () => {
     const submission = {
       _id: "sub-1",
+      student: "student-1",
       exam: {
         questions: [
           { type: "mcq", correctAnswer: "A", marks: 2 },
@@ -173,7 +176,7 @@ describe("submission lifecycle", () => {
     const req = createMockReq({
       params: { id: "sub-1" },
       body: {},
-      user: { name: "Student" },
+      user: { id: "student-1", name: "Student" },
       app: { get: () => io },
     });
     const res = createMockRes();

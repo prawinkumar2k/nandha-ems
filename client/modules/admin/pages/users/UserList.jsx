@@ -179,7 +179,7 @@ export default function UserList() {
             <CardContent className="p-0 lg:p-4">
               <DataTableWrapper 
                 columns={cols} 
-                data={users || []} 
+                data={Array.isArray(users?.data) ? users.data : (Array.isArray(users) ? users : [])} 
                 isLoading={isLoading}
                 searchKeys={["name", "email", "role"]} 
                 searchPlaceholder="Search users…" 

@@ -177,13 +177,14 @@ export default function AnswerCenter() {
 
               if (q.type === "mcq") {
                 isCorrect = studentAnswer === q.correctAnswer;
-              } else if (q.type === "code" || q.type === "descriptive") {
-                // Auto-eval placeholder for descriptive/code
-                isCorrect = studentAnswer && studentAnswer.length > 5;
               }
-
+              
               const manualMarkObj = evaluations.find(e => e.questionIndex === idx);
               const currentScore = manualMarkObj ? manualMarkObj.marksAwarded : (sub.manualMarks?.[idx] ?? (isCorrect && q.type === 'mcq' ? q.marks : 0));
+
+              if (q.type === "code" || q.type === "descriptive") {
+                isCorrect = currentScore > 0;
+              }
 
               return (
                 <Card key={idx} className="glass border-white/5 rounded-[30px] overflow-hidden shadow-2xl relative">

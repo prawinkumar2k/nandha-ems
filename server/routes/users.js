@@ -4,7 +4,10 @@ import User from "../models/User.js";
 export const handleGetUsers = async (req, res) => {
   console.log("DEBUG: handleGetUsers hit, DB state:", mongoose.connection.readyState);
   try {
-    const { role, department, search, limit = 1000 } = req.query;
+    const { role, department, search, page = 1, limit = 50 } = req.query;
+    const pageNum = Math.max(1, parseInt(page, 10));
+    const limitNum = Math.min(1000, Math.max(1, parseInt(limit, 10)));
+    const skipNum = (pageNum - 1) * limitNum;
     
     let query = {};
     if (role) query.role = role;
@@ -16,12 +19,25 @@ export const handleGetUsers = async (req, res) => {
       ];
     }
 
-    const users = await User.find(query)
-      .populate("department", "name code")
-      .sort({ createdAt: -1 })
-      .limit(Number(limit));
+    const [users, total] = await Promise.all([
+      User.find(query)
+        .populate("department", "name code")
+        .sort({ createdAt: -1 })
+        .skip(skipNum)
+        .limit(limitNum)
+        .lean(),
+      User.countDocuments(query)
+    ]);
 
-    res.json(users);
+    res.json({
+      data: users,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum)
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

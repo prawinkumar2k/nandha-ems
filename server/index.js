@@ -1,11 +1,12 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import compression from "compression";
 import mongoose from "mongoose";
 
 // ─── Route handlers ────────────────────────────────────────────────────────────
 import { handleDemo } from "./routes/demo.js";
-import { handleLogin, handleLogout } from "./routes/auth.js";
+import { handleLogin, handleLogout, handleForgotPassword, handleVerifyOtp, handleResetPassword } from "./routes/auth.js";
 import { handleGetUsers, handleGetUserById, handleBulkUpload, handleCreateUser, handleUpdateUser, handleDeleteUser } from "./routes/users.js";
 import { handleGetExams, handleGetExamById, handleAllocateSeats, handleGetHallTickets } from "./routes/exams.js";
 import devicesRouter from "./routes/devices.js";
@@ -56,6 +57,7 @@ import { handleGetNotifications, handleMarkRead as handleMarkNotificationRead, h
 import { handleCalculateRiskProfiles, handleGetRiskDashboard } from "./routes/analytics.js";
 import { handleHeartbeat, startHeartbeatJanitor } from "./routes/heartbeat.js";
 import { upload } from "./middleware/upload.js";
+import { validateBody, schemas } from "./middleware/validate.js";
 
 import { authMiddleware, roleMiddleware } from "./middleware/auth.js";
 import { restrictLAN, verifyDevice } from "./middleware/deviceAuth.js";
@@ -113,6 +115,7 @@ export function createServer() {
   console.log("🚀 NEClms Secure Examination Platform — Server Active");
 
   app.use(cors(getCorsOptions()));
+  app.use(compression());
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -143,8 +146,8 @@ export function createServer() {
     next();
   });
 
-  // ─── Apply LAN Security Globally ───────────────────────────────────────────
-  app.use("/api", restrictLAN);
+  // ─── Cloud Deployment: Removed Global LAN Security ───────────────────────
+  // app.use("/api", restrictLAN);
 
   // ─── Health Check ──────────────────────────────────────────────────────────
   app.get("/api/ping", (req, res) => {
@@ -153,8 +156,11 @@ export function createServer() {
   app.get("/api/demo", handleDemo);
 
   // ─── Authentication ────────────────────────────────────────────────────────
-  app.post("/api/auth/login", rateLimiter({ max: 10, windowMs: 60 * 1000, message: { message: "Too many login attempts, please try again after 60 seconds." } }), handleLogin);
+  app.post("/api/auth/login", rateLimiter({ max: 10, windowMs: 60 * 1000, message: { message: "Too many login attempts, please try again after 60 seconds." } }), validateBody(schemas.login), handleLogin);
   app.post("/api/auth/logout", handleLogout);
+  app.post("/api/auth/forgot-password", handleForgotPassword);
+  app.post("/api/auth/verify-otp", handleVerifyOtp);
+  app.post("/api/auth/reset-password", handleResetPassword);
 
   // ─── Profile Management ────────────────────────────────────────────────────
   app.get("/api/profile", authMiddleware, handleGetProfile);
@@ -164,7 +170,7 @@ export function createServer() {
 
   // ─── User Management ───────────────────────────────────────────────────────
   app.get("/api/users", authMiddleware, roleMiddleware(["admin", "hod"]), handleGetUsers);
-  app.post("/api/users", authMiddleware, roleMiddleware(["admin", "hod"]), handleCreateUser);
+  app.post("/api/users", authMiddleware, roleMiddleware(["admin", "hod"]), validateBody(schemas.createUser), handleCreateUser);
   app.post("/api/users/bulk", authMiddleware, roleMiddleware(["admin", "hod"]), handleBulkUpload);
   app.get("/api/users/:id", authMiddleware, handleGetUserById);
   app.put("/api/users/:id", authMiddleware, handleUpdateUser);
@@ -215,7 +221,7 @@ export function createServer() {
   // ─── Exam Delivery & Proctoring ────────────────────────────────────────────
   app.get("/api/submissions/:id", authMiddleware, verifyDevice, handleGetSubmissionById);
   app.post("/api/submissions/start", authMiddleware, verifyDevice, handleStartExam);
-  app.put("/api/submissions/:id/answers", authMiddleware, verifyDevice, handleUpdateAnswers);
+  app.put("/api/submissions/:id/answers", authMiddleware, verifyDevice, validateBody(schemas.updateAnswers), handleUpdateAnswers);
   app.post("/api/submissions/:id/submit", authMiddleware, verifyDevice, handleSubmitExam);
   app.post("/api/submissions/:id/revaluate", authMiddleware, handleRequestRevaluation);
   app.put("/api/submissions/:id/evaluate", authMiddleware, roleMiddleware(["admin", "hod", "faculty"]), handleEvaluateSubmission);

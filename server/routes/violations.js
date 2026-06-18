@@ -33,7 +33,7 @@ export const handleCreateViolation = async (req, res) => {
       if (fileId) {
         screenshotUrl = `/api/screenshots/${fileId}`;
       } else {
-        screenshotUrl = screenshot; // fallback
+        return res.status(400).json({ message: "Invalid evidence format. Only valid JPEG and PNG images are allowed." });
       }
     } else if (screenshot) {
       screenshotUrl = screenshot;

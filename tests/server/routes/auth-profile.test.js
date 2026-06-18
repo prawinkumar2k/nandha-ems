@@ -169,8 +169,8 @@ describe("auth route handlers", () => {
     await handleLogin(req, res);
 
     expect(signSpy).toHaveBeenCalledWith(
-      { id: userRecord._id.toString(), role: "student", dept: userRecord.department },
-      "fallback_secret_keep_it_safe",
+      { id: userRecord._id.toString(), role: "student", dept: userRecord.department, jti: expect.any(String) },
+      process.env.JWT_SECRET || "fallback_secret_keep_it_safe",
       { expiresIn: "24h" },
     );
     expect(userRecord.save).toHaveBeenCalledTimes(1);

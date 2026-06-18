@@ -1,11 +1,13 @@
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { AuthLayout } from "@/shared/layouts/AuthLayout";
 import { FormField } from "@/shared/components/Form/FormField";
 import { Button } from "@/components/ui/button";
 import { useForm } from "@/core/hooks/useForm";
 import { isStrongPassword } from "@/core/utils/helpers";
 import { ROUTES } from "@/core/constants/routes";
+import { authService } from "@/core/api/services";
 import { Lock, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 
 const validate = ({ password, confirm }) => {
   const errs = {};
@@ -18,11 +20,24 @@ const validate = ({ password, confirm }) => {
 
 export default function ResetPassword() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
+
   const { values, errors, touched, isSubmitting, handleChange, handleBlur, handleSubmit } =
     useForm({ password: "", confirm: "" }, validate);
 
-  const onSubmit = handleSubmit(async () => {
-    navigate(`${ROUTES.LOGIN}?reset=success`);
+  const onSubmit = handleSubmit(async (vals) => {
+    if (!token) {
+      toast.error("Invalid Request", { description: "Missing reset token." });
+      return;
+    }
+    try {
+      await authService.resetPassword(token, vals.password);
+      toast.success("Password Reset Successfully", { description: "You can now log in with your new password." });
+      navigate(`${ROUTES.LOGIN}?reset=success`);
+    } catch (error) {
+      toast.error("Reset Failed", { description: error.message || "Failed to reset password." });
+    }
   });
 
   return (
