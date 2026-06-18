@@ -15,6 +15,27 @@ async function seed() {
   
   // Clear existing to avoid duplicates if re-run
   await User.deleteMany({ email: { $in: ["admin@nec.edu.in", "acestudent@nec.edu.in", "hod@nec.edu.in", "faculty@nec.edu.in"] } });
+  
+  const Department = mongoose.model("Department");
+  console.log("Creating default departments...");
+  
+  const cse = await Department.findOneAndUpdate(
+    { code: "CSE" },
+    { name: "Computer Science and Engineering", code: "CSE", description: "Default CSE Department", isActive: true },
+    { upsert: true, new: true }
+  );
+
+  const ece = await Department.findOneAndUpdate(
+    { code: "ECE" },
+    { name: "Electronics and Communication", code: "ECE", description: "Default ECE Department", isActive: true },
+    { upsert: true, new: true }
+  );
+
+  const aids = await Department.findOneAndUpdate(
+    { code: "AI&DS" },
+    { name: "Artificial Intelligence and Data Science", code: "AI&DS", description: "Default AI&DS Department", isActive: true },
+    { upsert: true, new: true }
+  );
 
   console.log("Creating default users...");
 
@@ -23,6 +44,7 @@ async function seed() {
     email: "admin@nec.edu.in",
     password: "password123", // Pre-save hook will hash this
     role: "admin",
+    department: cse._id,
     mustChangePassword: false,
     isActive: true
   });
@@ -32,6 +54,7 @@ async function seed() {
     email: "hod@nec.edu.in",
     password: "password123",
     role: "hod",
+    department: cse._id,
     mustChangePassword: false,
     isActive: true
   });
@@ -41,6 +64,7 @@ async function seed() {
     email: "faculty@nec.edu.in",
     password: "password123",
     role: "faculty",
+    department: ece._id,
     mustChangePassword: false,
     isActive: true
   });
@@ -50,6 +74,7 @@ async function seed() {
     email: "acestudent@nec.edu.in",
     password: "password123",
     role: "student",
+    department: aids._id,
     rollNumber: "22CS101",
     mustChangePassword: false,
     isActive: true
