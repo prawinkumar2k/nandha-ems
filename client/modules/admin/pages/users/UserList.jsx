@@ -119,6 +119,14 @@ export default function UserList() {
         {r.role}
       </Badge>
     )},
+    { key: "department", header: "Department", render: (r) => {
+      const deptObj = Array.isArray(depts) ? depts.find(d => d._id === r.department) : null;
+      return (
+        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+          {deptObj ? deptObj.code : (r.department ? "Unknown" : "---")}
+        </span>
+      );
+    }},
     { key: "status", header: "Status", render: (r) => (
       <span className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest ${r.isActive !== false ? "text-emerald-500" : "text-muted-foreground/40"}`}>
         <div className={`w-1.5 h-1.5 rounded-full ${r.isActive !== false ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground/40"}`} />
