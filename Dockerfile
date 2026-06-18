@@ -9,11 +9,11 @@ RUN pnpm run build
 FROM node:20-alpine AS production
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
-RUN npm install -g pnpm && pnpm install --prod --no-frozen-lockfile
+RUN npm install -g pnpm && pnpm install --no-frozen-lockfile
 # Copy server source
 COPY server/ ./server/
-# Copy static built assets
-COPY --from=builder /app/dist/spa ./client/dist
+# Copy static built assets and built server
+COPY --from=builder /app/dist ./dist
 
 # Security Hardening
 RUN addgroup -S neclms && adduser -S neclms -G neclms

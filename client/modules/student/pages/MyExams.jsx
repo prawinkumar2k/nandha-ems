@@ -23,17 +23,7 @@ const NAV = [
   { label: "Profile", icon: <User className="w-4 h-4" />, path: ROUTES.STUDENT_PROFILE },
 ];
 
-const EXAMS = [
-  { id: "exam-cs301", title: "Data Structures Mid-Term", course: "CS301", date: "2024-04-20", duration: 60, status: "upcoming" },
-  { id: "exam-cs405", title: "Web Dev Final", course: "CS405", date: "2024-04-25", duration: 90, status: "upcoming" },
-  { id: "exam-cs302", title: "DB Design Quiz", course: "CS302", date: "2024-04-01", duration: 30, status: "completed" },
-];
-
-const RESULTS = [
-  { course: "Web Dev Final", date: "2024-04-01", score: 82, grade: "A-", pass: true },
-  { course: "OS Mid-Term", date: "2024-03-20", score: 68, grade: "B", pass: true },
-  { course: "Networks Quiz", date: "2024-03-01", score: 74, grade: "B+", pass: true },
-];
+// All exam + result data is fetched live from MongoDB via API calls below.
 
 export function MyExams() {
   const { user } = useAuth();
@@ -216,9 +206,9 @@ export function Results() {
   const [selectedSub, setSelectedSub] = useState(null);
   const [reason, setReason] = useState("");
 
-  const { data: results = [], isLoading } = useQuery({
+  const { data: results = {}, isLoading } = useQuery({
     queryKey: ["student-results"],
-    queryFn: () => apiClient.get("/api/reports/student/stats")
+    queryFn: () => apiClient.get("/api/reports/student-results")
   });
 
   const revalMutation = useMutation({

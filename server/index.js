@@ -178,6 +178,25 @@ export function createServer() {
 
   // ─── Exam Management ───────────────────────────────────────────────────────
   app.get("/api/exams", authMiddleware, handleGetExams);
+  // ─── Kiosk: get the student's currently active exam ──────────────────────
+  app.get("/api/exams/my-active", authMiddleware, roleMiddleware(["student"]), async (req, res) => {
+    try {
+      const Exam = mongoose.model("Exam");
+      const exam = await Exam.findOne({
+        department: req.user.dept,
+        status: { $in: ["active", "scheduled"] }
+      }).populate("course", "title code").lean();
+      if (!exam) return res.json(null);
+      res.json({
+        _id: exam._id,
+        title: exam.title,
+        duration: exam.duration,
+        questionCount: exam.questions?.length || 0,
+        course: exam.course?.title,
+        scheduledAt: exam.scheduledAt
+      });
+    } catch (err) { res.status(500).json({ message: err.message }); }
+  });
   app.get("/api/exams/:id", authMiddleware, handleGetExamById);
   app.post("/api/exams/:id/allocate-seats", authMiddleware, roleMiddleware(["faculty", "hod", "admin"]), handleAllocateSeats);
   app.get("/api/exams/:id/hall-tickets", authMiddleware, handleGetHallTickets);
@@ -210,6 +229,20 @@ export function createServer() {
   // ─── Violations & Evidence ─────────────────────────────────────────────────
   app.post("/api/violations", authMiddleware, rateLimiter({ max: 30, windowMs: 60 * 1000, message: { message: "Too many violation logging requests." } }), handleCreateViolation);
   app.get("/api/violations", authMiddleware, roleMiddleware(["admin", "hod", "faculty"]), handleGetViolations);
+  // ─── Kiosk: student sees own violation count for an exam ─────────────────
+  app.get("/api/violations/my-count", authMiddleware, roleMiddleware(["student"]), async (req, res) => {
+    try {
+      const Violation = mongoose.model("Violation");
+      const Exam = mongoose.model("Exam");
+      const query = { student: req.user.id };
+      if (req.query.examId) query.exam = req.query.examId;
+      const [count, exam] = await Promise.all([
+        Violation.countDocuments(query),
+        req.query.examId ? Exam.findById(req.query.examId).select("title").lean() : Promise.resolve(null)
+      ]);
+      res.json({ count, total: count, examTitle: exam?.title || "Your Exam" });
+    } catch (err) { res.status(500).json({ message: err.message }); }
+  });
   app.get("/api/screenshots/:fileId", authMiddleware, roleMiddleware(["admin", "hod", "faculty"]), handleGetScreenshot);
 
   // ─── Monitoring & Telemetry ────────────────────────────────────────────────
@@ -227,6 +260,7 @@ export function createServer() {
   app.get("/api/reports/faculty/monitoring", authMiddleware, roleMiddleware(["faculty", "hod"]), handleGetFacultyMonitoring);
   app.get("/api/reports/student", authMiddleware, roleMiddleware(["student"]), handleGetStudentStats);
   app.get("/api/reports/student/stats", authMiddleware, roleMiddleware(["student"]), handleGetStudentResults);
+  app.get("/api/reports/student-results", authMiddleware, roleMiddleware(["student"]), handleGetStudentResults);
 
   // ─── Risk Analytics ────────────────────────────────────────────────────────
   app.post("/api/analytics/calculate-risk", authMiddleware, roleMiddleware(["admin", "hod"]), handleCalculateRiskProfiles);

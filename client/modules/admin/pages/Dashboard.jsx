@@ -190,32 +190,34 @@ export default function AdminDashboard() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                <ViolationPanel violations={liveViolations} />
-               <Card className="rounded-[32px] glass hover:border-primary/20 transition-colors">
-                  <CardHeader>
-                    <CardTitle className="text-lg font-black tracking-tight uppercase italic">System OK</CardTitle>
-                    <CardDescription className="text-[10px] font-black uppercase tracking-widest text-primary">Check Info</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="space-y-3">
-                       <div className="flex justify-between text-[10px] font-black uppercase">
-                         <span className="text-muted-foreground">Status</span>
-                         <span className="text-emerald-500">Ready</span>
-                       </div>
-                       <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
-                         <div className="h-full bg-emerald-500 w-full rounded-full shadow-lg shadow-emerald-500/20" />
-                       </div>
-                    </div>
-                    <div className="space-y-3">
-                       <div className="flex justify-between text-[10px] font-black uppercase">
-                         <span className="text-muted-foreground">Speed</span>
-                         <span className="text-primary italic">42ms</span>
-                       </div>
-                       <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
-                         <div className="h-full bg-primary w-11/12 rounded-full shadow-lg shadow-primary/20" />
-                       </div>
-                    </div>
-                  </CardContent>
-               </Card>
+                   <Card className="rounded-[32px] glass hover:border-primary/20 transition-colors">
+                   <CardHeader>
+                     <CardTitle className="text-lg font-black tracking-tight uppercase italic">System OK</CardTitle>
+                     <CardDescription className="text-[10px] font-black uppercase tracking-widest text-primary">Live Status</CardDescription>
+                   </CardHeader>
+                   <CardContent className="space-y-6">
+                     <div className="space-y-3">
+                        <div className="flex justify-between text-[10px] font-black uppercase">
+                          <span className="text-muted-foreground">Status</span>
+                          <span className={stats?.systemHealth === "optimal" ? "text-emerald-500" : "text-amber-500"}>
+                            {stats?.systemHealth ?? "Checking..."}
+                          </span>
+                        </div>
+                        <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                          <div className={`h-full rounded-full shadow-lg ${stats?.systemHealth === "optimal" ? "bg-emerald-500 w-full shadow-emerald-500/20" : "bg-amber-500 w-3/4 shadow-amber-500/20"}`} />
+                        </div>
+                     </div>
+                     <div className="space-y-3">
+                        <div className="flex justify-between text-[10px] font-black uppercase">
+                          <span className="text-muted-foreground">Active Exams</span>
+                          <span className="text-primary italic">{stats?.activeExams ?? "—"}</span>
+                        </div>
+                        <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                          <div className="h-full bg-primary rounded-full shadow-lg shadow-primary/20" style={{ width: `${Math.min(100, (stats?.activeExams || 0) * 10)}%` }} />
+                        </div>
+                     </div>
+                   </CardContent>
+                </Card>
             </div>
           </div>
 

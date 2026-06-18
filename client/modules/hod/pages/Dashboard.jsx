@@ -313,7 +313,7 @@ export default function HODDashboard() {
               <div className="p-4 rounded-2xl bg-emerald-500/10 text-emerald-500 shadow-lg"><BarChart3 /></div>
               Results
             </Button>
-            <Button variant="ghost" className="h-[140px] rounded-[40px] glass border border-white/5 flex flex-col gap-4 hover:bg-rose-500/10 hover:border-rose-500/20 transition-all font-black uppercase tracking-widest text-xs italic" onClick={() => navigate(ROUTES.ADMIN_VIOLATIONS)}>
+            <Button variant="ghost" className="h-[140px] rounded-[40px] glass border border-white/5 flex flex-col gap-4 hover:bg-rose-500/10 hover:border-rose-500/20 transition-all font-black uppercase tracking-widest text-xs italic" onClick={() => navigate("/hod/monitoring")}>
               <div className="p-4 rounded-2xl bg-rose-500/10 text-rose-500 shadow-lg"><Ban /></div>
               Alerts
             </Button>
