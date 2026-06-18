@@ -141,6 +141,49 @@ export const executeCode = async (language, code, input = "") => {
         return { output: "", error: securityCheck.reason };
     }
 
+    if (process.env.JUDGE0_URL) {
+        // JUDGE0 CE INTEGRATION
+        const langMap = {
+            c: 50,
+            cpp: 54,
+            java: 62,
+            javascript: 63,
+            python: 71,
+            rust: 73,
+            bash: 46
+        };
+        
+        const languageId = langMap[language];
+        if (!languageId) {
+            return { output: "", error: `Unsupported Judge0 language: ${language}` };
+        }
+
+        try {
+            const fetch = (await import("node-fetch")).default;
+            const response = await fetch(`${process.env.JUDGE0_URL}/submissions?base64_encoded=false&wait=true`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    source_code: code,
+                    language_id: languageId,
+                    stdin: input || ""
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.status && data.status.id > 3) {
+               return { 
+                   output: data.stdout || "", 
+                   error: data.stderr || data.compile_output || data.message || "Execution failed"
+               };
+            }
+            return { output: data.stdout || "", error: data.stderr || "" };
+        } catch (err) {
+            return { output: "", error: `Judge0 Connection Error: ${err.message}` };
+        }
+    }
+
     await ensureTempDir();
     const sessionId = uuidv4();
     let fileName = "";
@@ -241,48 +284,7 @@ export const executeCode = async (language, code, input = "") => {
             }
         };
 
-        if (process.env.JUDGE0_URL) {
-            // JUDGE0 CE INTEGRATION
-            const langMap = {
-                c: 50,
-                cpp: 54,
-                java: 62,
-                javascript: 63,
-                python: 71,
-                rust: 73,
-                bash: 46
-            };
-            
-            const languageId = langMap[language];
-            if (!languageId) {
-                return resolve({ output: "", error: `Unsupported Judge0 language: ${language}` });
-            }
 
-            try {
-                const fetch = (await import("node-fetch")).default;
-                const response = await fetch(`${process.env.JUDGE0_URL}/submissions?base64_encoded=false&wait=true`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        source_code: code,
-                        language_id: languageId,
-                        stdin: input || ""
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (data.status && data.status.id > 3) {
-                   return resolve({ 
-                       output: data.stdout || "", 
-                       error: data.stderr || data.compile_output || data.message || "Execution failed"
-                   });
-                }
-                return resolve({ output: data.stdout || "", error: data.stderr || "" });
-            } catch (err) {
-                return resolve({ output: "", error: `Judge0 Connection Error: ${err.message}` });
-            }
-        }
 
         if (compileCmd) {
             const cleanEnv = {
