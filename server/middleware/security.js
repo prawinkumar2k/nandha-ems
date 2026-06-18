@@ -65,7 +65,7 @@ export const getCorsOptions = () => {
       if (!origin) return callback(null, true);
       
       // Check origin
-      if (allowedOrigins.includes(origin) || process.env.NODE_ENV !== "production") {
+      if (allowedOrigins.includes("*") || allowedOrigins.includes(origin) || process.env.NODE_ENV !== "production") {
         callback(null, true);
       } else {
         console.warn(`[SECURITY] Request rejected by CORS. Origin: ${origin}`);
