@@ -205,7 +205,7 @@ export default function UserList() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <FormSelect id="department" name="department" label="Department" required 
-              options={depts?.map(d => ({ value: d._id, label: d.title })) || []}
+              options={Array.isArray(depts) ? depts.map(d => ({ value: d._id, label: `${d.name} (${d.code})` })) : []}
               value={values.department?._id || values.department} onChange={(v) => setValue("department", v)} error={errors.department} touched={touched.department} />
             <FormSelect id="role" label="Work Role" required options={[
               { value: "admin", label: "Admin" },
