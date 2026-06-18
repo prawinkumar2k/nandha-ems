@@ -38,7 +38,7 @@ export const handleCreateCourse = async (req, res) => {
       department,
       credits,
       semester,
-      faculty: req.user.id, // Set the current user as the faculty coordinator for now
+      faculty: req.body.faculty || req.user.id, // Allow setting faculty, fallback to creator
       academicYear: "2025-2026", // Provide a default/current academic year
       isActive: true
     });

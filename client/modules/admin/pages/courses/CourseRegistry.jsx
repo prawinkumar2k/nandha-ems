@@ -43,6 +43,14 @@ export default function CourseRegistry() {
     queryFn: () => apiClient.get("/api/departments"),
   });
 
+  const { data: faculties = [] } = useQuery({
+    queryKey: ["faculties"],
+    queryFn: async () => {
+      const res = await apiClient.get("/api/users?role=faculty&limit=100");
+      return res.data || [];
+    },
+  });
+
   const createCourse = useMutation({
     mutationFn: (newCourse) => apiClient.post("/api/courses", newCourse),
     onSuccess: () => {
@@ -130,6 +138,15 @@ export default function CourseRegistry() {
                       ))}
                     </select>
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Assigned Faculty</Label>
+                  <select name="faculty" required className="flex h-10 w-full items-center justify-between rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                    <option value="" className="bg-background text-foreground">Select Faculty Coordinator</option>
+                    {faculties.map(f => (
+                      <option key={f._id} value={f._id} className="bg-background text-foreground">{f.name} ({f.email})</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="space-y-2">
                   <Label>Description</Label>
