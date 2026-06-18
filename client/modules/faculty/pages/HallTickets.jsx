@@ -6,7 +6,7 @@ import { MainLayout } from "@/shared/layouts/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Ticket, Users, Print, ArrowLeft, RefreshCw } from "lucide-react";
+import { Ticket, Users, Printer, ArrowLeft, RefreshCw } from "lucide-react";
 import { getHODNav, getFacultyNav } from "@/core/constants/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatDate } from "@/core/utils/helpers";
@@ -71,7 +71,7 @@ export default function HallTickets() {
             onClick={handlePrint}
             disabled={tickets.length === 0}
           >
-            <Print className="w-4 h-4 mr-2" /> Print Tickets
+            <Printer className="w-4 h-4 mr-2" /> Print Tickets
           </Button>
         </div>
       </div>
