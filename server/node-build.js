@@ -1,5 +1,5 @@
 import path from "node:path";
-import { createServer } from "./index.js";
+import { createServer, setupSocket } from "./index.js";
 import express from "express";
 
 const app = createServer();
@@ -22,11 +22,14 @@ app.get("/{*path}", (req, res) => {
   res.sendFile(path.join(distPath, "index.html"));
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`🚀 Fusion Starter server running on port ${port}`);
   console.log(`📱 Frontend: http://localhost:${port}`);
   console.log(`🔧 API: http://localhost:${port}/api`);
 });
+
+// Attach Socket.io to the HTTP Server
+setupSocket(server, app);
 
 // Graceful shutdown
 process.on("SIGTERM", () => {
