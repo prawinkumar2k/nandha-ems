@@ -141,7 +141,9 @@ export function Sidebar({ items = [], isOpen, onClose }) {
                 <p className="text-sm font-bold text-sidebar-foreground truncate">{user?.name}</p>
                 <div className="flex items-center gap-1.5">
                   <span className={cn("w-1.5 h-1.5 rounded-full animate-pulse", rc.dot || "bg-emerald-500")} />
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-sidebar-accent-foreground/50">{user?.role}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-sidebar-accent-foreground/50">
+                    {user?.role} {user?.department?.code ? `• ${user.department.code}` : ""}
+                  </p>
                 </div>
               </div>
             )}
