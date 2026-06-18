@@ -13,7 +13,7 @@ RUN npm install -g pnpm && pnpm install --prod --no-frozen-lockfile
 # Copy server source
 COPY server/ ./server/
 # Copy static built assets
-COPY --from=builder /app/client/dist ./client/dist
+COPY --from=builder /app/dist/spa ./client/dist
 
 # Security Hardening
 RUN addgroup -S neclms && adduser -S neclms -G neclms
