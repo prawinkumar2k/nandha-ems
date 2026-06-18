@@ -132,7 +132,9 @@ export function QuestionFactory({ question, index, onChange, onRemove, onImportS
                 { value: "javascript", label: "Node.js 18" },
                 { value: "cpp", label: "C++ 20" },
                 { value: "c", label: "C (GCC 11)" },
-                { value: "java", label: "Java (OpenJDK 17)" }
+                { value: "java", label: "Java (OpenJDK 17)" },
+                { value: "rust", label: "Rust (1.40)" },
+                { value: "bash", label: "Bash (Script)" }
               ]}
               value={question.language}
               onChange={(v) => updateField("language", v)}
