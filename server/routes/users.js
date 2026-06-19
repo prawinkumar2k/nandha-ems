@@ -155,18 +155,24 @@ export const handleBulkUpload = async (req, res) => {
   }
 };export const handleUpdateUser = async (req, res) => {
   try {
-    const { name, email, role, department, phone, isActive, rollNumber, employeeId } = req.body;
+    const { name, email, role, department, phone, isActive, rollNumber, employeeId, designation, specialization, office, semester, academicYear, cgpa } = req.body;
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (name) user.name = name;
-    if (email) user.email = email.toLowerCase();
-    if (role) user.role = role;
+    if (name !== undefined) user.name = name;
+    if (email !== undefined) user.email = email.toLowerCase();
+    if (role !== undefined) user.role = role;
     if (department !== undefined) user.department = department;
     if (phone !== undefined) user.phone = phone;
     if (isActive !== undefined) user.isActive = isActive;
     if (rollNumber !== undefined) user.rollNumber = rollNumber;
     if (employeeId !== undefined) user.employeeId = employeeId;
+    if (designation !== undefined) user.designation = designation;
+    if (specialization !== undefined) user.specialization = specialization;
+    if (office !== undefined) user.office = office;
+    if (semester !== undefined) user.semester = semester;
+    if (academicYear !== undefined) user.academicYear = academicYear;
+    if (cgpa !== undefined) user.cgpa = cgpa;
 
     await user.save();
     res.json(user);

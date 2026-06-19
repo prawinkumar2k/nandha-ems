@@ -80,7 +80,6 @@ import "./models/NotificationPreference.js";
 import "./models/Mark.js";
 import "./models/LabSession.js";
 import "./models/Lab.js";
-import "./models/StudentProfile.js";
 import "./models/Settings.js";
 import "./models/Violation.js";
 import "./models/RiskProfile.js";

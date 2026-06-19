@@ -234,6 +234,18 @@ export default function UserList() {
             <FormField id="employeeId" name="employeeId" label="Employee ID (Staff)" placeholder="e.g. FAC001"
               value={values.employeeId} onChange={handleChange} onBlur={handleBlur} />
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <FormField id="phone" name="phone" label="Phone Number" placeholder="e.g. 9876543210"
+              value={values.phone} onChange={handleChange} onBlur={handleBlur} />
+            <FormField id="office" name="office" label="Room / Office (Staff)" placeholder="e.g. Block A, 102"
+              value={values.office} onChange={handleChange} onBlur={handleBlur} />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <FormField id="designation" name="designation" label="Designation (Staff)" placeholder="e.g. Assistant Professor"
+              value={values.designation} onChange={handleChange} onBlur={handleBlur} />
+            <FormField id="specialization" name="specialization" label="Specialization (Staff)" placeholder="e.g. Cyber Security"
+              value={values.specialization} onChange={handleChange} onBlur={handleBlur} />
+          </div>
           <FormSelect id="status" label="Status" options={[{ value: "Active", label: "Active" }, { value: "Inactive", label: "Inactive" }]}
             value={values.status} onChange={(v) => setValue("status", v)} />
 
