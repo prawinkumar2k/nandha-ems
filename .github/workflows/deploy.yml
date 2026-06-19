@@ -15,7 +15,7 @@ jobs:
       - name: ✅ Checkout code
         uses: actions/checkout@v4
 
-      - name: 🔑 Deploy via SSH (password auth)
+      - name: 🔒 Deploy via SSH (password auth)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -49,3 +49,44 @@ jobs:
             docker image prune -f
 
             echo "✅ Done! Deployed in record time 🚀"
+
+  build-exe:
+    name: 🖥️ Build Windows Secure Browser
+    runs-on: windows-latest
+
+    steps:
+      - name: ✅ Checkout code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 📦 Install pnpm
+        run: npm install -g pnpm
+
+      - name: 📥 Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: 🔨 Build portable EXE (no code signing)
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: pnpm run build:exe
+
+      - name: 🏷️ Create or update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: secure-browser-latest
+          name: NEC EMS Secure Browser
+          body: |
+            ## NEC EMS Secure Browser
+            Download and run the installer to launch the secure exam environment.
+            **Steps:**
+            1. Download `NEC.EMS.Secure.Browser.exe` below
+            2. Run it directly — no installation needed
+            3. Login with your student credentials
+          files: release/NEC EMS Secure Browser 1.0.0.exe
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

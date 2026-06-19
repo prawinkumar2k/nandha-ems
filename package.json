@@ -19,15 +19,15 @@
   "build": {
     "appId": "com.necems.kiosk",
     "productName": "NEC EMS Secure Browser",
+    "forceCodeSigning": false,
     "directories": {
       "output": "release"
     },
     "win": {
-      "target": "nsis"
+      "target": "portable"
     },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+    "portable": {
+      "requestExecutionLevel": "user"
     }
   },
   "dependencies": {

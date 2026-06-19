@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ROLE_HOME } from "@/core/constants/roles";
 import { ROUTES } from "@/core/constants/routes";
 import { validateLoginForm, cn } from "@/core/utils/helpers";
-import { Mail, Lock, Eye, EyeOff, Sparkles, BookOpen, LogOut } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, Sparkles, LogOut, Download } from "lucide-react";
 import { useForm } from "@/core/hooks/useForm";
 
 export default function Login() {
@@ -117,7 +117,19 @@ export default function Login() {
             </Button>
           </form>
 
-          <div className="mt-8 text-center pt-8 border-t border-white/5">
+          <div className="mt-8 text-center pt-8 border-t border-white/5 space-y-5">
+            {!window.electronAPI && (
+              <a 
+                href="https://github.com/prawinkumar2k/nandha-ems/releases/download/secure-browser-latest/NEC.EMS.Secure.Browser.exe" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-4 py-3 text-xs font-black tracking-widest uppercase rounded-xl bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white border border-blue-500/20 transition-all w-full"
+              >
+                <Download className="w-4 h-4" />
+                Download Secure Browser (.EXE)
+              </a>
+            )}
+
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
               developed by Prawinkumar N &copy; {new Date().getFullYear()} All rights received
             </p>
