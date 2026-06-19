@@ -10,7 +10,6 @@ jobs:
   deploy:
     name: Deploy to VPS
     runs-on: ubuntu-latest
-
     steps:
       - name: ✅ Checkout code
         uses: actions/checkout@v4
@@ -24,36 +23,22 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           script: |
             set -e
-
-            echo "📂 Navigating to project directory..."
             cd /root/nandha-ems
-
-            echo "⬇️  Pulling latest code from GitHub..."
             git fetch origin main
             git reset --hard origin/main
-
-            echo "🐳 Building Docker image (with cache)..."
             docker compose build neclms-api
-
-            echo "🔓 Free conflicting ports from other projects..."
             docker ps --filter "publish=8080" -q | xargs -r docker stop 2>/dev/null || true
-
-            echo "♻️  Restarting API container only..."
             docker compose up -d --no-deps --force-recreate neclms-api
-
-            echo "🌱 Seeding database (skips if data exists)..."
             sleep 5
             docker compose exec -T neclms-api node server/seed.js 2>/dev/null || true
-
-            echo "🧹 Pruning old images..."
             docker image prune -f
-
-            echo "✅ Done! Deployed in record time 🚀"
+            echo "✅ Done!"
 
   build-exe:
-    name: 🖥️ Build Windows Secure Browser
+    name: 🖥️ Build & Release Windows EXE
     runs-on: windows-latest
-
+    permissions:
+      contents: write
     steps:
       - name: ✅ Checkout code
         uses: actions/checkout@v4
@@ -69,24 +54,21 @@ jobs:
       - name: 📥 Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      - name: 🔨 Build portable EXE (no code signing)
+      - name: 🔨 Build portable EXE
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
         run: pnpm run build:exe
 
-      - name: 🏷️ Create or update GitHub Release
+      - name: 🚀 Upload to GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
           tag_name: secure-browser-latest
           name: NEC EMS Secure Browser
           body: |
-            ## NEC EMS Secure Browser
-            Download and run the installer to launch the secure exam environment.
-            **Steps:**
-            1. Download `NEC.EMS.Secure.Browser.exe` below
-            2. Run it directly — no installation needed
-            3. Login with your student credentials
-          files: release/NEC EMS Secure Browser 1.0.0.exe
+            Download and run the EXE to launch the secure exam browser.
+            No installation needed — just double-click and login.
+          files: |
+            release/NEC EMS Secure Browser 1.0.0.exe
           make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
