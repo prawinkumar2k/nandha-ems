@@ -40,7 +40,7 @@ export default function AdvancedReportingEngine() {
     setIsGenerating(true);
     try {
       // Fetch actual real data from the system instead of using mock data
-      const response = await apiClient.get('/api/submissions?limit=1000');
+      const response = await apiClient.get('/api/exams-telemetry?limit=1000');
       let reportData = Array.isArray(response) ? response : (response?.data || []);
       
       // If we don't have submissions, fetch users as a fallback to show some real data

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { buildPaginationItems, paginationItemKey, PAGINATION_ELLIPSIS } from "@/shared/utils/pagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronUp, ChevronDown, Search, ChevronLeft, ChevronRight } from "lucide-react";
@@ -55,7 +56,13 @@ export function DataTable({
 
   // ── Paginate
   const totalPages = Math.ceil(sorted.length / pageSize) || 1;
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
   const paginated = sorted.slice((page - 1) * pageSize, page * pageSize);
+  const paginationItems = buildPaginationItems(page, totalPages);
 
   const toggleSort = (key) => {
     setSort((prev) =>
@@ -173,30 +180,21 @@ export function DataTable({
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1)
-              .filter(
-                (p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1
+            {paginationItems.map((item, i) =>
+              item === PAGINATION_ELLIPSIS ? (
+                <span key={paginationItemKey(item, i)} className="px-2 text-muted-foreground">…</span>
+              ) : (
+                <Button
+                  key={paginationItemKey(item, i)}
+                  variant={item === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setPage(item)}
+                  className="h-8 w-8 p-0"
+                >
+                  {item}
+                </Button>
               )
-              .reduce((acc, p, idx, arr) => {
-                if (idx > 0 && p - arr[idx - 1] > 1) acc.push("…");
-                acc.push(p);
-                return acc;
-              }, [])
-              .map((p, i) =>
-                p === "…" ? (
-                  <span key={i} className="px-2 text-muted-foreground">…</span>
-                ) : (
-                  <Button
-                    key={p}
-                    variant={p === page ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setPage(p)}
-                    className="h-8 w-8 p-0"
-                  >
-                    {p}
-                  </Button>
-                )
-              )}
+            )}
             <Button
               variant="outline"
               size="sm"

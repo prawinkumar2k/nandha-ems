@@ -52,6 +52,9 @@ export function useMediaQuery(query = "(max-width: 768px)") {
 export function useCountdown(seconds, onEnd) {
   const [remaining, setRemaining] = useState(seconds);
   useEffect(() => {
+    setRemaining(seconds);
+  }, [seconds]);
+  useEffect(() => {
     if (remaining <= 0) { onEnd?.(); return; }
     const t = setInterval(() => setRemaining((r) => r - 1), 1000);
     return () => clearInterval(t);

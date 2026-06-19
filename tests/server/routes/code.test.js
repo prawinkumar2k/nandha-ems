@@ -1,17 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { handleRunCode, handleCheckCompilers } from "../../../server/routes/code.js";
-import { executeCode } from "../../../server/utils/codeExecutor.js";
 import { createMockReq, createMockRes } from "../../helpers.js";
-
-vi.mock("../../../server/utils/codeExecutor.js", () => ({
-  executeCode: vi.fn(),
-}));
-
-vi.mock("child_process", () => ({
-  exec: vi.fn((cmd, options, callback) => {
-    callback(null, "", "");
-  }),
-}));
 
 describe("code execution routes", () => {
   beforeEach(() => {
@@ -30,67 +19,46 @@ describe("code execution routes", () => {
     });
   });
 
-  it("blocks dangerous code patterns before execution", async () => {
-    const req = createMockReq({
-      body: {
-        language: "javascript",
-        code: 'const cp = require("child_process");',
-      },
+  it("returns execution output for supported languages", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ stdout: "42\n", stderr: "" })
     });
+    const req = createMockReq({ body: { language: "javascript", code: "console.log(42);" } });
+    const res = createMockRes();
+
+    await handleRunCode(req, res);
+    expect(res.json).toHaveBeenCalledWith({ output: "42\n", error: "" });
+  });
+
+  it("surfaces execution errors from Judge0", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      json: async () => ({ error: "Some error" })
+    });
+    const req = createMockReq({ body: { language: "javascript", code: "console.log('x')" } });
     const res = createMockRes();
 
     await handleRunCode(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(403);
-    expect(res.json).toHaveBeenCalledWith({
-      output: "",
-      error: expect.stringContaining("Dangerous keyword detected"),
-    });
-    expect(executeCode).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(500);
   });
 
-  it("executes safe code and returns the sandbox result", async () => {
-    vi.mocked(executeCode).mockResolvedValue({
-      output: "42",
-      error: "",
-    });
-    const req = createMockReq({
-      body: {
-        language: "javascript",
-        code: "console.log(42);",
-        input: "",
-      },
-    });
-    const res = createMockRes();
-
-    await handleRunCode(req, res);
-
-    expect(executeCode).toHaveBeenCalledWith("javascript", "console.log(42);", "");
-    expect(res.json).toHaveBeenCalledWith({
-      output: "42",
-      error: "",
-    });
-  });
-
-  it("surfaces executor crashes as a generic 500", async () => {
-    vi.mocked(executeCode).mockRejectedValue(new Error("boom"));
-    const req = createMockReq({
-      body: {
-        language: "javascript",
-        code: "console.log('x')",
-      },
-    });
+  it("surfaces fetch crashes as a generic 500", async () => {
+    global.fetch = vi.fn().mockRejectedValue(new Error("boom"));
+    const req = createMockReq({ body: { language: "javascript", code: "console.log('x')" } });
     const res = createMockRes();
 
     await handleRunCode(req, res);
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
-      message: "Internal server error during code execution.",
+      message: "Internal server error connecting to Judge0.",
     });
   });
 
   it("returns compiler availability for the supported toolchains", async () => {
+    global.fetch = vi.fn().mockResolvedValue({ ok: true });
     const req = createMockReq();
     const res = createMockRes();
 

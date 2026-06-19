@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronUp, ChevronDown, Search, ChevronLeft, ChevronRight, Inbox } from "lucide-react";
+import { buildPaginationItems, paginationItemKey, PAGINATION_ELLIPSIS } from "@/shared/utils/pagination";
 
 export function DataTableWrapper({
   columns = [],
@@ -39,7 +40,13 @@ export function DataTableWrapper({
   });
 
   const totalPages = Math.ceil(sorted.length / pageSize) || 1;
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
   const paginated = sorted.slice((page - 1) * pageSize, page * pageSize);
+  const paginationItems = buildPaginationItems(page, totalPages);
 
   const handleSort = (key) => {
     setSort((p) => ({ key, dir: p.key === key && p.dir === "asc" ? "desc" : "asc" }));
@@ -47,9 +54,6 @@ export function DataTableWrapper({
   };
 
   const handleSearch = (e) => { setSearch(e.target.value); setPage(1); };
-
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
-    .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1);
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -136,12 +140,12 @@ export function DataTableWrapper({
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-white/10" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
                 <ChevronLeft className="w-4 h-4" />
               </Button>
-              {pages.reduce((acc, p, idx, arr) => {
-                if (idx > 0 && p - arr[idx-1] > 1) acc.push("…");
-                acc.push(p); return acc;
-              }, []).map((p, i) => p === "…"
-                ? <span key={i} className="px-2">…</span>
-                : <Button key={p} size="sm" variant={p === page ? "secondary" : "ghost"} className={`h-8 w-8 p-0 rounded-lg ${p === page ? "bg-primary text-primary-foreground" : "hover:bg-white/10"}`} onClick={() => setPage(p)}>{p}</Button>
+              {paginationItems.map((item, i) =>
+                item === PAGINATION_ELLIPSIS ? (
+                  <span key={paginationItemKey(item, i)} className="px-2">…</span>
+                ) : (
+                  <Button key={paginationItemKey(item, i)} size="sm" variant={item === page ? "secondary" : "ghost"} className={`h-8 w-8 p-0 rounded-lg ${item === page ? "bg-primary text-primary-foreground" : "hover:bg-white/10"}`} onClick={() => setPage(item)}>{item}</Button>
+                )
               )}
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-white/10" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
                 <ChevronRight className="w-4 h-4" />

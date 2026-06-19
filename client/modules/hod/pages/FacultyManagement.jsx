@@ -22,13 +22,7 @@ import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianG
 
 const NAV = getHODNav();
 
-const ANALYTICS_DATA = [
-  { name: "Mon", engagement: 65, efficiency: 70 },
-  { name: "Tue", engagement: 78, efficiency: 85 },
-  { name: "Wed", engagement: 82, efficiency: 75 },
-  { name: "Thu", engagement: 70, efficiency: 90 },
-  { name: "Fri", engagement: 95, efficiency: 95 },
-];
+
 
 export default function FacultyManagement() {
   const [selectedFaculty, setSelectedFaculty] = useState(null);
@@ -43,6 +37,12 @@ export default function FacultyManagement() {
   const { data: faculty, isLoading, error } = useQuery({
     queryKey: ["hod-faculty-list"],
     queryFn: () => apiClient.get("/api/hod/faculty/status"),
+  });
+
+  const { data: analyticsData = [], isLoading: analyticsLoading } = useQuery({
+    queryKey: ["hod-faculty-analytics", selectedFaculty?._id],
+    queryFn: () => apiClient.get(`/api/hod/faculty/${selectedFaculty._id}/analytics`),
+    enabled: !!selectedFaculty && viewMode === "analytics"
   });
 
   // Mutations
@@ -346,7 +346,7 @@ export default function FacultyManagement() {
                       <TrendingUp className="w-4 h-4" /> Weekly Score
                     </h4>
                     <ResponsiveContainer width="100%" height="75%">
-                      <AreaChart data={ANALYTICS_DATA}>
+                      <AreaChart data={analyticsData}>
                         <defs>
                           <linearGradient id="colorEng" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>

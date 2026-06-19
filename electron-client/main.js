@@ -290,6 +290,11 @@ ipcMain.on('exam-submitted', () => {
   console.log('Exam Submitted. Returned to idle.');
 });
 
+ipcMain.handle('get-exam-state', () => {
+  const offlineEngine = require('./services/offline');
+  return offlineEngine.getExamState();
+});
+
 ipcMain.on('answers-updated', (event, { examId, answers }) => {
   const offlineEngine = require('./services/offline');
   offlineEngine.saveExamState({ examId, answers, timestamp: new Date() });

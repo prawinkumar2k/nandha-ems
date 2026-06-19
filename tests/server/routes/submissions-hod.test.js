@@ -92,6 +92,43 @@ describe("submission lifecycle", () => {
     );
   });
 
+  it("resumes an in-progress submission without creating a duplicate", async () => {
+    const existing = {
+      _id: "sub-1",
+      status: "in_progress",
+      exam: "exam-1",
+      student: "student-1",
+      answers: { 0: "A", 1: "B" },
+      startedAt: new Date("2026-06-19T10:00:00Z"),
+      questionOrder: [2, 0, 1],
+    };
+    models.Exam.findById.mockResolvedValue({
+      _id: "exam-1",
+      title: "Exam 1",
+      status: "active",
+      allowedStudents: [],
+    });
+    models.Submission.findOne.mockResolvedValue(existing);
+
+    const req = createMockReq({
+      body: { examId: "exam-1" },
+      user: { id: "student-1", name: "Student" },
+      app: { get: () => io },
+    });
+    const res = createMockRes();
+
+    await handleStartExam(req, res);
+
+    expect(models.Submission.create).not.toHaveBeenCalled();
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        _id: "sub-1",
+        status: "in_progress",
+        answers: { 0: "A", 1: "B" },
+      }),
+    );
+  });
+
   it("blocks re-starting a submission that was already submitted", async () => {
     models.Exam.findById.mockResolvedValue({ _id: "exam-1", title: "Exam 1", status: "active", allowedStudents: [] });
     models.Submission.findOne.mockResolvedValue({

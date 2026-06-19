@@ -35,7 +35,7 @@ export default function HODReportingEngine() {
   const handleExport = async (format) => {
     setIsGenerating(true);
     try {
-      const response = await apiClient.get('/api/submissions?limit=1000');
+      const response = await apiClient.get('/api/exams-telemetry?limit=1000');
       let reportData = Array.isArray(response) ? response : (response?.data || []);
       
       if (!reportData.length) {

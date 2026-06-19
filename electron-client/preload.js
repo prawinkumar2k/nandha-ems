@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   submitExam: () => ipcRenderer.send('exam-submitted'),
   exitApp: () => ipcRenderer.send('exit-app'),
   
+  getExamState: () => ipcRenderer.invoke('get-exam-state'),
   onAnswersUpdated: (data) => ipcRenderer.send('answers-updated', data),
   logViolation: (type) => ipcRenderer.send('log-violation', type)
 });

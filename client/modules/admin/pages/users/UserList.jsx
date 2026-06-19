@@ -31,7 +31,7 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 }
 };
 
-const EMPTY = { name: "", email: "", role: "student", department: "", status: "Active" };
+const EMPTY = { name: "", email: "", role: "student", department: "", status: "Active", rollNumber: "", employeeId: "", phone: "", office: "", designation: "", specialization: "" };
 
 import { useQuery } from "@tanstack/react-query";
 import { userService, departmentService } from "@/core/api/services";

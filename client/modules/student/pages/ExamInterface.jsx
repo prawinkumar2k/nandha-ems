@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useSocket } from "@/contexts/SocketContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { mergeExamAnswers, computeRemainingSeconds } from "@/core/utils/examRecovery";
 import { OfflineCodeEditor } from "@/shared/components/Coding/OfflineCodeEditor";
 
 
@@ -49,10 +50,8 @@ export default function ExamInterface() {
   const [questionOrder, setQuestionOrder] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [answers, setAnswers] = useState(() => {
-    const saved = localStorage.getItem(`exam_backup_${examId}`);
-    return saved ? JSON.parse(saved) : {};
-  });
+  const [answers, setAnswers] = useState({});
+  const [remainingSeconds, setRemainingSeconds] = useState(null);
   const [networkStatus, setNetworkStatus] = useState("online");
   const [lastSynced, setLastSynced] = useState(null);
   const [flagged, setFlagged] = useState(new Set());
@@ -83,6 +82,38 @@ export default function ExamInterface() {
         if (sessionData.questionOrder && sessionData.questionOrder.length > 0) {
           setQuestionOrder(sessionData.questionOrder);
         }
+
+        // 3. Restore answers: server + Electron offline + localStorage (local wins unsynced)
+        let offlineAnswers = {};
+        if (window.electronAPI?.getExamState) {
+          try {
+            const offline = await window.electronAPI.getExamState();
+            if (offline?.examId === examId) offlineAnswers = offline.answers || {};
+          } catch {
+            /* offline store unavailable */
+          }
+        }
+        let localAnswers = {};
+        try {
+          const localRaw = localStorage.getItem(`exam_backup_${examId}`);
+          if (localRaw) localAnswers = JSON.parse(localRaw);
+        } catch {
+          localStorage.removeItem(`exam_backup_${examId}`);
+        }
+        const restored = mergeExamAnswers({
+          server: sessionData.answers || {},
+          offline: offlineAnswers,
+          local: localAnswers,
+        });
+        setAnswers(restored);
+        if (Object.keys(restored).length > 0) {
+          localStorage.setItem(`exam_backup_${examId}`, JSON.stringify(restored));
+        }
+
+        // 4. Resume timer from submission start (not full duration)
+        setRemainingSeconds(
+          computeRemainingSeconds(sessionData.startedAt, examData.duration || 60)
+        );
         
         // Restore existing violations if any
         if (sessionData.violations) {
@@ -144,11 +175,11 @@ export default function ExamInterface() {
     return () => clearTimeout(syncTimeoutRef.current);
   }, [answers, examId, syncToCloud]);
 
-  // ─── Timer (60 min) ───────────────────────────────────────────────────
+  // ─── Timer (remaining from startedAt, not full duration) ───────────────
   const durationInSeconds = (exam?.duration || 60) * 60;
-  const { remaining } = useCountdown(durationInSeconds, () => handleSubmit("time_out"));
+  const { remaining } = useCountdown(remainingSeconds ?? durationInSeconds, () => handleSubmit("time_out"));
 
-  const pct = Math.round((remaining / durationInSeconds) * 100);
+  const pct = durationInSeconds > 0 ? Math.round((remaining / durationInSeconds) * 100) : 0;
   const timeColor = remaining < 300 ? "text-rose-500" : remaining < 600 ? "text-amber-500" : "text-foreground";
 
   // ─── Security Alerts ──────────────────────────────────────────────
@@ -226,11 +257,9 @@ export default function ExamInterface() {
     document.addEventListener("paste", block);
     document.addEventListener("contextmenu", block);
 
-    // Tab Switching
     const handleVisibility = () => {
       if (document.visibilityState === "hidden") {
          logViolation("switched_tab");
-         apiClient.post("/api/lab/logs", { type: "cheating_alert", details: "Tab switch detected" });
       }
     };
     document.addEventListener("visibilitychange", handleVisibility);

@@ -249,26 +249,24 @@ export function ExamMode() {
   const user = (() => { try { return JSON.parse(localStorage.getItem("kiosk_user") || "{}"); } catch { return {}; } })();
   const examId = localStorage.getItem("active_exam_id");
 
-  // Load exam + start submission
   useEffect(() => {
     if (!token || !examId) { navigate(ROUTES.CLIENT_LOGIN); return; }
-    apiClient.post(`/api/exams/${examId}/start`, {}, { headers: { Authorization: `Bearer ${token}` } })
+    apiClient.post(`/api/submissions/start`, { examId }, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => {
         setQuestions(res.questions || []);
         setExamMeta(res.exam || res);
         setSubmissionId(res.submissionId || res._id);
         // Restore any previously saved answers
-        if (res.savedAnswers) setAnswers(res.savedAnswers);
+        if (res.answers) setAnswers(res.answers);
       })
       .catch(err => toast.error("Failed to load exam: " + err.message))
       .finally(() => setLoading(false));
   }, [examId, navigate, token]);
 
-  // Auto-save every 30 seconds
   useEffect(() => {
     if (!submissionId) return;
     autoSaveRef.current = setInterval(() => {
-      apiClient.patch(`/api/submissions/${submissionId}/autosave`,
+      apiClient.put(`/api/submissions/${submissionId}/answers`,
         { answers },
         { headers: { Authorization: `Bearer ${token}` } }
       ).catch(() => {});

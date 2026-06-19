@@ -27,6 +27,7 @@ import {
   handleGetHODStudentsMonitoring,
   handleGetHODAlerts,
   handleGetHODAnalytics,
+  handleGetHODFacultyAnalytics,
   handleCreateHODFaculty,
   handleCreateHODStudent,
   handleHODBulkUpload,
@@ -278,6 +279,7 @@ export function createServer() {
   app.get("/api/hod/students/monitoring", authMiddleware, roleMiddleware(["hod"]), handleGetHODStudentsMonitoring);
   app.get("/api/hod/alerts", authMiddleware, roleMiddleware(["hod"]), handleGetHODAlerts);
   app.get("/api/hod/analytics", authMiddleware, roleMiddleware(["hod"]), handleGetHODAnalytics);
+  app.get("/api/hod/faculty/:id/analytics", authMiddleware, roleMiddleware(["hod"]), handleGetHODFacultyAnalytics);
   app.post("/api/hod/faculty", authMiddleware, roleMiddleware(["hod"]), handleCreateHODFaculty);
   app.post("/api/hod/student", authMiddleware, roleMiddleware(["hod"]), handleCreateHODStudent);
   app.post("/api/hod/bulk", authMiddleware, roleMiddleware(["hod"]), handleHODBulkUpload);

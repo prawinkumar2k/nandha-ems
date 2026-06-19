@@ -44,7 +44,7 @@ export default function AddUser() {
     : [];
 
   const { values, errors, touched, isSubmitting, handleChange, handleBlur, handleSubmit, setValue } =
-    useForm({ name: "", email: "", role: "student", department: "", rollNumber: "", employeeId: "", password: "" }, validateUserForm);
+    useForm({ name: "", email: "", role: "student", department: "", rollNumber: "", employeeId: "", password: "", phone: "", office: "", designation: "", specialization: "" }, validateUserForm);
 
   const onSubmit = handleSubmit(async (vals) => {
     try {
@@ -120,12 +120,34 @@ export default function AddUser() {
                     </div>
                   )}
                   {['faculty', 'hod', 'admin'].includes(values.role) && (
-                    <div className="space-y-2">
-                      <FormField id="employeeId" name="employeeId" label="Employee ID (Staff)" placeholder="e.g. FAC001"
-                        className="rounded-2xl border-white/10 bg-white/5"
-                        value={values.employeeId} onChange={handleChange} onBlur={handleBlur} />
-                    </div>
+                    <>
+                      <div className="space-y-2">
+                        <FormField id="employeeId" name="employeeId" label="Employee ID (Staff)" placeholder="e.g. FAC001"
+                          className="rounded-2xl border-white/10 bg-white/5"
+                          value={values.employeeId} onChange={handleChange} onBlur={handleBlur} />
+                      </div>
+                      <div className="space-y-2">
+                        <FormField id="designation" name="designation" label="Designation (Staff)" placeholder="e.g. Assistant Professor"
+                          className="rounded-2xl border-white/10 bg-white/5"
+                          value={values.designation} onChange={handleChange} onBlur={handleBlur} />
+                      </div>
+                      <div className="space-y-2">
+                        <FormField id="specialization" name="specialization" label="Specialization (Staff)" placeholder="e.g. Cyber Security"
+                          className="rounded-2xl border-white/10 bg-white/5"
+                          value={values.specialization} onChange={handleChange} onBlur={handleBlur} />
+                      </div>
+                      <div className="space-y-2">
+                        <FormField id="office" name="office" label="Office / Room (Staff)" placeholder="e.g. Block A, 102"
+                          className="rounded-2xl border-white/10 bg-white/5"
+                          value={values.office} onChange={handleChange} onBlur={handleBlur} />
+                      </div>
+                    </>
                   )}
+                  <div className="space-y-2 sm:col-span-2 md:col-span-1">
+                    <FormField id="phone" name="phone" label="Phone Number" placeholder="e.g. 9876543210"
+                      className="rounded-2xl border-white/10 bg-white/5"
+                      value={values.phone} onChange={handleChange} onBlur={handleBlur} />
+                  </div>
                 </div>
 
                 <div className="p-6 rounded-[24px] bg-primary/5 border border-primary/10 relative overflow-hidden group">
