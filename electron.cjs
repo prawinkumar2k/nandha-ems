@@ -18,8 +18,8 @@ function createWindow() {
     }
   });
 
-  // Load the running dev server
-  mainWindow.loadURL('http://localhost:8080');
+  // Load the production server
+  mainWindow.loadURL('http://72.61.229.231');
 
   // Strict Keyboard Blocking
   mainWindow.webContents.on('before-input-event', (event, input) => {
