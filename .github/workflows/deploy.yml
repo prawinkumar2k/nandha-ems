@@ -38,6 +38,12 @@ jobs:
             echo "⏹️  Stopping old containers..."
             docker compose down
 
+            echo "🔓 Freeing up conflicting ports from other projects..."
+            docker ps --filter "publish=6379" -q | xargs -r docker stop || true
+            docker ps --filter "publish=27017" -q | xargs -r docker stop || true
+            docker ps --filter "publish=5432" -q | xargs -r docker stop || true
+            docker ps --filter "publish=2358" -q | xargs -r docker stop || true
+
             echo "♻️  Starting updated containers..."
             docker compose up -d --remove-orphans
 
