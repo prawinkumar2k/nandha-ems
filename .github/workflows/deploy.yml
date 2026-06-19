@@ -3,8 +3,8 @@ name: 🚀 Deploy to Production
 on:
   push:
     branches:
-      - main        # triggers on push to main branch
-      - master      # also support master branch
+      - main
+      - master
 
 jobs:
   deploy:
@@ -15,12 +15,12 @@ jobs:
       - name: ✅ Checkout code
         uses: actions/checkout@v4
 
-      - name: 🔑 Deploy via SSH
+      - name: 🔑 Deploy via SSH (password auth)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
           script: |
             set -e
@@ -31,10 +31,10 @@ jobs:
             echo "⬇️  Pulling latest code from GitHub..."
             git pull origin main || git pull origin master
 
-            echo "🐳 Rebuilding Docker images (no cache)..."
+            echo "🐳 Rebuilding Docker images..."
             docker compose build --no-cache neclms-api
 
-            echo "♻️  Restarting containers with zero downtime..."
+            echo "♻️  Restarting containers..."
             docker compose up -d --remove-orphans
 
             echo "🧹 Cleaning up unused Docker images..."
