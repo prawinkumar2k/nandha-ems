@@ -5,10 +5,16 @@ import User from "../models/User.js";
 export const handleGetProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate("department");
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      return res.json({ 
+        _debug: "USER_NOT_FOUND", 
+        tokenInfo: req.user, 
+        message: "User not found in database." 
+      });
+    }
     res.json(user);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: err.message, _debug: err.stack });
   }
 };
 
