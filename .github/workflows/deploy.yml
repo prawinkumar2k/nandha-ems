@@ -35,14 +35,12 @@ jobs:
             echo "🐳 Rebuilding Docker images..."
             docker compose build --no-cache neclms-api
 
-            echo "⏹️  Stopping old containers..."
-            docker compose down
+            echo "⏹️  Stopping ALL running containers (all projects)..."
+            docker stop $(docker ps -q) 2>/dev/null || true
+            sleep 3
 
-            echo "🔓 Freeing up conflicting ports from other projects..."
-            docker ps --filter "publish=6379" -q | xargs -r docker stop || true
-            docker ps --filter "publish=27017" -q | xargs -r docker stop || true
-            docker ps --filter "publish=5432" -q | xargs -r docker stop || true
-            docker ps --filter "publish=2358" -q | xargs -r docker stop || true
+            echo "🗑️  Removing stopped containers..."
+            docker rm $(docker ps -aq) 2>/dev/null || true
 
             echo "♻️  Starting updated containers..."
             docker compose up -d --remove-orphans
