@@ -58,8 +58,8 @@ export const handleCreateUser = async (req, res) => {
       role: role || "student",
       department: department || null,
       phone: phone || "",
-      rollNumber: rollNumber || "",
-      employeeId: employeeId || "",
+      rollNumber: rollNumber || undefined,
+      employeeId: employeeId || undefined,
       password: password || "password",
       mustChangePassword: true,
       isActive: true,
@@ -127,8 +127,8 @@ export const handleBulkUpload = async (req, res) => {
         email,
         role: u.role || "student",
         department: deptMap[u.department] || null,
-        rollNumber: u.rollNumber || "",
-        employeeId: u.employeeId || "",
+        rollNumber: u.rollNumber || undefined,
+        employeeId: u.employeeId || undefined,
         password: u.password || "password", // default hashed by model hook usually
         mustChangePassword: true,
         isActive: true,
@@ -165,8 +165,8 @@ export const handleBulkUpload = async (req, res) => {
     if (department !== undefined) user.department = department;
     if (phone !== undefined) user.phone = phone;
     if (isActive !== undefined) user.isActive = isActive;
-    if (rollNumber !== undefined) user.rollNumber = rollNumber;
-    if (employeeId !== undefined) user.employeeId = employeeId;
+    if (rollNumber !== undefined) user.rollNumber = rollNumber || undefined;
+    if (employeeId !== undefined) user.employeeId = employeeId || undefined;
     if (designation !== undefined) user.designation = designation;
     if (specialization !== undefined) user.specialization = specialization;
     if (office !== undefined) user.office = office;
