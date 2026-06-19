@@ -32,26 +32,20 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            echo "🐳 Rebuilding Docker images..."
-            docker compose build --no-cache neclms-api
+            echo "🐳 Building Docker image (with cache)..."
+            docker compose build neclms-api
 
-            echo "⏹️  Stopping ALL running containers (all projects)..."
-            docker stop $(docker ps -q) 2>/dev/null || true
-            sleep 3
+            echo "🔓 Free conflicting ports from other projects..."
+            docker ps --filter "publish=8080" -q | xargs -r docker stop 2>/dev/null || true
 
-            echo "🗑️  Removing stopped containers..."
-            docker rm $(docker ps -aq) 2>/dev/null || true
+            echo "♻️  Restarting API container only..."
+            docker compose up -d --no-deps --force-recreate neclms-api
 
-            echo "♻️  Starting updated containers..."
-            docker compose up -d --remove-orphans
+            echo "🌱 Seeding database (skips if data exists)..."
+            sleep 5
+            docker compose exec -T neclms-api node server/seed.js 2>/dev/null || true
 
-            echo "⏳ Waiting for containers to be healthy..."
-            sleep 15
-
-            echo "🌱 Seeding database with initial data..."
-            docker compose exec -T neclms-api node server/seed.js || echo "⚠️  Seed skipped (may already have data)"
-
-            echo "🧹 Cleaning up unused Docker images..."
+            echo "🧹 Pruning old images..."
             docker image prune -f
 
-            echo "✅ Deployment complete! Site is live."
+            echo "✅ Done! Deployed in record time 🚀"
