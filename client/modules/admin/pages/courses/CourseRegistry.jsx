@@ -23,8 +23,17 @@ export default function CourseRegistry() {
   const socket = useSocket();
 
   const { data: courses = [], isLoading } = useQuery({
-    queryKey: ["courses"],
-    queryFn: () => apiClient.get("/api/courses"),
+    queryKey: ["courses", user?._id],
+    queryFn: () => {
+      let url = "/api/courses";
+      if (user?.role === "faculty") {
+        url += `?faculty=${user.id || user._id}`;
+      } else if (user?.role === "hod") {
+        const deptId = user.department?._id || user.department || user.dept;
+        if (deptId) url += `?department=${deptId}`;
+      }
+      return apiClient.get(url);
+    },
   });
 
   useEffect(() => {
