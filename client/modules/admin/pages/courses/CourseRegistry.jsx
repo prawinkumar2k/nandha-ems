@@ -58,6 +58,7 @@ export default function CourseRegistry() {
       const res = await apiClient.get("/api/users?role=faculty&limit=100");
       return res.data || [];
     },
+    enabled: user?.role === "admin" || user?.role === "hod"
   });
 
   const createCourse = useMutation({
