@@ -120,13 +120,13 @@ export default function Login() {
           <div className="mt-8 text-center pt-8 border-t border-white/5 space-y-5">
             {!window.electronAPI && (
               <a 
-                href="https://github.com/prawinkumar2k/nandha-ems/releases/latest/download/NEC_EMS_Secure_Browser.zip" 
+                href="https://github.com/prawinkumar2k/nandha-ems/releases/latest/download/NEC.EMS.Secure.Browser.1.0.0.exe" 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 px-4 py-3 text-xs font-black tracking-widest uppercase rounded-xl bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white border border-blue-500/20 transition-all w-full"
               >
                 <Download className="w-4 h-4" />
-                Download Secure Browser
+                Download Secure Browser (.EXE)
               </a>
             )}
 

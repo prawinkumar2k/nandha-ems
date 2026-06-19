@@ -59,9 +59,6 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: false
         run: pnpm run build:exe
 
-      - name: 📦 Zip EXE for safe download
-        run: Compress-Archive -Path "release\NEC EMS Secure Browser 1.0.0.exe" -DestinationPath "release\NEC_EMS_Secure_Browser.zip"
-
       - name: 🚀 Upload to GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
@@ -71,7 +68,7 @@ jobs:
             Download and run the EXE to launch the secure exam browser.
             No installation needed — just double-click and login.
           files: |
-            release/NEC_EMS_Secure_Browser.zip
+            release/NEC EMS Secure Browser 1.0.0.exe
           make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
