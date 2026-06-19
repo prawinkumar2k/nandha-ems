@@ -19,4 +19,23 @@ const courseSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Auto-enroll all students of the department into the course upon creation
+courseSchema.post('save', async function(doc) {
+  if (doc.department) {
+    try {
+      const User = mongoose.model('User');
+      const students = await User.find({ department: doc.department, role: 'student' }).select('_id').lean();
+      if (students.length > 0) {
+        const studentIds = students.map(s => s._id);
+        await mongoose.model('Course').updateOne(
+          { _id: doc._id },
+          { $addToSet: { enrolledStudents: { $each: studentIds } } }
+        );
+      }
+    } catch (err) {
+      console.error("Auto-enroll course error:", err);
+    }
+  }
+});
+
 export default mongoose.models.Course || mongoose.model("Course", courseSchema);

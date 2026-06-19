@@ -68,4 +68,19 @@ userSchema.methods.toJSON = function () {
   return obj;
 };
 
+// Auto-enroll student into all courses of their department upon creation/update
+userSchema.post('save', async function(doc) {
+  if (doc.role === 'student' && doc.department) {
+    try {
+      const Course = mongoose.model('Course');
+      await Course.updateMany(
+        { department: doc.department },
+        { $addToSet: { enrolledStudents: doc._id } }
+      );
+    } catch (err) {
+      console.error("Auto-enroll error:", err);
+    }
+  }
+});
+
 export default mongoose.models.User || mongoose.model("User", userSchema);
