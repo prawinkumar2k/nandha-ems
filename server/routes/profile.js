@@ -6,15 +6,13 @@ export const handleGetProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate("department");
     if (!user) {
-      return res.json({ 
-        _debug: "USER_NOT_FOUND", 
-        tokenInfo: req.user, 
-        message: "User not found in database." 
-      });
+      // If the token is mathematically valid but the user ID is missing from the database
+      // (e.g. database was reseeded), return 401 so the frontend automatically logs them out.
+      return res.status(401).json({ message: "User session invalid or database was reset. Please log in again." });
     }
     res.json(user);
   } catch (err) {
-    res.status(500).json({ message: err.message, _debug: err.stack });
+    res.status(500).json({ message: err.message });
   }
 };
 
