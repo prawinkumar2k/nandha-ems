@@ -31,7 +31,19 @@ async function sync() {
   // Move ALL exams to CSE
   await Exam.updateMany({}, { $set: { department: cse._id } });
 
-  console.log("Sync Complete: Everything is now in the CSE Department!");
+  // FORCE AUTO-ENROLLMENT: Add all students to all courses in their department
+  console.log("Synchronizing student enrollments...");
+  const students = await User.find({ role: "student", department: { $exists: true } });
+  let enrollCount = 0;
+  for (const student of students) {
+    const result = await Course.updateMany(
+      { department: student.department },
+      { $addToSet: { enrolledStudents: student._id } }
+    );
+    if (result.modifiedCount > 0) enrollCount++;
+  }
+
+  console.log(`Sync Complete: Everything is now in CSE! Enrolled students into ${enrollCount} course associations!`);
   process.exit(0);
 }
 
