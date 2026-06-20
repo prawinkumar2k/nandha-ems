@@ -133,11 +133,11 @@ export function createServer() {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
     res.setHeader('Content-Security-Policy',
       "default-src 'self'; " +
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; " +
-      "worker-src 'self' blob:; " +
-      "style-src 'self' 'unsafe-inline' fonts.googleapis.com; " +
-      "font-src 'self' fonts.gstatic.com data:; " +
-      "img-src 'self' data: blob:; " +
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net; " +
+      "worker-src 'self' blob: https://cdn.jsdelivr.net; " +
+      "style-src 'self' 'unsafe-inline' fonts.googleapis.com https://cdn.jsdelivr.net; " +
+      "font-src 'self' fonts.gstatic.com data: https://cdn.jsdelivr.net; " +
+      "img-src 'self' data: blob: https://www.transparenttextures.com; " +
       "connect-src 'self' ws: wss: http://localhost:* ws://localhost:*; " +
       "frame-ancestors 'none'; " +
       "object-src 'none'; " +
