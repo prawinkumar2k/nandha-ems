@@ -138,7 +138,7 @@ export function createServer() {
       "style-src 'self' 'unsafe-inline' fonts.googleapis.com https://cdn.jsdelivr.net; " +
       "font-src 'self' fonts.gstatic.com data: https://cdn.jsdelivr.net; " +
       "img-src 'self' data: blob: https://www.transparenttextures.com; " +
-      "connect-src 'self' ws: wss: http://localhost:* ws://localhost:*; " +
+      "connect-src 'self' ws: wss: http://localhost:* ws://localhost:* https://cdn.jsdelivr.net; " +
       "frame-ancestors 'none'; " +
       "object-src 'none'; " +
       "base-uri 'self';"

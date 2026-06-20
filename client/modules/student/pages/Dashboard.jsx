@@ -54,12 +54,12 @@ export default function StudentDashboard() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="space-y-8 pb-12"
+        className="space-y-6 md:space-y-8 pb-8 md:pb-12"
       >
         {/* Header Row */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-4 md:mb-6">
            <div className="flex flex-col">
-             <h2 className="text-2xl font-black tracking-tight flex items-center gap-2 uppercase">
+             <h2 className="text-xl md:text-2xl lg:text-3xl font-black tracking-tight flex items-center gap-2 uppercase">
                Dashboard Overview
              </h2>
              <p className="text-xs text-muted-foreground font-black uppercase tracking-widest mt-1">
@@ -74,13 +74,13 @@ export default function StudentDashboard() {
              <div className="w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-30 mix-blend-overlay" />
           </div>
 
-          <div className="px-8 pb-8 pt-4 bg-card border-x border-b border-white/5 shadow-xl rounded-b-[32px] flex flex-col md:flex-row gap-6 items-start md:items-end -mt-12 relative z-10 mx-4">
-             <Avatar className="w-28 h-28 border-4 border-card rounded-full bg-muted shadow-2xl">
+          <div className="px-4 md:px-8 pb-6 md:pb-8 pt-4 bg-card border-x border-b border-white/5 shadow-xl rounded-b-[32px] flex flex-col md:flex-row gap-4 md:gap-6 lg:gap-8 items-center md:items-end -mt-12 relative z-10 mx-2 md:mx-4">
+             <Avatar className="w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 border-4 border-card rounded-full bg-muted shadow-2xl">
                 <AvatarImage src={user?.profilePic} />
-                <AvatarFallback className="text-4xl font-black text-primary">{user?.name?.charAt(0)}</AvatarFallback>
+                <AvatarFallback className="text-3xl md:text-4xl font-black text-primary">{user?.name?.charAt(0)}</AvatarFallback>
              </Avatar>
-             <div className="flex-1 pb-2">
-                <h2 className="text-2xl font-black uppercase tracking-tight">{user?.name}</h2>
+             <div className="flex-1 pb-2 text-center md:text-left w-full">
+                <h2 className="text-xl md:text-2xl lg:text-3xl font-black uppercase tracking-tight">{user?.name}</h2>
                 <p className="text-primary font-bold text-sm mt-1">{user?.email}</p>
                 <div className="flex flex-wrap gap-x-8 gap-y-3 mt-4 text-sm font-semibold">
                    <span><span className="text-muted-foreground/60 mr-2 uppercase tracking-widest text-[10px]">Register Number:</span> {dashboard?.profile?.rollNumber || user?.rollNumber || 'Not Assigned'}</span>
@@ -106,12 +106,12 @@ export default function StudentDashboard() {
         </div>
 
         {/* Row 1: Upcoming Tests, Trust Score, Overall Proficiency */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
            <motion.div variants={itemVariants}>
-             <Card className="rounded-[32px] glass border-white/5 h-full min-h-[250px]">
-               <CardHeader className="flex flex-row items-center gap-2 pb-6 border-b border-white/5">
-                 <Clock className="w-5 h-5 text-orange-500" />
-                 <CardTitle className="text-xl font-black italic uppercase">Next Tests</CardTitle>
+             <Card className="rounded-[24px] md:rounded-[32px] glass border-white/5 h-full min-h-[250px]">
+               <CardHeader className="flex flex-row items-center gap-2 pb-4 md:pb-6 border-b border-white/5 p-4 md:p-6">
+                 <Clock className="w-4 h-4 md:w-5 md:h-5 text-orange-500" />
+                 <CardTitle className="text-lg md:text-xl lg:text-2xl font-black italic uppercase">Next Tests</CardTitle>
                </CardHeader>
                <CardContent className="pt-6 space-y-3">
                  {isLoading ? (
@@ -140,10 +140,10 @@ export default function StudentDashboard() {
              </Card>
            </motion.div>
 
-           <motion.div variants={itemVariants} className="flex flex-col gap-6">
-             <Card className="rounded-[32px] glass border-white/5 p-6 flex-1 flex flex-col hover:border-white/10 transition-colors">
-                <div className="flex justify-between items-start mb-6">
-                   <h3 className="text-lg font-black tracking-tight flex items-center gap-2"><ShieldCheck className="w-5 h-5 text-emerald-500"/> Trust & Integrity</h3>
+           <motion.div variants={itemVariants} className="flex flex-col gap-4 md:gap-6">
+             <Card className="rounded-[24px] md:rounded-[32px] glass border-white/5 p-4 md:p-6 flex-1 flex flex-col hover:border-white/10 transition-colors">
+                <div className="flex justify-between items-start mb-4 md:mb-6">
+                   <h3 className="text-base md:text-lg lg:text-xl font-black tracking-tight flex items-center gap-2"><ShieldCheck className="w-4 h-4 md:w-5 md:h-5 text-emerald-500"/> Trust & Integrity</h3>
                 </div>
                 <div className="mt-auto flex items-end justify-between">
                    <div>
@@ -157,9 +157,9 @@ export default function StudentDashboard() {
                 </div>
              </Card>
 
-             <Card className="rounded-[32px] glass border-white/5 p-6 flex-1 flex flex-col hover:border-white/10 transition-colors">
-                <div className="flex justify-between items-start mb-6">
-                   <h3 className="text-lg font-black tracking-tight flex items-center gap-2"><Target className="w-5 h-5 text-indigo-500"/> Overall Proficiency</h3>
+             <Card className="rounded-[24px] md:rounded-[32px] glass border-white/5 p-4 md:p-6 flex-1 flex flex-col hover:border-white/10 transition-colors">
+                <div className="flex justify-between items-start mb-4 md:mb-6">
+                   <h3 className="text-base md:text-lg lg:text-xl font-black tracking-tight flex items-center gap-2"><Target className="w-4 h-4 md:w-5 md:h-5 text-indigo-500"/> Overall Proficiency</h3>
                 </div>
                 <div className="mt-auto flex justify-between items-end">
                    <div>
@@ -173,10 +173,10 @@ export default function StudentDashboard() {
              </Card>
            </motion.div>
            
-           <motion.div variants={itemVariants} className="flex flex-col gap-6">
-             <Card className="rounded-[32px] glass border-white/5 p-6 flex-1 flex flex-col hover:border-white/10 transition-colors">
-                <div className="flex justify-between items-start mb-6">
-                   <h3 className="text-lg font-black tracking-tight flex items-center gap-2"><Activity className="w-5 h-5 text-blue-500"/> Exam Activity</h3>
+           <motion.div variants={itemVariants} className="flex flex-col gap-4 md:gap-6">
+             <Card className="rounded-[24px] md:rounded-[32px] glass border-white/5 p-4 md:p-6 flex-1 flex flex-col hover:border-white/10 transition-colors">
+                <div className="flex justify-between items-start mb-4 md:mb-6">
+                   <h3 className="text-base md:text-lg lg:text-xl font-black tracking-tight flex items-center gap-2"><Activity className="w-4 h-4 md:w-5 md:h-5 text-blue-500"/> Exam Activity</h3>
                 </div>
                 <div className="mt-auto grid grid-cols-3 gap-2 text-center">
                    <div className="bg-white/5 rounded-xl p-3">
@@ -197,10 +197,10 @@ export default function StudentDashboard() {
         </div>
 
         {/* Row 2: Solved Questions, Course Info */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
            <motion.div variants={itemVariants}>
-             <Card className="rounded-[32px] glass border-white/5 p-6 h-full flex flex-col hover:border-white/10 transition-colors">
-                <h3 className="text-lg font-black tracking-tight mb-8">Solved Questions</h3>
+             <Card className="rounded-[24px] md:rounded-[32px] glass border-white/5 p-4 md:p-6 h-full flex flex-col hover:border-white/10 transition-colors">
+                <h3 className="text-base md:text-lg lg:text-xl font-black tracking-tight mb-6 md:mb-8 text-center md:text-left">Solved Questions</h3>
                 <div className="flex-1 flex flex-col items-center justify-center gap-10">
                    <div className="w-40 h-40 rounded-full border-[12px] border-primary/20 flex items-center justify-center relative shadow-inner">
                       <div className="absolute inset-0 border-[12px] border-primary rounded-full" style={{ clipPath: "polygon(0 0, 100% 0, 100% 70%, 0 70%)" }} />
@@ -237,10 +237,10 @@ export default function StudentDashboard() {
            </motion.div>
 
            <motion.div variants={itemVariants} className="lg:col-span-2">
-             <Card className="rounded-[32px] glass border-white/5 h-full">
-               <CardHeader className="flex flex-row items-center gap-2 pb-6 border-b border-white/5">
-                 <BarChart3 className="w-5 h-5 text-purple-500" />
-                 <CardTitle className="text-xl font-black italic uppercase">Course Progress</CardTitle>
+             <Card className="rounded-[24px] md:rounded-[32px] glass border-white/5 h-full">
+               <CardHeader className="flex flex-row items-center gap-2 pb-4 md:pb-6 border-b border-white/5 p-4 md:p-6">
+                 <BarChart3 className="w-4 h-4 md:w-5 md:h-5 text-purple-500" />
+                 <CardTitle className="text-lg md:text-xl lg:text-2xl font-black italic uppercase">Course Progress</CardTitle>
                </CardHeader>
                <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                  {isLoading ? (
@@ -271,11 +271,11 @@ export default function StudentDashboard() {
         </div>
 
         {/* Row 3: Coding & MCQ Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
            <motion.div variants={itemVariants}>
-             <Card className="rounded-[32px] glass border-white/5 p-6 flex flex-col h-full hover:border-white/10 transition-colors">
-                <div className="flex justify-between items-start mb-6">
-                   <h3 className="text-lg font-black tracking-tight">Coding Assessment Stats</h3>
+             <Card className="rounded-[24px] md:rounded-[32px] glass border-white/5 p-4 md:p-6 flex flex-col h-full hover:border-white/10 transition-colors">
+                <div className="flex justify-between items-start mb-4 md:mb-6">
+                   <h3 className="text-base md:text-lg lg:text-xl font-black tracking-tight">Coding Assessment Stats</h3>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-y-6 gap-x-4 mt-auto">
                    <div>
@@ -299,9 +299,9 @@ export default function StudentDashboard() {
            </motion.div>
 
            <motion.div variants={itemVariants}>
-             <Card className="rounded-[32px] glass border-white/5 p-6 flex flex-col h-full hover:border-white/10 transition-colors">
-                <div className="flex justify-between items-start mb-6">
-                   <h3 className="text-lg font-black tracking-tight">MCQ Assessment Stats</h3>
+             <Card className="rounded-[24px] md:rounded-[32px] glass border-white/5 p-4 md:p-6 flex flex-col h-full hover:border-white/10 transition-colors">
+                <div className="flex justify-between items-start mb-4 md:mb-6">
+                   <h3 className="text-base md:text-lg lg:text-xl font-black tracking-tight">MCQ Assessment Stats</h3>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-y-6 gap-x-4 mt-auto">
                    <div>

@@ -33,7 +33,7 @@ export function StatCard({ label, value, change, icon, color = "bg-primary/10 te
         </CardHeader>
         <CardContent className="relative z-10">
           <div className="flex items-end justify-between gap-2">
-            <p className="text-3xl font-black text-card-foreground tracking-tight leading-none">{value}</p>
+            <p className="text-2xl md:text-3xl font-black text-card-foreground tracking-tight leading-none">{value}</p>
             {change && (
               <div className={`flex items-center gap-0.5 px-2 py-1 rounded-full text-xs font-bold bg-white/10 dark:bg-black/20 ring-1 ring-white/10 ${changeColor}`}>
                 <ChangeIcon className="w-3.5 h-3.5" />

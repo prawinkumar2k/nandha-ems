@@ -73,13 +73,13 @@ export function MainLayout({ children, navItems = [], title }) {
             animate={{ opacity: 1, y: 0 }}
             key={title} // Trigger animation on navigation
             transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-            className="p-4 lg:p-6 flex-1"
+            className="p-4 md:p-6 lg:p-10 flex-1"
           >
             {children}
           </motion.div>
           
-          <footer className="p-6 text-center border-t border-white/5">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/30">
+          <footer className="p-4 md:p-6 text-center border-t border-white/5">
+            <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-foreground/30">
               developed by Prawinkumar N &copy; {new Date().getFullYear()} All rights received
             </p>
           </footer>

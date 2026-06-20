@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { apiClient } from "@/core/api/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 // ─── Configure Monaco for OFFLINE usage ──────────────────────────────────────
 // If public/monaco/vs exists locally, uncomment this to use it offline. 
@@ -36,7 +36,6 @@ export const OfflineCodeEditor = ({ initialValue, language: initialLang, onCodeC
   const [compilers, setCompilers] = useState({
       javascript: true, python: true, java: true, rust: true, c: false, cpp: false, bash: true
   });
-  const { toast } = useToast();
 
   useEffect(() => {
     // Probe server for available compilers
