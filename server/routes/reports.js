@@ -128,7 +128,7 @@ export const handleGetStudentStats = async (req, res) => {
       Submission.find({ student: studentId, status: "submitted" })
         .populate("exam", "course totalMarks")
         .lean(),
-      User.findById(studentId).lean(),
+      User.findById(studentId).populate("department", "name").lean(),
       QuestionBank.find({ isActive: true }).select("type difficulty").lean()
     ]);
 
@@ -204,6 +204,12 @@ export const handleGetStudentStats = async (req, res) => {
         duration: e.duration,
         course: e.course?.title
       })),
+      profile: {
+        rollNumber: profile?.rollNumber,
+        degree: profile?.department?.name || profile?.department || "Not Assigned",
+        batch: profile?.academicYear || "Not Assigned",
+        college: "Nandha Educational Institutions"
+      },
       skills: {
          neoPatScore: neoPatScore,
          neoPatLevel: Math.floor(neoPatScore / 100) + 1,

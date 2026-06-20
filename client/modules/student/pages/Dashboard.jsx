@@ -92,10 +92,10 @@ export default function StudentDashboard() {
                   <h2 className="text-2xl font-black uppercase tracking-tight">{user?.name}</h2>
                   <p className="text-primary font-bold text-sm mt-1">{user?.email}</p>
                   <div className="flex flex-wrap gap-x-8 gap-y-3 mt-4 text-sm font-semibold">
-                     <span><span className="text-muted-foreground/60 mr-2 uppercase tracking-widest text-[10px]">Register Number:</span> {user?.rollNumber || '23AIO48'}</span>
-                     <span><span className="text-muted-foreground/60 mr-2 uppercase tracking-widest text-[10px]">Degree:</span> {user?.degree || 'B.Tech AI & DS'}</span>
-                     <span><span className="text-muted-foreground/60 mr-2 uppercase tracking-widest text-[10px]">Batch:</span> {user?.academicYear || '2027'}</span>
-                     <span><span className="text-muted-foreground/60 mr-2 uppercase tracking-widest text-[10px]">College:</span> Nandha Educational Institutions</span>
+                     <span><span className="text-muted-foreground/60 mr-2 uppercase tracking-widest text-[10px]">Register Number:</span> {dashboard?.profile?.rollNumber || user?.rollNumber || 'Not Assigned'}</span>
+                     <span><span className="text-muted-foreground/60 mr-2 uppercase tracking-widest text-[10px]">Degree:</span> {dashboard?.profile?.degree || 'Not Assigned'}</span>
+                     <span><span className="text-muted-foreground/60 mr-2 uppercase tracking-widest text-[10px]">Batch:</span> {dashboard?.profile?.batch || 'Not Assigned'}</span>
+                     <span><span className="text-muted-foreground/60 mr-2 uppercase tracking-widest text-[10px]">College:</span> {dashboard?.profile?.college || 'Nandha Educational Institutions'}</span>
                   </div>
                </div>
             </div>
