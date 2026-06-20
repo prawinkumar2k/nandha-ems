@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { ROUTES } from "@/core/constants/routes";
 import { 
   LayoutDashboard, FileText, HelpCircle, Eye, BarChart3, Plus, 
-  Trash2, Sparkles, Wand2, ShieldCheck, Clock, Calendar, Database, AlertCircle, Shuffle
+  Trash2, Wand2, ShieldCheck, Clock, Calendar, Database, AlertCircle, Shuffle
 } from "lucide-react";
 import { getHODNav, getFacultyNav } from "@/core/constants/navigation";
 import { useAuth } from "@/contexts/AuthContext";

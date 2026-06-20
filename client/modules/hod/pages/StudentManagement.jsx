@@ -13,7 +13,7 @@ import { getHODNav } from "@/core/constants/navigation";
 import { apiClient } from "@/core/api/client";
 import { toast } from "sonner";
 import { 
-  GraduationCap, Mail, FileSpreadsheet, UserPlus, Sparkles, Eye, Loader2, 
+  GraduationCap, Mail, FileSpreadsheet, UserPlus, Eye, Loader2, 
   Trash2, ShieldAlert, Fingerprint, Lock, ShieldCheck
 } from "lucide-react";
 

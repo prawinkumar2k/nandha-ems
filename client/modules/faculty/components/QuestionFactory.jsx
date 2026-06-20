@@ -1,6 +1,6 @@
 import { 
   Code2, Type, Hash, FileUp, ListChecks, Trash2, 
-  Plus, ChevronDown, ChevronUp, AlertCircle, Sparkles,
+  Plus, ChevronDown, ChevronUp, AlertCircle,
   FunctionSquare, Sigma, Pi, Calculator, Variable, Database
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

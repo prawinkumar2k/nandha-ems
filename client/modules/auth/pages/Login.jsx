@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ROLE_HOME } from "@/core/constants/roles";
 import { ROUTES } from "@/core/constants/routes";
 import { validateLoginForm, cn } from "@/core/utils/helpers";
-import { Mail, Lock, Eye, EyeOff, Sparkles, LogOut, Download } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff,  LogOut, Download } from "lucide-react";
 import { useForm } from "@/core/hooks/useForm";
 
 export default function Login() {
@@ -66,7 +66,7 @@ export default function Login() {
               <img src="/logo.png" alt="NEC EMS Logo" className="w-full h-full object-contain" />
             </div>
             <h1 className="text-3xl font-black tracking-tight text-foreground mb-2 flex items-center justify-center gap-2">
-              NEC EMS <Sparkles className="w-5 h-5 text-accent animate-pulse" />
+              NEC EMS 
             </h1>
             <p className="text-muted-foreground font-medium uppercase tracking-[0.2em] text-[10px]">Enterprise Campus Platform</p>
           </div>
@@ -111,7 +111,6 @@ export default function Login() {
             <Button type="submit" disabled={isSubmitting} className="w-full py-7 rounded-2xl text-base font-black shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all hover:scale-[1.01] active:scale-[0.99] group overflow-hidden relative">
               <span className="relative z-10 flex items-center justify-center gap-2">
                 {isSubmitting ? "Signing In..." : "Sign In"}
-                {!isSubmitting && <motion.span animate={{ x: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}><Sparkles className="w-4 h-4" /></motion.span>}
               </span>
               <div className="absolute inset-0 bg-gradient-to-r from-primary via-blue-500 to-primary bg-[length:200%_100%] animate-[shimmer_2s_infinite]" />
             </Button>

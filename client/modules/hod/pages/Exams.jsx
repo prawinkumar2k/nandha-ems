@@ -9,7 +9,7 @@ import { Modal } from "@/shared/components/Modal/Modal";
 import { getHODNav } from "@/core/constants/navigation";
 import { apiClient } from "@/core/api/client";
 import { 
-  BookOpen, Calendar, Clock, User, Download, Eye, Sparkles, 
+  BookOpen, Calendar, Clock, User, Download, Eye, 
   Loader2, PlayCircle, CheckCircle2, AlertCircle, Trash2, ShieldCheck, Activity, Shield
 } from "lucide-react";
 
@@ -139,7 +139,7 @@ export function Exams() {
         <div className="flex justify-between items-end">
           <div>
             <h2 className="text-3xl font-black tracking-tighter flex items-center gap-2 uppercase italic">
-              Managing Tests <Sparkles className="w-6 h-6 text-accent" />
+              Managing Tests 
             </h2>
             <p className="text-xs font-black uppercase tracking-[0.3em] text-primary mt-1">Past and future tests</p>
           </div>

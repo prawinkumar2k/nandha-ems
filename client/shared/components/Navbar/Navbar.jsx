@@ -1,4 +1,4 @@
-import { Bell, Sun, Moon, Menu, User, LogOut, Settings, ChevronDown, Sparkles } from "lucide-react";
+import { Bell, Sun, Moon, Menu, User, LogOut, Settings, ChevronDown} from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useNotifications } from "@/contexts/NotificationContext";
@@ -113,7 +113,7 @@ export function Navbar({ onMenuToggle, title }) {
                 >
                   <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-white/5">
                     <p className="font-black text-xs uppercase tracking-widest italic flex items-center gap-2">
-                      Alerts <Sparkles className="w-3 h-3 text-accent" />
+                      Alerts 
                     </p>
                     <button onClick={markAllRead} className="text-[10px] font-black uppercase text-primary hover:text-primary/80 transition-colors">Clear All</button>
                   </div>

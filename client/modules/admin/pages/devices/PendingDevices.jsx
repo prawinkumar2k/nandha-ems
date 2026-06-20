@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Check, X, Server, Shield, Sparkles, RefreshCw, Terminal } from "lucide-react";
+import { Check, X, Server, Shield,  RefreshCw, Terminal } from "lucide-react";
 import { apiClient } from "@/core/api/client";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -91,7 +91,7 @@ export default function PendingDevices() {
         <div className="flex items-center justify-between">
           <motion.div variants={itemVariants}>
             <h2 className="text-3xl font-black tracking-tight flex items-center gap-3 uppercase italic text-foreground">
-               Approvals <Sparkles className="w-6 h-6 text-accent animate-pulse" />
+               Approvals 
             </h2>
             <p className="text-xs font-black uppercase tracking-[0.3em] text-foreground/50 mt-1">Pending Devices</p>
           </motion.div>

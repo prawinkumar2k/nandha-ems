@@ -11,7 +11,7 @@ import { ROUTES } from "@/core/constants/routes";
 import { apiClient } from "@/core/api/client";
 import {
   LayoutDashboard, FileText, BarChart3, User, BookOpen,
-  GraduationCap, CheckCircle2, Clock, AlertTriangle, PlayCircle, Sparkles, ChevronRight
+  GraduationCap, CheckCircle2, Clock, AlertTriangle, PlayCircle, ChevronRight
 } from "lucide-react";
 
 import { getStudentNav } from "@/core/constants/navigation";
@@ -57,7 +57,7 @@ export default function StudentDashboard() {
         <div className="flex items-center justify-between">
           <motion.div variants={itemVariants}>
             <h2 className="text-2xl font-black tracking-tight flex items-center gap-2 uppercase">
-              My Dashboard <Sparkles className="w-5 h-5 text-accent animate-pulse" />
+              My Dashboard 
             </h2>
             <p className="text-xs text-primary font-black uppercase tracking-[0.2em]">My Grades and Tests</p>
           </motion.div>
@@ -122,7 +122,7 @@ export default function StudentDashboard() {
                   [1, 2, 3].map(i => <Skeleton key={i} className="h-16 w-full rounded-2xl opacity-10" />)
                 ) : (
                   <div className="text-center py-12 opacity-30">
-                    <Sparkles className="w-12 h-12 mx-auto mb-2" />
+                    
                     <p className="font-bold text-sm uppercase">All done</p>
                   </div>
                 )}

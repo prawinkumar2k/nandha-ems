@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ROUTES } from "@/core/constants/routes";
 import { useNavigate } from "react-router-dom";
-import { Monitor, Plus, Wifi, WifiOff, RefreshCw, Cpu, Activity, Shield, Sparkles } from "lucide-react";
+import { Monitor, Plus, Wifi, WifiOff, RefreshCw, Cpu, Activity, Shield} from "lucide-react";
 import { getAdminNav } from "@/core/constants/navigation";
 
 const NAV = getAdminNav();
@@ -94,7 +94,7 @@ export default function DeviceList() {
         <div className="flex items-center justify-between">
           <motion.div variants={itemVariants}>
             <h2 className="text-2xl font-black tracking-tight flex items-center gap-2 text-foreground uppercase">
-              Computers <Sparkles className="w-5 h-5 text-accent animate-pulse" />
+              Computers 
             </h2>
             <p className="text-xs text-primary font-black uppercase tracking-[0.2em]">Control Lab PCs</p>
           </motion.div>

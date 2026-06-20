@@ -16,7 +16,7 @@ import { useNotifications } from "@/contexts/NotificationContext";
 import { apiClient } from "@/core/api/client";
 import {
   LayoutDashboard, Users, BookOpen, BarChart3, ClipboardList, Eye,
-  GraduationCap, UserCheck, CheckCircle2, Clock, Sparkles, AlertTriangle, 
+  GraduationCap, UserCheck, CheckCircle2, Clock, AlertTriangle, 
   ShieldCheck, Activity, Users2, Ban, PlayCircle, Loader2
 } from "lucide-react";
 import { 
@@ -116,7 +116,7 @@ export default function HODDashboard() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <motion.div variants={itemVariants}>
             <h2 className="text-3xl font-black tracking-tight flex items-center gap-2 uppercase">
-              HOD Dashboard <Sparkles className="w-6 h-6 text-accent animate-pulse" />
+              HOD Dashboard 
             </h2>
             <p className="text-xs text-primary font-black uppercase tracking-[0.2em]">Department Status</p>
           </motion.div>

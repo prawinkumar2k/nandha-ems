@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSocket } from "@/contexts/SocketContext";
 import { apiClient } from "@/core/api/client";
-import { Monitor, AlertTriangle, PlayCircle, StopCircle, Lock, ShieldAlert, Sparkles, RefreshCw } from "lucide-react";
+import { Monitor, AlertTriangle, PlayCircle, StopCircle, Lock, ShieldAlert,  RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -77,7 +77,7 @@ export default function LiveMonitoringCenter() {
         <div className="flex items-center justify-between">
           <motion.div variants={itemVariants}>
             <h2 className="text-3xl font-black tracking-tight flex items-center gap-3 uppercase italic text-foreground">
-               Command Center <Sparkles className="w-6 h-6 text-accent animate-pulse" />
+               Command Center 
             </h2>
             <p className="text-xs font-black uppercase tracking-[0.3em] text-foreground/50 mt-1">Live Exams</p>
           </motion.div>

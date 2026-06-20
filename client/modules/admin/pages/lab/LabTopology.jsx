@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Monitor, ServerOff, PlayCircle, Lock, Cpu, Network, Sparkles, RefreshCw, Plus, Trash2 } from "lucide-react";
+import { Monitor, ServerOff, PlayCircle, Lock, Cpu, Network,  RefreshCw, Plus, Trash2 } from "lucide-react";
 import { useSocket } from "@/contexts/SocketContext";
 import { apiClient } from "@/core/api/client";
 import { motion } from "framer-motion";
@@ -110,7 +110,7 @@ export default function LabTopology() {
         <div className="flex items-center justify-between">
           <motion.div variants={itemVariants}>
             <h2 className="text-3xl font-black tracking-tight flex items-center gap-3 uppercase italic text-foreground">
-               Network Map <Sparkles className="w-6 h-6 text-accent animate-pulse" />
+               Network Map 
             </h2>
             <p className="text-xs font-black uppercase tracking-[0.3em] text-foreground/50 mt-1">Live Lab Topology</p>
           </motion.div>

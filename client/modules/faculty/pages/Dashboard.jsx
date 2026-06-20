@@ -13,7 +13,7 @@ import { apiClient } from "@/core/api/client";
 import { logService } from "@/core/api/services";
 import {
   LayoutDashboard, FileText, HelpCircle, Eye, BarChart3,
-  BookOpen, Users, ClipboardList, Plus, UserCheck, Sparkles, ChevronRight,
+  BookOpen, Users, ClipboardList, Plus, UserCheck, ChevronRight,
   AlertTriangle, Clock, X, ExternalLink
 } from "lucide-react";
 import { useSocket } from "@/contexts/SocketContext";
@@ -92,7 +92,7 @@ export default function FacultyDashboard() {
         <div className="flex items-center justify-between">
           <motion.div variants={itemVariants}>
             <h2 className="text-2xl font-black tracking-tight flex items-center gap-2 uppercase">
-              Teacher Panel <Sparkles className="w-5 h-5 text-accent animate-pulse" />
+              Teacher Panel 
             </h2>
             <p className="text-xs text-primary font-black uppercase tracking-[0.2em]">Control your courses and tests</p>
           </motion.div>

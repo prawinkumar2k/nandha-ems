@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { ROUTES } from "@/core/constants/routes";
 import { validateUserForm } from "@/core/utils/helpers";
-import { Edit, Trash2, Plus, UserPlus, Upload, Shield, Users, Search, Filter, Sparkles } from "lucide-react";
+import { Edit, Trash2, Plus, UserPlus, Upload, Shield, Users, Search, Filter} from "lucide-react";
 import { ROLE_COLORS } from "@/core/constants/roles";
 import { getAdminNav } from "@/core/constants/navigation";
 
@@ -163,7 +163,7 @@ export default function UserList() {
         <div className="flex items-center justify-between">
           <motion.div variants={itemVariants}>
             <h2 className="text-2xl font-black tracking-tight flex items-center gap-2 text-foreground uppercase">
-              User List <Sparkles className="w-5 h-5 text-accent animate-pulse" />
+              User List 
             </h2>
             <p className="text-xs text-primary font-black uppercase tracking-[0.2em]">Control all users</p>
           </motion.div>

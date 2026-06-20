@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, ChevronRight, LogOut, ChevronDown, Sparkles } from "lucide-react";
+import { BookOpen, ChevronRight, LogOut, ChevronDown} from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ROLE_COLORS } from "@/core/constants/roles";
 import { cn } from "@/core/utils/helpers";
@@ -110,7 +110,7 @@ export function Sidebar({ items = [], isOpen, onClose }) {
         {isOpen && (
           <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
             <p className="font-black text-sidebar-foreground text-base tracking-tight flex items-center gap-1.5">
-              NEC EMS <Sparkles className="w-3.5 h-3.5 text-accent" />
+              NEC EMS 
             </p>
             <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Enterprise Campus</p>
           </motion.div>

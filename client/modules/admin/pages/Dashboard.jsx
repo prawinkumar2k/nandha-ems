@@ -12,7 +12,7 @@ import { reportService, deviceService, labService, logService } from "@/core/api
 import { useSocket } from "@/contexts/SocketContext";
 import {
   Monitor, BookOpen, BarChart3, Shield,
-  Activity, GraduationCap, UserCheck, AlertTriangle, Plus, Sparkles, Zap, Lock, Unlock, RefreshCcw
+  Activity, GraduationCap, UserCheck, AlertTriangle, Plus, Zap, Lock, Unlock, RefreshCcw
 } from "lucide-react";
 import { getAdminNav } from "@/core/constants/navigation";
 import { DeviceGrid } from "../components/Dashboard/DeviceGrid";
@@ -108,7 +108,7 @@ export default function AdminDashboard() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h2 className="text-3xl font-black tracking-tight flex items-center gap-3 uppercase italic">
-               Main View <Sparkles className="w-6 h-6 text-accent animate-pulse" />
+               Main View 
             </h2>
             <p className="text-xs font-black uppercase tracking-[0.3em] text-foreground/50 mt-1">Home</p>
           </div>

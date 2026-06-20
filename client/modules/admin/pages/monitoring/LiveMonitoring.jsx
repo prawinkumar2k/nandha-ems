@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/core/constants/routes";
 import { formatDateTime, cn } from "@/core/utils/helpers";
-import { Wifi, WifiOff, Eye, Monitor, RefreshCw, Activity, Shield, Sparkles, UserCheck, X, Clock, User, HardDrive } from "lucide-react";
+import { Wifi, WifiOff, Eye, Monitor, RefreshCw, Activity, Shield,  UserCheck, X, Clock, User, HardDrive } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { examService } from "@/core/api/services";
 import { getAdminNav } from "@/core/constants/navigation";

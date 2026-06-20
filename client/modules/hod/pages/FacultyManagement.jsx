@@ -13,7 +13,7 @@ import { getHODNav } from "@/core/constants/navigation";
 import { apiClient } from "@/core/api/client";
 import { toast } from "sonner";
 import { 
-  Users, Mail, Award, Cpu, Sparkles, Eye, Loader2, 
+  Users, Mail, Award, Cpu, Eye, Loader2, 
   Calendar, BookOpen, Clock, ShieldCheck, Activity, Terminal,
   BarChart, LineChart, TrendingUp, ChevronLeft, UserPlus, Lock, Fingerprint, FileSpreadsheet
 } from "lucide-react";
@@ -135,7 +135,7 @@ export default function FacultyManagement() {
         <div className="flex justify-between items-end">
           <div>
             <h2 className="text-3xl font-black tracking-tighter flex items-center gap-2 uppercase italic">
-              Teacher Details <Sparkles className="w-6 h-6 text-accent" />
+              Teacher Details 
             </h2>
             <p className="text-xs font-black uppercase tracking-[0.3em] text-primary mt-1">managing teachers</p>
           </div>
@@ -368,7 +368,7 @@ export default function FacultyManagement() {
                   
                   <div className="flex justify-between items-center p-6 rounded-[32px] bg-primary/5 border border-primary/10 shadow-lg">
                     <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-2xl bg-primary/20 text-primary shadow-inner"><Sparkles className="w-5 h-5" /></div>
+                      <div className="p-3 rounded-2xl bg-primary/20 text-primary shadow-inner"></div>
                       <div>
                         <p className="text-[10px] font-black uppercase tracking-[0.2em]">Teacher Notes</p>
                         <p className="text-xs font-black uppercase italic text-muted-foreground mt-1">High performance. Promote to head account.</p>

@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/core/constants/routes";
 import { validateUserForm } from "@/core/utils/helpers";
-import { ArrowLeft, UserPlus, Shield, Sparkles } from "lucide-react";
+import { ArrowLeft, UserPlus, Shield} from "lucide-react";
 import { getAdminNav } from "@/core/constants/navigation";
 
 const NAV = getAdminNav();
@@ -157,7 +157,7 @@ export default function AddUser() {
                     </div>
                     <div>
                       <p className="font-black text-sm uppercase tracking-tight flex items-center gap-2">
-                         Login Info <Sparkles className="w-3 h-3 text-accent" />
+                         Login Info 
                       </p>
                       <p className="text-muted-foreground text-xs leading-relaxed mt-1 font-medium">
                         The user must use the password specified above to login. They will be required to change it upon their first successful login.
