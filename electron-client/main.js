@@ -230,7 +230,11 @@ async function pollForApproval() {
       store.set('deviceToken', regResult.deviceToken);
       deviceStatus = "online";
       initSocketConnection();
-      mainWindow.webContents.send('status-update', { message: "Device Approved. Ready for Exam." });
+      mainWindow.webContents.send('status-update', { message: "Device Approved. Launching Exam Environment..." });
+      
+      setTimeout(() => {
+        mainWindow.loadURL(process.env.API_URL ? process.env.API_URL.replace('/api', '/student') : 'http://localhost:8080/student');
+      }, 2000);
     }
   } catch(e) {}
 }

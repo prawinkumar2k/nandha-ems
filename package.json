@@ -14,7 +14,7 @@
     "start": "node dist/server/node-build.mjs",
     "test": "vitest --run",
     "format.fix": "prettier --write .",
-    "build:exe": "electron-builder --win"
+    "build:exe": "cd electron-client && npm install && npm run build"
   },
   "build": {
     "appId": "com.necems.kiosk",

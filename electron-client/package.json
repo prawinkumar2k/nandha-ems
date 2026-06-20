@@ -19,21 +19,17 @@
     "electron-builder": "^24.9.1"
   },
   "build": {
-    "appId": "com.NEC EMS.examclient",
+    "appId": "com.necems.kiosk",
+    "productName": "NEC EMS Secure Browser",
+    "forceCodeSigning": false,
+    "directories": {
+      "output": "release"
+    },
     "win": {
-      "target": "nsis"
+      "target": "portable"
     },
-    "nsis": {
-      "oneClick": true,
-      "perMachine": true,
-      "allowElevation": true,
-      "allowToChangeInstallationDirectory": false,
-      "runAfterFinish": false,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
-    },
-    "linux": {
-      "target": "AppImage"
+    "portable": {
+      "requestExecutionLevel": "user"
     }
   }
 }
