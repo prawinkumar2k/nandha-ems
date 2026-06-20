@@ -115,26 +115,81 @@ export const handleGetStudentStats = async (req, res) => {
     const Exam = mongoose.model("Exam");
     const Submission = mongoose.model("Submission");
     const User = mongoose.model("User");
+    const QuestionBank = mongoose.model("QuestionBank");
 
     const studentId = req.user.id || req.user._id;
 
-    const [courses, upcomingExams, submissions, profile] = await Promise.all([
+    const [courses, upcomingExams, submissions, profile, allQuestions] = await Promise.all([
       Course.find({ enrolledStudents: studentId }).populate("faculty", "name").lean(),
       Exam.find({ 
         department: req.user.dept, 
         status: { $in: ["scheduled", "active"] },
-        // isPublished: { $ne: false } // Commented out to ensure visibility if field missing
       }).populate("course", "title code").lean(),
       Submission.find({ student: studentId, status: "submitted" })
         .populate("exam", "course totalMarks")
         .lean(),
-      User.findById(studentId).lean()
-
+      User.findById(studentId).lean(),
+      QuestionBank.find({ isActive: true }).select("type difficulty").lean()
     ]);
+
+    // calculate totals
+    const totalQuestions = {
+      easy: allQuestions.filter(q => q.difficulty === "easy").length,
+      medium: allQuestions.filter(q => q.difficulty === "medium").length,
+      hard: allQuestions.filter(q => q.difficulty === "hard").length,
+      total: allQuestions.length
+    };
+
+    // Calculate solved questions from submissions
+    let solvedQuestions = { easy: 0, medium: 0, hard: 0, total: 0 };
+    let coding = { attended: 0, solvedCorrectly: 0, score: 0 };
+    let mcq = { attended: 0, solvedCorrectly: 0, score: 0 };
+
+    let attemptedQuestionIds = new Set();
+    submissions.forEach(sub => {
+       if (sub.answers) {
+         Object.keys(sub.answers).forEach(qId => attemptedQuestionIds.add(qId));
+       }
+    });
+
+    const attemptedQuestions = await QuestionBank.find({ _id: { $in: Array.from(attemptedQuestionIds) } }).lean();
+    const qMap = {};
+    attemptedQuestions.forEach(q => { qMap[q._id.toString()] = q; });
+
+    submissions.forEach(sub => {
+       if (sub.answers) {
+          Object.entries(sub.answers).forEach(([qId, ans]) => {
+             const q = qMap[qId];
+             if (!q) return;
+
+             const isCorrect = ans.isCorrect || (ans.marksAwarded > 0);
+             const marks = ans.marksAwarded || 0;
+
+             if (q.type === "coding") {
+                 coding.attended += 1;
+                 if (isCorrect) coding.solvedCorrectly += 1;
+                 coding.score += marks;
+             } else if (q.type === "mcq") {
+                 mcq.attended += 1;
+                 if (isCorrect) mcq.solvedCorrectly += 1;
+                 mcq.score += marks;
+             }
+             
+             if (isCorrect) {
+                 solvedQuestions.total += 1;
+                 if (q.difficulty === "easy") solvedQuestions.easy += 1;
+                 if (q.difficulty === "medium") solvedQuestions.medium += 1;
+                 if (q.difficulty === "hard") solvedQuestions.hard += 1;
+             }
+          });
+       }
+    });
 
     const avgGpa = submissions.length > 0 
       ? (submissions.reduce((acc, s) => acc + (s.percentage || 0), 0) / submissions.length / 10).toFixed(1)
       : profile?.cgpa?.toString() || "0.0";
+
+    const neoPatScore = coding.score + mcq.score;
 
     res.json({
       courseCount: courses.length,
@@ -148,7 +203,23 @@ export const handleGetStudentStats = async (req, res) => {
         date: e.scheduledAt,
         duration: e.duration,
         course: e.course?.title
-      }))
+      })),
+      skills: {
+         neoPatScore: neoPatScore,
+         neoPatLevel: Math.floor(neoPatScore / 100) + 1,
+         solved: solvedQuestions,
+         totalQuestions: totalQuestions,
+         coding: {
+            ...coding,
+            accuracy: coding.attended > 0 ? ((coding.solvedCorrectly / coding.attended) * 100).toFixed(2) : 0
+         },
+         mcq: {
+            ...mcq,
+            accuracy: mcq.attended > 0 ? ((mcq.solvedCorrectly / mcq.attended) * 100).toFixed(2) : 0
+         },
+         projects: { majorAttended: 0, minorAttended: 0, score: 0 },
+         contributions: { days: 0, hoursPerDay: 0 }
+      }
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -111,8 +111,8 @@ export default function StudentDashboard() {
                      <div className="mt-auto pt-6 flex justify-between items-end">
                         <div>
                           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Your Score</p>
-                          <p className="text-4xl font-black">403</p>
-                          <p className="text-xs text-primary font-bold mt-2">Level 1</p>
+                          <p className="text-4xl font-black">{dashboard?.skills?.neoPatScore || 0}</p>
+                          <p className="text-xs text-primary font-bold mt-2">Level {dashboard?.skills?.neoPatLevel || 1}</p>
                         </div>
                      </div>
                   </Card>
@@ -134,7 +134,7 @@ export default function StudentDashboard() {
                         <div className="w-40 h-40 rounded-full border-[12px] border-primary/20 flex items-center justify-center relative shadow-inner">
                            <div className="absolute inset-0 border-[12px] border-primary rounded-full" style={{ clipPath: "polygon(0 0, 100% 0, 100% 70%, 0 70%)" }} />
                            <div className="text-center z-10">
-                              <p className="text-2xl font-black">1731<span className="text-muted-foreground/50 text-lg">/2446</span></p>
+                              <p className="text-2xl font-black">{dashboard?.skills?.solved?.total || 0}<span className="text-muted-foreground/50 text-lg">/{dashboard?.skills?.totalQuestions?.total || 0}</span></p>
                               <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mt-1">Questions</p>
                            </div>
                         </div>
@@ -142,23 +142,23 @@ export default function StudentDashboard() {
                            <div className="space-y-1.5">
                              <div className="flex justify-between text-xs font-bold items-center">
                                <span className="text-emerald-500 uppercase tracking-widest text-[10px]">Easy</span>
-                               <span>876/1200</span>
+                               <span>{dashboard?.skills?.solved?.easy || 0}/{dashboard?.skills?.totalQuestions?.easy || 0}</span>
                              </div>
-                             <Progress value={73} className="h-1.5 bg-white/5" indicatorClassName="bg-emerald-500" />
+                             <Progress value={dashboard?.skills?.totalQuestions?.easy ? (dashboard.skills.solved.easy / dashboard.skills.totalQuestions.easy) * 100 : 0} className="h-1.5 bg-white/5" indicatorClassName="bg-emerald-500" />
                            </div>
                            <div className="space-y-1.5">
                              <div className="flex justify-between text-xs font-bold items-center">
                                <span className="text-yellow-500 uppercase tracking-widest text-[10px]">Medium</span>
-                               <span>756/1000</span>
+                               <span>{dashboard?.skills?.solved?.medium || 0}/{dashboard?.skills?.totalQuestions?.medium || 0}</span>
                              </div>
-                             <Progress value={75} className="h-1.5 bg-white/5" indicatorClassName="bg-yellow-500" />
+                             <Progress value={dashboard?.skills?.totalQuestions?.medium ? (dashboard.skills.solved.medium / dashboard.skills.totalQuestions.medium) * 100 : 0} className="h-1.5 bg-white/5" indicatorClassName="bg-yellow-500" />
                            </div>
                            <div className="space-y-1.5">
                              <div className="flex justify-between text-xs font-bold items-center">
                                <span className="text-red-500 uppercase tracking-widest text-[10px]">Hard</span>
-                               <span>99/246</span>
+                               <span>{dashboard?.skills?.solved?.hard || 0}/{dashboard?.skills?.totalQuestions?.hard || 0}</span>
                              </div>
-                             <Progress value={40} className="h-1.5 bg-white/5" indicatorClassName="bg-red-500" />
+                             <Progress value={dashboard?.skills?.totalQuestions?.hard ? (dashboard.skills.solved.hard / dashboard.skills.totalQuestions.hard) * 100 : 0} className="h-1.5 bg-white/5" indicatorClassName="bg-red-500" />
                            </div>
                         </div>
                      </div>
@@ -173,18 +173,18 @@ export default function StudentDashboard() {
                      <div className="grid grid-cols-2 gap-y-6 gap-x-4">
                         <div>
                           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Questions Attended</p>
-                          <p className="text-2xl font-black">188</p>
+                          <p className="text-2xl font-black">{dashboard?.skills?.coding?.attended || 0}</p>
                         </div>
                         <div>
                           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Solved Correctly</p>
-                          <p className="text-2xl font-black">154</p>
+                          <p className="text-2xl font-black">{dashboard?.skills?.coding?.solvedCorrectly || 0}</p>
                         </div>
                         <div>
                           <p className="text-[10px] text-primary uppercase font-bold tracking-widest mb-1">Your Score</p>
-                          <p className="text-2xl font-black text-primary">1682</p>
+                          <p className="text-2xl font-black text-primary">{dashboard?.skills?.coding?.score || 0}</p>
                         </div>
                         <div className="text-right flex flex-col justify-end">
-                          <p className="text-2xl font-black text-emerald-500">89.46%</p>
+                          <p className="text-2xl font-black text-emerald-500">{dashboard?.skills?.coding?.accuracy || 0}%</p>
                           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Accuracy</p>
                         </div>
                      </div>
@@ -199,15 +199,15 @@ export default function StudentDashboard() {
                      <div className="grid grid-cols-2 gap-y-6 gap-x-4">
                         <div>
                           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Major Attended</p>
-                          <p className="text-2xl font-black">0</p>
+                          <p className="text-2xl font-black">{dashboard?.skills?.projects?.majorAttended || 0}</p>
                         </div>
                         <div>
                           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Minor Attended</p>
-                          <p className="text-2xl font-black">0</p>
+                          <p className="text-2xl font-black">{dashboard?.skills?.projects?.minorAttended || 0}</p>
                         </div>
                         <div>
                           <p className="text-[10px] text-primary uppercase font-bold tracking-widest mb-1">Your Score</p>
-                          <p className="text-2xl font-black text-primary">0</p>
+                          <p className="text-2xl font-black text-primary">{dashboard?.skills?.projects?.score || 0}</p>
                         </div>
                      </div>
                   </Card>
@@ -221,18 +221,18 @@ export default function StudentDashboard() {
                      <div className="grid grid-cols-2 md:grid-cols-4 gap-y-6 gap-x-4">
                         <div>
                           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Questions Attended</p>
-                          <p className="text-2xl font-black">2258</p>
+                          <p className="text-2xl font-black">{dashboard?.skills?.mcq?.attended || 0}</p>
                         </div>
                         <div>
                           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Solved Correctly</p>
-                          <p className="text-2xl font-black">1577</p>
+                          <p className="text-2xl font-black">{dashboard?.skills?.mcq?.solvedCorrectly || 0}</p>
                         </div>
                         <div>
                           <p className="text-[10px] text-primary uppercase font-bold tracking-widest mb-1">Your Score</p>
-                          <p className="text-2xl font-black text-primary">1577</p>
+                          <p className="text-2xl font-black text-primary">{dashboard?.skills?.mcq?.score || 0}</p>
                         </div>
                         <div className="text-right flex flex-col justify-end">
-                          <p className="text-2xl font-black text-orange-500">69.84%</p>
+                          <p className="text-2xl font-black text-orange-500">{dashboard?.skills?.mcq?.accuracy || 0}%</p>
                           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Accuracy</p>
                         </div>
                      </div>
@@ -257,8 +257,8 @@ export default function StudentDashboard() {
                     </div>
                   </div>
                   <div className="flex justify-between items-center text-xs font-bold text-muted-foreground mt-4 uppercase tracking-widest">
-                     <span>0 days total</span>
-                     <span>0.00 Hours per day</span>
+                     <span>{dashboard?.skills?.contributions?.days || 0} days total</span>
+                     <span>{(dashboard?.skills?.contributions?.hoursPerDay || 0).toFixed(2)} Hours per day</span>
                   </div>
                </Card>
              </motion.div>
