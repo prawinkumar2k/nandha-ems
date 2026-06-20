@@ -3,55 +3,56 @@ import mongoose from "mongoose";
 export const handleRunCode = async (req, res) => {
     try {
         const { language, code, input } = req.body;
-        console.log(`🚀 [JUDGE0] Request: ${language}`);
+        console.log(`🚀 [WANDBOX] Request: ${language}`);
 
         if (!language || !code) {
             return res.status(400).json({ message: "Language and code are required." });
         }
 
         const languageMap = {
-            javascript: 63,
-            python: 71,
-            java: 62,
-            c: 50,
-            cpp: 54,
-            rust: 73,
-            bash: 46
+            javascript: "nodejs-20.17.0",
+            python: "cpython-3.14.0",
+            java: "openjdk-jdk-22+36",
+            c: "gcc-head-c",
+            cpp: "gcc-head",
+            rust: "rust-1.82.0",
+            bash: "bash"
         };
 
-        const language_id = languageMap[language];
-        if (!language_id) {
+        const compilerName = languageMap[language];
+        if (!compilerName) {
             return res.status(400).json({ message: "Unsupported language." });
         }
 
-        const response = await fetch("http://judge0-server:2358/submissions?base64_encoded=false&wait=true", {
+        const response = await fetch("https://wandbox.org/api/compile.json", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                source_code: code,
-                language_id,
-                stdin: input || ""
+                compiler: compilerName,
+                code: code,
+                stdin: input || "",
+                save: false
             })
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-            return res.status(500).json({ error: "Judge0 execution failed", details: data });
+            return res.status(500).json({ error: "Wandbox execution failed", details: data });
         }
 
         let output = "";
         let errorStr = "";
 
-        if (data.status && data.status.id > 3) {
+        if (data.status !== "0") {
             // Error states (Compilation Error, Runtime Error, etc)
-            output = data.compile_output || data.message || "";
-            errorStr = data.stderr || data.status.description || "Execution failed";
+            output = data.compiler_output || data.program_output || "";
+            errorStr = data.compiler_error || data.program_error || "Execution failed";
         } else {
-            output = data.stdout || "";
-            errorStr = data.stderr || "";
+            output = data.program_output || "";
+            errorStr = data.program_error || "";
         }
 
         // Save to Database asynchronously (non-blocking)
@@ -69,15 +70,15 @@ export const handleRunCode = async (req, res) => {
 
         res.json({ output, error: errorStr });
     } catch (error) {
-        console.error("🔥 [JUDGE0] CRASH:", error);
-        res.status(500).json({ message: "Internal server error connecting to Judge0." });
+        console.error("🔥 [WANDBOX] CRASH:", error);
+        res.status(500).json({ message: "Internal server error connecting to Wandbox online compiler." });
     }
 };
 
 export const handleCheckCompilers = async (req, res) => {
     try {
-        // Ping Judge0 to ensure it's alive
-        const response = await fetch("http://judge0-server:2358/languages");
+        // Ping Wandbox to ensure it's alive
+        const response = await fetch("https://wandbox.org/api/list.json");
         const isAlive = response.ok;
 
         res.json({ 
@@ -92,7 +93,7 @@ export const handleCheckCompilers = async (req, res) => {
             } 
         });
     } catch (error) {
-        // If Judge0 is unreachable, fallback to false
+        // If Wandbox is unreachable, fallback to false
         res.json({ 
             compilers: {
                 javascript: false, python: false, java: false, 
