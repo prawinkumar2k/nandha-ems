@@ -88,6 +88,7 @@ import "./models/TokenBlacklist.js"; // ─── SECURITY: Token revocation reg
 import "./models/ExamHeartbeat.js";  // ─── SECURITY: Server-side presence tracking
 import "./models/DeviceHeartbeat.js";
 import "./models/SecurityEvent.js";
+import "./models/CodeSnippet.js";
 
 // ─── MongoDB Connection ────────────────────────────────────────────────────────
 export async function connectDB() {

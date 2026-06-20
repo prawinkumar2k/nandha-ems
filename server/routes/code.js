@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 export const handleRunCode = async (req, res) => {
     try {
         const { language, code, input } = req.body;
@@ -40,18 +42,32 @@ export const handleRunCode = async (req, res) => {
             return res.status(500).json({ error: "Judge0 execution failed", details: data });
         }
 
+        let output = "";
+        let errorStr = "";
+
         if (data.status && data.status.id > 3) {
             // Error states (Compilation Error, Runtime Error, etc)
-            return res.json({
-                output: data.compile_output || data.message || "",
-                error: data.stderr || data.status.description || "Execution failed"
-            });
+            output = data.compile_output || data.message || "";
+            errorStr = data.stderr || data.status.description || "Execution failed";
+        } else {
+            output = data.stdout || "";
+            errorStr = data.stderr || "";
         }
 
-        res.json({
-            output: data.stdout || "",
-            error: data.stderr || ""
-        });
+        // Save to Database asynchronously (non-blocking)
+        if (req.user && req.user.id) {
+            const CodeSnippet = mongoose.model("CodeSnippet");
+            CodeSnippet.create({
+                student: req.user.id,
+                language,
+                code,
+                input,
+                output,
+                error: errorStr
+            }).catch(e => console.error("Failed to save code snippet to DB", e));
+        }
+
+        res.json({ output, error: errorStr });
     } catch (error) {
         console.error("🔥 [JUDGE0] CRASH:", error);
         res.status(500).json({ message: "Internal server error connecting to Judge0." });

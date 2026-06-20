@@ -62,6 +62,7 @@ export const ROUTES = {
   STUDENT_EXAM_INTERFACE: "/student/exam/:examId",
   STUDENT_RESULTS: "/student/results",
   STUDENT_PROFILE: "/student/profile",
+  STUDENT_CODING_PLAYGROUND: "/student/coding",
 
   // ─── Client (Lab PC) ──────────────────────────────────────────────────────
   CLIENT: "/client",

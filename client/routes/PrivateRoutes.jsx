@@ -59,6 +59,7 @@ const StudentDashboard = lazy(() => import("@/modules/student/pages/Dashboard"))
 const StudentMyExams = lazy(() => import("@/modules/student/pages/MyExams"));
 const StudentExamInterface = lazy(() => import("@/modules/student/pages/ExamInterface"));
 const StudentResults = lazy(() => import("@/modules/student/pages/Results"));
+const StudentCodingPlayground = lazy(() => import("@/modules/student/pages/CodingPlayground"));
 
 // ─── Client (Lab PC) ─────────────────────────────────────────────────────────
 const ClientWaiting = lazy(() => import("@/modules/client/pages/WaitingScreen"));
@@ -138,6 +139,7 @@ export function PrivateRoutes() {
       <Route path={ROUTES.STUDENT_EXAMS} element={<ProtectedRoute allowedRoles="student"><S><StudentMyExams /></S></ProtectedRoute>} />
       <Route path={ROUTES.STUDENT_EXAM_INTERFACE} element={<ProtectedRoute allowedRoles="student"><S><StudentExamInterface /></S></ProtectedRoute>} />
       <Route path={ROUTES.STUDENT_RESULTS} element={<ProtectedRoute allowedRoles="student"><S><StudentResults /></S></ProtectedRoute>} />
+      <Route path={ROUTES.STUDENT_CODING_PLAYGROUND} element={<ProtectedRoute allowedRoles="student"><S><StudentCodingPlayground /></S></ProtectedRoute>} />
       <Route path="/student/profile" element={<ProtectedRoute allowedRoles="student"><S><Profile /></S></ProtectedRoute>} />
       <Route path="/student/notifications/settings" element={<ProtectedRoute allowedRoles="student"><S><NotificationPreferences /></S></ProtectedRoute>} />
 

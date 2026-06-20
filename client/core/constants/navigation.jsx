@@ -2,7 +2,7 @@ import {
   LayoutDashboard, Users, Monitor, BookOpen, BarChart3, Shield,
   ClipboardList, Activity, AlertTriangle,
   FileText, HelpCircle, Eye, User, ShieldCheck, Camera,
-  MessageSquare, Settings
+  MessageSquare, Settings, Code2
 } from "lucide-react";
 import { ROUTES } from "./routes";
 
@@ -93,6 +93,7 @@ export const getFacultyNav = () => [
 export const getStudentNav = () => [
   { label: "Dashboard", icon: <LayoutDashboard className="w-4 h-4" />, path: ROUTES.STUDENT_DASHBOARD },
   { label: "My Exams", icon: <FileText className="w-4 h-4" />, path: ROUTES.STUDENT_EXAMS },
+  { label: "Code Compiler", icon: <Code2 className="w-4 h-4" />, path: ROUTES.STUDENT_CODING_PLAYGROUND },
   { label: "My Results", icon: <BarChart3 className="w-4 h-4" />, path: ROUTES.STUDENT_RESULTS },
   { label: "Notifications", icon: <MessageSquare className="w-4 h-4" />, path: "/student/notifications/settings" },
   { label: "My Profile", icon: <User className="w-4 h-4" />, path: "/student/profile" },
