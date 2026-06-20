@@ -12,7 +12,7 @@ import { ROUTES } from "@/core/constants/routes";
 import { apiClient } from "@/core/api/client";
 import { useAuth } from "@/contexts/AuthContext";
 import {
-  BookOpen, GraduationCap, CheckCircle2, Clock, PlayCircle, BarChart3, ShieldCheck, Target, Activity, Tabs
+  BookOpen, GraduationCap, CheckCircle2, Clock, PlayCircle, BarChart3, ShieldCheck, Target, Activity
 } from "lucide-react";
 
 import { getStudentNav } from "@/core/constants/navigation";

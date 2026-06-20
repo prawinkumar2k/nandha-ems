@@ -13,8 +13,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { FormField, FormTextarea } from "@/shared/components/Form/FormField";
 import { Modal } from "@/shared/components/Modal/Modal";
 import { ROUTES } from "@/core/constants/routes";
-import { LayoutDashboard, FileText, BarChart3, User, PlayCircle, Download, AlertCircle, Ticket, Printer } from "lucide-react";
+import { LayoutDashboard, FileText, BarChart3, User, PlayCircle, Download, AlertCircle, Ticket, Printer, CheckCircle, SearchX } from "lucide-react";
 import { formatDate, downloadCSV } from "@/core/utils/helpers";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const NAV = [
   { label: "Dashboard", icon: <LayoutDashboard className="w-4 h-4" />, path: ROUTES.STUDENT_DASHBOARD },
@@ -22,8 +23,6 @@ const NAV = [
   { label: "Results", icon: <BarChart3 className="w-4 h-4" />, path: ROUTES.STUDENT_RESULTS },
   { label: "Profile", icon: <User className="w-4 h-4" />, path: ROUTES.STUDENT_PROFILE },
 ];
-
-// All exam + result data is fetched live from MongoDB via API calls below.
 
 export function MyExams() {
   const { user } = useAuth();
@@ -34,7 +33,7 @@ export function MyExams() {
 
   const { data: exams = [], isLoading } = useQuery({
     queryKey: ["student-exams"],
-    queryFn: () => apiClient.get("/api/exams") // We'll update the server to filter for this student
+    queryFn: () => apiClient.get("/api/exams").then(res => res.data || [])
   });
 
   const STATUS_STYLE = {
@@ -44,8 +43,8 @@ export function MyExams() {
     active: "bg-primary/10 text-primary border border-primary/20 animate-pulse",
   };
 
-  const upcomingExams = exams.filter(e => e.status === "upcoming" || e.status === "scheduled" || e.status === "active");
-  const pastExams = exams.filter(e => e.status === "completed" || e.status === "cancelled");
+  const upcomingExams = Array.isArray(exams) ? exams.filter(e => e.status === "upcoming" || e.status === "scheduled" || e.status === "active") : [];
+  const pastExams = Array.isArray(exams) ? exams.filter(e => e.status === "completed" || e.status === "cancelled") : [];
 
   const handleViewTicket = async (examId) => {
     try {
@@ -62,80 +61,106 @@ export function MyExams() {
 
   return (
     <MainLayout navItems={NAV} title="My Tests">
-      <div className="space-y-6">
-        {/* Dynamic Header */}
-        <div className="bg-white/5 border border-white/5 rounded-[32px] p-8">
-           <h2 className="text-2xl font-black italic tracking-tighter uppercase text-primary">Open Tests</h2>
-           <p className="text-xs text-muted-foreground uppercase font-black tracking-widest mt-1">Tests for you: {user?.name}</p>
-        </div>
-
-        {isLoading ? (
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[1, 2].map(i => <div key={i} className="h-40 bg-white/5 rounded-[32px] animate-pulse" />)}
+      <div className="space-y-6 max-w-7xl mx-auto">
+        <Tabs defaultValue="open" className="w-full">
+           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+             <div className="bg-white/5 border border-white/5 rounded-[32px] px-8 py-6 flex-1 w-full">
+                <h2 className="text-2xl font-black italic tracking-tighter uppercase text-primary">Test Center</h2>
+                <p className="text-xs text-muted-foreground uppercase font-black tracking-widest mt-1">Exams assigned to: {user?.name}</p>
+             </div>
+             <TabsList className="bg-card border border-white/10 p-1 rounded-xl h-14 shadow-sm w-full sm:w-auto">
+                <TabsTrigger value="open" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-bold px-8 h-full text-xs uppercase tracking-widest">Pending</TabsTrigger>
+                <TabsTrigger value="past" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-bold px-8 h-full text-xs uppercase tracking-widest">History</TabsTrigger>
+             </TabsList>
            </div>
-        ) : upcomingExams.length === 0 ? (
-           <div className="text-center py-20 bg-white/5 rounded-[40px] border-2 border-dashed border-white/5 shadow-inner">
-              <PlayCircle className="w-16 h-16 mx-auto mb-4 text-primary/20" />
-              <p className="text-xl font-black italic tracking-tighter text-primary/40 uppercase">No Tests Found</p>
-              <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/30 mt-2">You have no tests right now.</p>
-           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {upcomingExams.map((e) => (
-              <Card key={e._id} className="group border-white/5 hover:border-primary/30 transition-all rounded-[32px] bg-white/5 overflow-hidden">
-                <CardContent className="pt-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${STATUS_STYLE[e.status] || STATUS_STYLE.upcoming}`}>
-                      {e.status}
-                    </span>
-                    <span className="text-[10px] font-black opacity-30 uppercase tracking-widest">Course: {e.course?.code || "AI"}</span>
-                  </div>
-                  <h3 className="text-xl font-bold tracking-tight mb-1">{e.title}</h3>
-                  <p className="text-xs text-muted-foreground mb-4">{e.course?.title} · {e.duration} MINS</p>
-                  
-                  <div className="flex items-center justify-between mt-6">
-                    <div className="text-[10px] font-black uppercase tracking-widest opacity-50">
-                      Starts: {formatDate(e.scheduledAt)}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline"
-                        className="rounded-2xl gap-2 font-black italic uppercase tracking-tighter"
-                        onClick={() => handleViewTicket(e._id)}
-                        disabled={ticketLoading}
-                      >
-                        <Ticket className="w-4 h-4" /> Ticket
-                      </Button>
-                      <Button 
-                        className="rounded-2xl gap-2 font-black italic uppercase tracking-tighter"
-                        onClick={() => navigate(ROUTES.STUDENT_EXAM_INTERFACE.replace(":examId", e._id))}
-                      >
-                        <PlayCircle className="w-4 h-4" /> Start
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
 
-        {/* Past Exams */}
-        <div className="mt-10">
-           <h2 className="text-base font-black italic tracking-tighter uppercase text-foreground mb-4">Past Tests</h2>
-           <DataTableWrapper
-             columns={[
-               { key: "title", header: "Test Name", sortable: true },
-               { key: "course", header: "Course", render: (r) => r.course?.code },
-               { key: "scheduledAt", header: "Date", render: (r) => formatDate(r.scheduledAt), sortable: true },
-               { key: "duration", header: "Duration", render: (r) => `${r.duration} MINS` },
-               { key: "status", header: "Status", render: (r) => (
-                 <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-white/5 text-muted-foreground italic">Done</span>
-               )},
-             ]}
-             data={pastExams}
-           />
-        </div>
+           <TabsContent value="open" className="mt-0">
+             {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   {[1, 2].map(i => <div key={i} className="h-40 bg-white/5 rounded-[32px] animate-pulse" />)}
+                </div>
+             ) : upcomingExams.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-32 bg-white/5 rounded-[40px] border border-white/5 shadow-inner mt-4">
+                   <div className="w-24 h-24 bg-emerald-500/10 rounded-full flex items-center justify-center mb-6">
+                      <CheckCircle className="w-12 h-12 text-emerald-500" />
+                   </div>
+                   <h3 className="text-2xl font-black tracking-tight mb-2">All Caught Up!</h3>
+                   <p className="text-sm text-muted-foreground max-w-md text-center">You have no pending tests or exams at the moment. Take a break, or review your past history to prepare for the next one.</p>
+                   <Button variant="outline" className="mt-8 rounded-xl font-bold uppercase tracking-widest text-xs h-12 px-8 border-white/10" onClick={() => navigate(ROUTES.STUDENT_DASHBOARD)}>
+                     Return to Dashboard
+                   </Button>
+                </div>
+             ) : (
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                 {upcomingExams.map((e) => (
+                   <Card key={e._id} className="group border-white/5 hover:border-primary/30 transition-all rounded-[32px] bg-white/5 overflow-hidden">
+                     <CardContent className="pt-6">
+                       <div className="flex justify-between items-start mb-4">
+                         <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${STATUS_STYLE[e.status] || STATUS_STYLE.upcoming}`}>
+                           {e.status}
+                         </span>
+                         <span className="text-[10px] font-black opacity-30 uppercase tracking-widest">Course: {e.course?.code || "AI"}</span>
+                       </div>
+                       <h3 className="text-xl font-bold tracking-tight mb-1">{e.title}</h3>
+                       <p className="text-xs text-muted-foreground mb-4">{e.course?.title} · {e.duration} MINS</p>
+                       
+                       <div className="flex items-center justify-between mt-6">
+                         <div className="text-[10px] font-black uppercase tracking-widest opacity-50">
+                           Starts: {formatDate(e.scheduledAt)}
+                         </div>
+                         <div className="flex gap-2">
+                           <Button 
+                             variant="outline"
+                             className="rounded-2xl gap-2 font-black italic uppercase tracking-tighter"
+                             onClick={() => handleViewTicket(e._id)}
+                             disabled={ticketLoading}
+                           >
+                             <Ticket className="w-4 h-4" /> Ticket
+                           </Button>
+                           <Button 
+                             className="rounded-2xl gap-2 font-black italic uppercase tracking-tighter"
+                             onClick={() => navigate(ROUTES.STUDENT_EXAM_INTERFACE.replace(":examId", e._id))}
+                           >
+                             <PlayCircle className="w-4 h-4" /> Start
+                           </Button>
+                         </div>
+                       </div>
+                     </CardContent>
+                   </Card>
+                 ))}
+               </div>
+             )}
+           </TabsContent>
+
+           <TabsContent value="past" className="mt-0">
+             {isLoading ? (
+                <div className="h-64 bg-white/5 rounded-[32px] animate-pulse mt-4" />
+             ) : pastExams.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-32 bg-white/5 rounded-[40px] border border-white/5 shadow-inner mt-4">
+                   <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6">
+                      <SearchX className="w-12 h-12 text-muted-foreground" />
+                   </div>
+                   <h3 className="text-2xl font-black tracking-tight mb-2">No History Found</h3>
+                   <p className="text-sm text-muted-foreground max-w-md text-center">You haven't completed any tests yet. Once you finish a test, it will appear here for your reference.</p>
+                </div>
+             ) : (
+                <div className="bg-card border border-white/5 rounded-[32px] p-6 shadow-xl mt-4">
+                   <DataTableWrapper
+                     columns={[
+                       { key: "title", header: "Test Name", sortable: true },
+                       { key: "course", header: "Course", render: (r) => r.course?.code },
+                       { key: "scheduledAt", header: "Date", render: (r) => formatDate(r.scheduledAt), sortable: true },
+                       { key: "duration", header: "Duration", render: (r) => `${r.duration} MINS` },
+                       { key: "status", header: "Status", render: (r) => (
+                         <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-white/5 text-muted-foreground italic">Done</span>
+                       )},
+                     ]}
+                     data={pastExams}
+                   />
+                </div>
+             )}
+           </TabsContent>
+        </Tabs>
 
         <Modal open={ticketOpen} onOpenChange={setTicketOpen} title="Hall Ticket">
           {activeTicket && (
@@ -208,7 +233,7 @@ export function Results() {
 
   const { data: results = {}, isLoading } = useQuery({
     queryKey: ["student-results"],
-    queryFn: () => apiClient.get("/api/reports/student-results")
+    queryFn: () => apiClient.get("/api/reports/student-results").then(res => res.data || {})
   });
 
   const revalMutation = useMutation({
@@ -300,6 +325,5 @@ export function Results() {
     </MainLayout>
   );
 }
-
 
 export default MyExams;
