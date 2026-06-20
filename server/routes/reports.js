@@ -156,7 +156,14 @@ export const handleGetStudentStats = async (req, res) => {
     const qMap = {};
     attemptedQuestions.forEach(q => { qMap[q._id.toString()] = q; });
 
+    let totalViolations = 0;
+    let passedExams = 0;
+
     submissions.forEach(sub => {
+       totalViolations += (sub.totalViolations || 0);
+       // determine pass/fail (using 50% as generic threshold or sub.passed if set)
+       if (sub.passed || sub.percentage >= 50) passedExams += 1;
+
        if (sub.answers) {
           Object.entries(sub.answers).forEach(([qId, ans]) => {
              const q = qMap[qId];
@@ -189,7 +196,8 @@ export const handleGetStudentStats = async (req, res) => {
       ? (submissions.reduce((acc, s) => acc + (s.percentage || 0), 0) / submissions.length / 10).toFixed(1)
       : profile?.cgpa?.toString() || "0.0";
 
-    const neoPatScore = coding.score + mcq.score;
+    const overallScore = coding.score + mcq.score;
+    const integrityScore = Math.max(0, 100 - (totalViolations * 5));
 
     res.json({
       courseCount: courses.length,
@@ -211,8 +219,8 @@ export const handleGetStudentStats = async (req, res) => {
         college: "Nandha Educational Institutions"
       },
       skills: {
-         neoPatScore: neoPatScore,
-         neoPatLevel: Math.floor(neoPatScore / 100) + 1,
+         overallScore: overallScore,
+         proficiencyLevel: Math.floor(overallScore / 100) + 1,
          solved: solvedQuestions,
          totalQuestions: totalQuestions,
          coding: {
@@ -223,8 +231,13 @@ export const handleGetStudentStats = async (req, res) => {
             ...mcq,
             accuracy: mcq.attended > 0 ? ((mcq.solvedCorrectly / mcq.attended) * 100).toFixed(2) : 0
          },
-         projects: { majorAttended: 0, minorAttended: 0, score: 0 },
-         contributions: { days: 0, hoursPerDay: 0 }
+         examStats: {
+            attended: submissions.length,
+            passed: passedExams,
+            failed: submissions.length - passedExams,
+            integrityScore: submissions.length > 0 ? integrityScore : 100,
+            violations: totalViolations
+         }
       }
     });
   } catch (error) {

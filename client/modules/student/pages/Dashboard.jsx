@@ -107,12 +107,12 @@ export default function StudentDashboard() {
                 
                 <motion.div variants={itemVariants}>
                   <Card className="rounded-[24px] glass border-white/5 p-6 h-48 flex flex-col hover:border-white/10 transition-colors">
-                     <h3 className="text-lg font-black tracking-tight">Neo-PAT</h3>
+                     <h3 className="text-lg font-black tracking-tight">Overall Proficiency</h3>
                      <div className="mt-auto pt-6 flex justify-between items-end">
                         <div>
-                          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Your Score</p>
-                          <p className="text-4xl font-black">{dashboard?.skills?.neoPatScore || 0}</p>
-                          <p className="text-xs text-primary font-bold mt-2">Level {dashboard?.skills?.neoPatLevel || 1}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Total Marks</p>
+                          <p className="text-4xl font-black">{dashboard?.skills?.overallScore || 0}</p>
+                          <p className="text-xs text-primary font-bold mt-2">Level {dashboard?.skills?.proficiencyLevel || 1}</p>
                         </div>
                      </div>
                   </Card>
@@ -120,9 +120,20 @@ export default function StudentDashboard() {
 
                 <motion.div variants={itemVariants}>
                   <Card className="rounded-[24px] glass border-white/5 p-6 h-48 flex flex-col hover:border-white/10 transition-colors">
-                     <h3 className="text-lg font-black tracking-tight">Neo-Colab</h3>
-                     <div className="mt-auto flex items-center justify-center h-full text-muted-foreground/30 font-bold text-sm uppercase tracking-widest">
-                        No Colab Courses Taken
+                     <h3 className="text-lg font-black tracking-tight">Exam Activity</h3>
+                     <div className="mt-auto grid grid-cols-3 gap-2 text-center">
+                        <div>
+                           <p className="text-2xl font-black">{dashboard?.skills?.examStats?.attended || 0}</p>
+                           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mt-1">Attended</p>
+                        </div>
+                        <div>
+                           <p className="text-2xl font-black text-emerald-500">{dashboard?.skills?.examStats?.passed || 0}</p>
+                           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mt-1">Passed</p>
+                        </div>
+                        <div>
+                           <p className="text-2xl font-black text-red-500">{dashboard?.skills?.examStats?.failed || 0}</p>
+                           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mt-1">Failed</p>
+                        </div>
                      </div>
                   </Card>
                 </motion.div>
@@ -194,20 +205,16 @@ export default function StudentDashboard() {
                 <motion.div variants={itemVariants}>
                   <Card className="rounded-[24px] glass border-white/5 p-6 flex flex-col h-full hover:border-white/10 transition-colors">
                      <div className="flex justify-between items-start mb-6">
-                        <h3 className="text-lg font-black tracking-tight">Projects</h3>
+                        <h3 className="text-lg font-black tracking-tight">Trust & Integrity</h3>
                      </div>
-                     <div className="grid grid-cols-2 gap-y-6 gap-x-4">
+                     <div className="mt-auto flex items-end justify-between">
                         <div>
-                          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Major Attended</p>
-                          <p className="text-2xl font-black">{dashboard?.skills?.projects?.majorAttended || 0}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Recorded Violations</p>
+                          <p className="text-2xl font-black text-orange-500">{dashboard?.skills?.examStats?.violations || 0}</p>
                         </div>
-                        <div>
-                          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Minor Attended</p>
-                          <p className="text-2xl font-black">{dashboard?.skills?.projects?.minorAttended || 0}</p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] text-primary uppercase font-bold tracking-widest mb-1">Your Score</p>
-                          <p className="text-2xl font-black text-primary">{dashboard?.skills?.projects?.score || 0}</p>
+                        <div className="text-right">
+                          <p className="text-3xl font-black text-primary">{dashboard?.skills?.examStats?.integrityScore ?? 100}%</p>
+                          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mt-1">Trust Score</p>
                         </div>
                      </div>
                   </Card>
@@ -239,30 +246,7 @@ export default function StudentDashboard() {
                   </Card>
                 </motion.div>
              </div>
-             
-             <motion.div variants={itemVariants}>
-               <Card className="rounded-[24px] glass border-white/5 p-6 w-full hover:border-white/10 transition-colors">
-                  <h3 className="text-lg font-black tracking-tight mb-6">Contributions</h3>
-                  {/* Mock GitHub-style Heatmap */}
-                  <div className="overflow-x-auto pb-4">
-                    <div className="flex gap-1 min-w-max">
-                      {Array.from({ length: 52 }).map((_, week) => (
-                        <div key={week} className="flex flex-col gap-1">
-                          {Array.from({ length: 7 }).map((_, day) => {
-                             // Randomize a few active days for visual effect, or keep it empty as per image (0 days)
-                             return <div key={`${week}-${day}`} className="w-3 h-3 rounded-sm bg-white/5" />
-                          })}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center text-xs font-bold text-muted-foreground mt-4 uppercase tracking-widest">
-                     <span>{dashboard?.skills?.contributions?.days || 0} days total</span>
-                     <span>{(dashboard?.skills?.contributions?.hoursPerDay || 0).toFixed(2)} Hours per day</span>
-                  </div>
-               </Card>
-             </motion.div>
-          </TabsContent>
+           </TabsContent>
 
           {/* COURSE TAB (Existing Dashboard functionality) */}
           <TabsContent value="course" className="space-y-6">
