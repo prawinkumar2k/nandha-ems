@@ -21,6 +21,7 @@
   "build": {
     "appId": "com.necems.kiosk",
     "productName": "NEC EMS Secure Browser",
+    "artifactName": "NEC.EMS.Secure.Browser.${version}.${ext}",
     "forceCodeSigning": false,
     "directories": {
       "output": "release"

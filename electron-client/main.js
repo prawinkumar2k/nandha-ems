@@ -160,7 +160,7 @@ app.whenReady().then(async () => {
         
         // Wait 2 seconds so the user can see the success message, then load the actual LMS
         setTimeout(() => {
-          mainWindow.loadURL(process.env.API_URL ? process.env.API_URL.replace('/api', '/student') : 'http://localhost:8080/student');
+          mainWindow.loadURL(process.env.API_URL ? process.env.API_URL.replace('/api', '/student') : 'http://72.61.229.231/student');
         }, 2000);
       } else {
         deviceStatus = "pending";
@@ -233,7 +233,7 @@ async function pollForApproval() {
       mainWindow.webContents.send('status-update', { message: "Device Approved. Launching Exam Environment..." });
       
       setTimeout(() => {
-        mainWindow.loadURL(process.env.API_URL ? process.env.API_URL.replace('/api', '/student') : 'http://localhost:8080/student');
+        mainWindow.loadURL(process.env.API_URL ? process.env.API_URL.replace('/api', '/student') : 'http://72.61.229.231/student');
       }, 2000);
     }
   } catch(e) {}
@@ -244,7 +244,7 @@ async function initSocketConnection() {
   const hw = await getDeviceFingerprint();
   const token = store.get('deviceToken');
 
-  socket = io(process.env.API_URL || 'http://localhost:8080', {
+  socket = io(process.env.API_URL || 'http://72.61.229.231', {
     auth: {
       deviceToken: token,
       machineFingerprint: hw.machineFingerprint,

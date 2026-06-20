@@ -68,7 +68,7 @@ jobs:
             Download and run the EXE to launch the secure exam browser.
             No installation needed — just double-click and login.
           files: |
-            release/NEC EMS Secure Browser 1.0.0.exe
+            electron-client/release/NEC.EMS.Secure.Browser.1.0.0.exe
           make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
