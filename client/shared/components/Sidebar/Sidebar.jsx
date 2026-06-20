@@ -103,18 +103,10 @@ export function Sidebar({ items = [], isOpen, onClose }) {
       isOpen ? "w-64" : "w-[68px]"
     )}>
       {/* Brand */}
-      <div className="h-16 flex items-center gap-3 px-4 border-b border-white/5 shrink-0">
-        <div className="w-10 h-10 rounded-2xl bg-transparent flex items-center justify-center shrink-0 animate-glow">
-          <img src="/logo.png" alt="NEC EMS" className="w-full h-full object-contain" />
+      <div className={cn("h-16 flex items-center px-4 border-b border-white/5 shrink-0", isOpen ? "justify-start" : "justify-center")}>
+        <div className={cn("bg-transparent flex items-center justify-center shrink-0 transition-all duration-300", isOpen ? "w-48 h-12" : "w-10 h-10")}>
+          <img src="/logo.png" alt="Nandha Engineering College" className="w-full h-full object-contain" />
         </div>
-        {isOpen && (
-          <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-            <p className="font-black text-sidebar-foreground text-base tracking-tight flex items-center gap-1.5">
-              NEC EMS 
-            </p>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Enterprise Campus</p>
-          </motion.div>
-        )}
       </div>
 
       {/* User */}

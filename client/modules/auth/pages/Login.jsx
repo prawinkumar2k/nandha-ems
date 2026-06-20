@@ -61,14 +61,10 @@ export default function Login() {
         <div className="glass-card rounded-[32px] p-8 lg:p-10 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           
-          <div className="mb-10 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-transparent mb-6 animate-glow">
-              <img src="/logo.png" alt="NEC EMS Logo" className="w-full h-full object-contain" />
+          <div className="mb-10 text-center flex justify-center">
+            <div className="w-48 h-24 bg-transparent mb-2 animate-glow">
+              <img src="/logo.png" alt="Nandha Engineering College Logo" className="w-full h-full object-contain" />
             </div>
-            <h1 className="text-3xl font-black tracking-tight text-foreground mb-2 flex items-center justify-center gap-2">
-              NEC EMS 
-            </h1>
-            <p className="text-muted-foreground font-medium uppercase tracking-[0.2em] text-[10px]">Enterprise Campus Platform</p>
           </div>
 
           {resetOk && <Alert variant="success" title="Success" message="Password updated!" className="mb-6 rounded-2xl" />}
